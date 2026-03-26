@@ -931,7 +931,7 @@ export default function App() {
           </Card>
 
           <div className="space-y-3">
-            <p className="text-[10px] text-text-muted uppercase font-bold px-1">System Status</p>
+            <p className="text-[10px] text-white uppercase font-bold px-1">System Status</p>
             {[
               { label: 'Lakera Guard', status: 'ACTIVE', color: 'teal' },
               { label: 'AML Monitor', status: 'ACTIVE', color: 'teal' },
@@ -940,9 +940,9 @@ export default function App() {
               { label: 'Agent Monitor', status: 'ONLINE', color: 'teal' },
             ].map((s, i) => (
               <div key={i} className="flex items-center justify-between px-1">
-                <span className="text-[10px] text-text-muted">{s.label}</span>
+                <span className="text-[10px] text-white/90">{s.label}</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-bold text-text-primary">{s.status}</span>
+                  <span className="text-[10px] font-bold text-white">{s.status}</span>
                   <div className={cn(
                     "w-1.5 h-1.5 rounded-full",
                     s.color === 'teal' ? 'bg-teal-accent animate-pulse' : 'bg-blue-accent'
