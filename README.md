@@ -61,3 +61,19 @@ As Canadian banks accelerate AI adoption, they face heightened regulatory expect
    ```bash
    git clone https://github.com/your-username/bastion-audit.git
    cd bastion-audit
+
+
+   🇨🇦 Regulatory Compliance
+Bastion Audit is designed with strict adherence to Canadian sovereign infrastructure requirements:
+
+Data Residency: All data processing and audit trails are strictly confined to Canadian regions (Canada Central / Canada East).
+
+Frameworks Supported:
+OSFI E-21: Model Risk Management
+PIPEDA: Personal Information Protection and Electronic Documents Act
+FINTRAC: Anti-Money Laundering (AML) and Anti-Terrorist Financing (ATF)
+AIDA: Artificial Intelligence and Data Act (Bill C-27)
+
+📄 License
+© 2026 NorthGuard Security. All rights reserved. Headquartered in Toronto, Ontario.
+This project is licensed under the Apache-2.0 License.
