@@ -147,7 +147,11 @@ const Button = ({ children, variant = 'primary', className, ...props }: React.Bu
 const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
   const { stats } = simulation;
   const { user, isAdmin } = React.useContext(FirebaseContext);
-  const [realTimeThreats, setRealTimeThreats] = useState<any[]>([]);
+  const [realTimeThreats, setRealTimeThreats] = useState<any[]>([
+    { id: '1', type: 'OSFI E-21 Model Extraction', severity: 'CRITICAL', timestamp: new Date(), source: 'Toronto Node' },
+    { id: '2', type: 'Prompt Injection (Jailbreak)', severity: 'HIGH', timestamp: new Date(Date.now() - 1000 * 60 * 5), source: 'Montreal Node' },
+    { id: '3', type: 'PII Exfiltration Attempt', severity: 'CRITICAL', timestamp: new Date(Date.now() - 1000 * 60 * 12), source: 'Vancouver Node' },
+  ]);
   const [realTimeLogs, setRealTimeLogs] = useState<any[]>([]);
   const [prompt, setPrompt] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -467,37 +471,69 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
 
           <Card title="Global Threat Intel" icon={Globe} className="border-card-border/40 bg-card/60 backdrop-blur-sm shadow-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-20 h-20 bg-amber-accent/5 blur-2xl rounded-full -mr-10 -mt-10 pointer-events-none" />
+            <div className="flex items-center justify-between mb-4 relative z-10">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 bg-red-accent rounded-full animate-ping" />
+                <span className="text-[10px] font-bold text-red-accent uppercase tracking-widest">Live Feed</span>
+              </div>
+              <span className="text-[9px] text-text-muted font-mono">Source: Lakera Guard Network</span>
+            </div>
             <div className="space-y-4 relative z-10">
               {realTimeThreats.length > 0 ? realTimeThreats.map((threat: any) => (
-                <div key={threat.id} className="flex items-start gap-3 group/item hover:bg-white/5 p-1 rounded transition-colors">
+                <div key={threat.id} className="flex items-start gap-3 group/item hover:bg-white/5 p-1.5 rounded-lg transition-all border border-transparent hover:border-card-border/30">
                   <div className={cn(
                     "mt-1.5 w-2 h-2 rounded-full shrink-0 shadow-[0_0_8px_rgba(0,0,0,0.3)]",
                     threat.severity === 'CRITICAL' ? 'bg-red-accent shadow-red-accent/40' : 'bg-amber-accent shadow-amber-accent/40'
                   )} />
-                  <div>
-                    <p className="text-xs font-bold text-text-primary group-hover/item:text-teal-accent transition-colors">{threat.type}</p>
-                    <p className="text-[10px] text-text-muted font-medium">
-                      {threat.timestamp instanceof Timestamp ? threat.timestamp.toDate().toLocaleTimeString() : '...'} • <span className={cn(
-                        threat.severity === 'CRITICAL' ? 'text-red-accent' : 'text-amber-accent'
-                      )}>{threat.severity}</span>
-                    </p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-text-primary group-hover/item:text-teal-accent transition-colors truncate">{threat.type}</p>
+                    <div className="flex items-center justify-between gap-2 mt-0.5">
+                      <p className="text-[10px] text-text-muted font-medium">
+                        {threat.timestamp instanceof Date ? threat.timestamp.toLocaleTimeString() : threat.timestamp instanceof Timestamp ? threat.timestamp.toDate().toLocaleTimeString() : '...'} • <span className={cn(
+                          threat.severity === 'CRITICAL' ? 'text-red-accent font-bold' : 'text-amber-accent font-bold'
+                        )}>{threat.severity}</span>
+                      </p>
+                      <span className="text-[9px] text-text-muted/60 font-mono">{threat.source || 'Global'}</span>
+                    </div>
                   </div>
                 </div>
               )) : (
                 <div className="text-text-muted italic text-[10px] py-2 text-center">No threats intercepted recently.</div>
               )}
             </div>
+            <Button variant="ghost" className="w-full mt-4 text-[9px] py-1 h-auto border-t border-card-border/30 rounded-none -mb-2 hover:bg-teal-accent/5">
+              View Full Threat Intelligence Map <ChevronRight className="w-3 h-3 ml-1" />
+            </Button>
           </Card>
 
-          <Card title="Compliance Trend" icon={TrendingUp}>
-            <div className="h-[100px] w-full">
+          <Card title="Compliance Trend" icon={TrendingUp} className="relative overflow-hidden">
+            <div className="absolute top-2 right-4 text-right">
+              <p className="text-[10px] text-text-muted uppercase font-bold">Current Score</p>
+              <p className="text-xl font-bold text-teal-accent">94.2%</p>
+            </div>
+            <div className="h-[100px] w-full mt-4">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={[
-                  { v: 91 }, { v: 92 }, { v: 91.5 }, { v: 93 }, { v: 94.2 }
+                  { name: 'Mon', v: 91 }, { name: 'Tue', v: 92 }, { name: 'Wed', v: 91.5 }, { name: 'Thu', v: 93 }, { name: 'Fri', v: 94.2 }, { name: 'Sat', v: 93.8 }, { name: 'Sun', v: 94.2 }
                 ]}>
-                  <Area type="monotone" dataKey="v" stroke="#0f9e75" fill="#0f9e75" fillOpacity={0.1} />
+                  <defs>
+                    <linearGradient id="colorCompliance" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#0f9e75" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#0f9e75" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', fontSize: '10px' }}
+                    itemStyle={{ color: '#2dd4bf' }}
+                  />
+                  <Area type="monotone" dataKey="v" name="Compliance %" stroke="#0f9e75" strokeWidth={2} fill="url(#colorCompliance)" />
                 </AreaChart>
               </ResponsiveContainer>
+            </div>
+            <div className="flex justify-between mt-2 text-[8px] text-text-muted font-bold uppercase tracking-tighter">
+              <span>OSFI E-21</span>
+              <span>PIPEDA</span>
+              <span>FINTRAC</span>
             </div>
           </Card>
         </div>
@@ -614,20 +650,27 @@ const ModelInventory = () => {
       </div>
 
       {auditLog.length > 0 && (
-        <Card title="Live Compliance Audit Log" icon={Terminal} className="bg-background/80">
-          <div className="space-y-2 font-mono text-[10px]">
+        <Card title="Live Compliance Audit Log" icon={Terminal} className="bg-black/90 border-card-border/60 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+          <div className="space-y-3 font-sans text-xs py-2">
             {auditLog.map((log, i) => (
               <motion.div 
                 key={i}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 className={cn(
-                  "flex items-center gap-2",
-                  log.includes('Complete') ? 'text-teal-accent font-bold' : 'text-text-muted'
+                  "flex items-center gap-3 py-1 px-2 rounded border-l-2 transition-all",
+                  log.includes('Complete') 
+                    ? 'border-teal-accent bg-teal-accent/5 text-teal-accent font-bold shadow-[0_0_15px_rgba(45,212,191,0.1)]' 
+                    : 'border-white/10 text-white/95'
                 )}
               >
-                <span className="text-teal-accent/50">[{new Date().toLocaleTimeString()}]</span>
-                <span>{log}</span>
+                <span className="text-teal-accent/70 font-mono text-[10px] shrink-0">[{new Date().toLocaleTimeString()}]</span>
+                <span className={cn(
+                  "tracking-tight leading-relaxed",
+                  log.includes('Complete') ? "drop-shadow-[0_0_8px_rgba(45,212,191,0.4)]" : "drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]"
+                )}>
+                  {log}
+                </span>
               </motion.div>
             ))}
           </div>
