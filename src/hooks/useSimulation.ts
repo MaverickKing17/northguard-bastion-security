@@ -50,7 +50,7 @@ export function useSimulation() {
     
     // Placeholder for email alert
     console.log(`[EMAIL ALERT SIMULATION] To: security-ops@northguard.ca | Subject: ${notif.severity} ALERT: ${notif.message}`);
-  }, []);
+  }, [showNotifications]);
 
   const addLog = useCallback((entry: Omit<LogEntry, 'id' | 'timestamp'>) => {
     const newLog: LogEntry = {

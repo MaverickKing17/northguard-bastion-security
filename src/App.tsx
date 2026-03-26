@@ -208,29 +208,31 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
           <Card 
             title="Real-time Interception Gateway" 
             icon={Shield}
-            badge={<Badge pulse>Active Monitoring</Badge>}
+            badge={<Badge pulse variant="teal" className="bg-teal-accent/10 text-teal-accent border-teal-accent/20">Active Monitoring</Badge>}
+            className="border-card-border/40 bg-card/60 backdrop-blur-sm shadow-xl relative overflow-hidden"
           >
-            <div className="space-y-4">
-              <div className="bg-background/50 border border-card-border rounded-lg p-4">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-teal-accent/5 blur-2xl rounded-full -mr-12 -mt-12 pointer-events-none" />
+            <div className="space-y-4 relative z-10">
+              <div className="bg-background/40 border border-card-border/50 rounded-lg p-4 shadow-inner">
                 <textarea 
-                  className="w-full bg-transparent border-none focus:ring-0 text-sm font-mono placeholder:text-text-muted/50 resize-none"
+                  className="w-full bg-transparent border-none focus:ring-0 text-sm font-mono placeholder:text-text-muted/50 resize-none text-text-primary"
                   placeholder="Enter prompt to simulate banking agent interaction..."
                   rows={3}
                 />
                 <div className="flex justify-between items-center mt-2">
-                  <div className="bg-background px-3 py-1 rounded-full text-[10px] font-mono text-text-muted border border-card-border">
+                  <div className="bg-background/60 px-3 py-1 rounded-full text-[10px] font-mono text-teal-accent/80 border border-teal-accent/20 shadow-sm">
                     BASTION SECURITY LAYER v2.0
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="ghost" className="text-[10px] py-1 h-auto" aria-label="Simulate PII Leak">PII Leak</Button>
-                    <Button variant="ghost" className="text-[10px] py-1 h-auto" aria-label="Simulate AML Bypass">AML Bypass</Button>
-                    <Button variant="primary" className="text-[10px] py-1 h-auto" aria-label="Run Security Simulation">Run Simulation</Button>
+                    <Button variant="ghost" className="text-[10px] py-1 h-auto hover:bg-teal-accent/5" aria-label="Simulate PII Leak">PII Leak</Button>
+                    <Button variant="ghost" className="text-[10px] py-1 h-auto hover:bg-teal-accent/5" aria-label="Simulate AML Bypass">AML Bypass</Button>
+                    <Button variant="primary" className="text-[10px] py-1 h-auto shadow-[0_0_15px_rgba(45,212,191,0.3)]" aria-label="Run Security Simulation">Run Simulation</Button>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Live Guardrail Execution</h4>
+                <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-widest opacity-70">Live Guardrail Execution</h4>
                 {[
                   { name: 'Lakera Guard', time: '12ms', status: 'PASSED' },
                   { name: 'PII/SIN Detection', time: '45ms', status: 'PASSED' },
@@ -238,14 +240,14 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
                   { name: 'FINTRAC AML Check', time: '34ms', status: 'PASSED' },
                   { name: 'Credit Decision Bias', time: '52ms', status: 'PASSED' },
                 ].map((row, i) => (
-                  <div key={i} className="flex items-center justify-between py-2 border-b border-card-border last:border-0">
+                  <div key={i} className="flex items-center justify-between py-2 border-b border-card-border/30 last:border-0 hover:bg-white/5 transition-colors px-1 rounded">
                     <div className="flex flex-col">
-                      <span className="text-xs font-medium">{row.name}</span>
+                      <span className="text-xs font-medium text-text-primary">{row.name}</span>
                       <span className="text-[8px] text-text-muted uppercase tracking-tighter">Human-in-the-loop verified</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="text-[10px] font-mono text-text-muted">{row.time}</span>
-                      <Badge variant="teal">{row.status}</Badge>
+                      <Badge variant="teal" className="bg-teal-accent/10 text-teal-accent border-teal-accent/20">{row.status}</Badge>
                     </div>
                   </div>
                 ))}
@@ -253,20 +255,22 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
             </div>
           </Card>
 
-          <Card title="Agent Behavior Stream" icon={Terminal} className="p-0">
+          <Card title="Agent Behavior Stream" icon={Terminal} className="p-0 border-card-border/40 bg-card/60 backdrop-blur-sm shadow-xl overflow-hidden relative">
+            <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-20 bg-[length:100%_2px,3px_100%]" />
             <div 
-              className="bg-black/40 p-4 font-mono text-xs h-[300px] overflow-y-auto space-y-1"
+              className="bg-black/60 p-4 font-mono text-xs h-[300px] overflow-y-auto space-y-1 relative z-10 custom-scrollbar"
               aria-live="polite"
               aria-label="Real-time agent behavior log stream"
             >
               {realTimeLogs.length > 0 ? realTimeLogs.map((log: any) => (
-                <div key={log.id} className="flex gap-3">
-                  <span className="text-text-muted">[{log.timestamp instanceof Timestamp ? log.timestamp.toDate().toLocaleTimeString() : '...'}]</span>
-                  <span className="text-blue-accent">[{log.user}]</span>
+                <div key={log.id} className="flex gap-3 animate-in fade-in slide-in-from-left-2 duration-300">
+                  <span className="text-text-muted/60">[{log.timestamp instanceof Timestamp ? log.timestamp.toDate().toLocaleTimeString() : '...'}]</span>
+                  <span className="text-blue-accent font-bold">[{log.user}]</span>
                   <span className={cn(
+                    "font-bold",
                     log.status === 'SUCCESS' ? 'text-teal-accent' : 'text-amber-accent'
                   )}>{log.status}</span>
-                  <span className="text-text-primary">{log.action}: {log.details}</span>
+                  <span className="text-text-primary/90">{log.action}: {log.details}</span>
                 </div>
               )) : (
                 <div className="text-text-muted italic py-4 text-center">Waiting for live audit events...</div>
@@ -295,23 +299,26 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
             </div>
           </Card>
 
-          <Card title="Global Threat Intel" icon={Globe}>
-            <div className="space-y-4">
+          <Card title="Global Threat Intel" icon={Globe} className="border-card-border/40 bg-card/60 backdrop-blur-sm shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-amber-accent/5 blur-2xl rounded-full -mr-10 -mt-10 pointer-events-none" />
+            <div className="space-y-4 relative z-10">
               {realTimeThreats.length > 0 ? realTimeThreats.map((threat: any) => (
-                <div key={threat.id} className="flex items-start gap-3">
+                <div key={threat.id} className="flex items-start gap-3 group/item hover:bg-white/5 p-1 rounded transition-colors">
                   <div className={cn(
-                    "mt-1 w-2 h-2 rounded-full shrink-0",
-                    threat.severity === 'CRITICAL' ? 'bg-red-accent' : 'bg-amber-accent'
+                    "mt-1.5 w-2 h-2 rounded-full shrink-0 shadow-[0_0_8px_rgba(0,0,0,0.3)]",
+                    threat.severity === 'CRITICAL' ? 'bg-red-accent shadow-red-accent/40' : 'bg-amber-accent shadow-amber-accent/40'
                   )} />
                   <div>
-                    <p className="text-xs font-semibold text-text-primary">{threat.type}</p>
-                    <p className="text-[10px] text-text-muted">
-                      {threat.timestamp instanceof Timestamp ? threat.timestamp.toDate().toLocaleTimeString() : '...'} • {threat.severity}
+                    <p className="text-xs font-bold text-text-primary group-hover/item:text-teal-accent transition-colors">{threat.type}</p>
+                    <p className="text-[10px] text-text-muted font-medium">
+                      {threat.timestamp instanceof Timestamp ? threat.timestamp.toDate().toLocaleTimeString() : '...'} • <span className={cn(
+                        threat.severity === 'CRITICAL' ? 'text-red-accent' : 'text-amber-accent'
+                      )}>{threat.severity}</span>
                     </p>
                   </div>
                 </div>
               )) : (
-                <div className="text-text-muted italic text-[10px]">No threats intercepted recently.</div>
+                <div className="text-text-muted italic text-[10px] py-2 text-center">No threats intercepted recently.</div>
               )}
             </div>
           </Card>
@@ -369,35 +376,52 @@ const ModelInventory = () => {
         <Button><Plus className="w-4 h-4" /> Register Agent</Button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+      <div className="overflow-x-auto bg-card/40 backdrop-blur-md border border-card-border/50 rounded-xl shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-accent/50 via-teal-accent to-teal-accent/50" />
+        <table className="w-full text-left border-collapse relative z-10">
           <thead>
-            <tr className="border-b border-card-border text-[10px] text-text-muted uppercase tracking-widest">
-              <th className="py-4 px-4 font-bold">Agent</th>
-              <th className="py-4 px-4 font-bold">Department</th>
-              <th className="py-4 px-4 font-bold">Provider / Region</th>
-              <th className="py-4 px-4 font-bold">Last Audit</th>
-              <th className="py-4 px-4 font-bold">Risk Tier</th>
-              <th className="py-4 px-4 font-bold">Status</th>
+            <tr className="border-b border-card-border/30 text-[10px] text-text-muted uppercase tracking-widest bg-background/30">
+              <th className="py-5 px-6 font-bold">Agent</th>
+              <th className="py-5 px-6 font-bold">Department</th>
+              <th className="py-5 px-6 font-bold">Provider / Region</th>
+              <th className="py-5 px-6 font-bold text-center">Last Audit</th>
+              <th className="py-5 px-6 font-bold text-center">Risk Tier</th>
+              <th className="py-5 px-6 font-bold text-right">Status</th>
             </tr>
           </thead>
           <tbody className="text-sm">
             {rows.map((row, i) => (
-              <tr key={i} className="border-b border-card-border hover:bg-card-border/30 transition-colors">
-                <td className="py-4 px-4 font-semibold">{row.name}</td>
-                <td className="py-4 px-4 text-text-muted">{row.dept}</td>
-                <td className="py-4 px-4 text-text-muted">{row.provider} ({row.region})</td>
-                <td className="py-4 px-4 font-mono text-xs">{row.date}</td>
-                <td className="py-4 px-4">
-                  <Badge variant={row.risk.includes('LOW') ? 'teal' : row.risk.includes('MEDIUM') ? 'amber' : 'red'}>
+              <tr key={i} className="border-b border-card-border/20 hover:bg-teal-accent/[0.03] transition-all group">
+                <td className="py-5 px-6">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-text-primary group-hover:text-teal-accent transition-colors">{row.name}</span>
+                    <span className="text-[10px] text-text-muted font-mono uppercase">ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+                  </div>
+                </td>
+                <td className="py-5 px-6 text-text-muted font-medium">{row.dept}</td>
+                <td className="py-5 px-6">
+                  <div className="flex flex-col">
+                    <span className="text-text-primary/90 font-medium">{row.provider}</span>
+                    <span className="text-[10px] text-text-muted">{row.region}</span>
+                  </div>
+                </td>
+                <td className="py-5 px-6 font-mono text-xs text-center text-text-muted">{row.date}</td>
+                <td className="py-5 px-6 text-center">
+                  <Badge variant={row.risk.includes('LOW') ? 'teal' : row.risk.includes('MEDIUM') ? 'amber' : 'red'} className="shadow-sm">
                     {row.risk}
                   </Badge>
                 </td>
-                <td className="py-4 px-4">
-                  <span className={cn(
-                    "text-xs font-medium",
-                    row.status === 'Active' ? 'text-teal-accent' : 'text-amber-accent'
-                  )}>{row.status}</span>
+                <td className="py-5 px-6 text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <div className={cn(
+                      "w-1.5 h-1.5 rounded-full animate-pulse",
+                      row.status === 'Active' ? 'bg-teal-accent shadow-[0_0_8px_rgba(45,212,191,0.5)]' : 'bg-amber-accent shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                    )} />
+                    <span className={cn(
+                      "text-xs font-bold tracking-tight",
+                      row.status === 'Active' ? 'text-teal-accent' : 'text-amber-accent'
+                    )}>{row.status}</span>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -449,18 +473,37 @@ const ModelInventory = () => {
 
 const VulnerabilityAudit = () => (
   <div className="space-y-6">
-    <div className="bg-teal-accent/10 border border-teal-accent/20 rounded-xl p-8 flex flex-col items-center text-center space-y-4">
-      <Shield className="w-12 h-12 text-teal-accent" />
-      <h2 className="text-2xl font-bold uppercase tracking-tight">SHIELD PROTOCOL ACTIVE</h2>
-      <p className="text-text-muted max-w-2xl">30-Day AI Vulnerability Audit: Comprehensive scan of Lakera Guard, Behavioural Anomaly Engine, and OSFI E-21 Gap Analysis.</p>
-      <div className="flex items-center gap-4 text-xs font-mono text-teal-accent">
+    <div className="relative overflow-hidden bg-card/40 backdrop-blur-xl border border-teal-accent/30 rounded-2xl p-12 flex flex-col items-center text-center space-y-6 shadow-2xl group">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-accent/10 via-transparent to-teal-accent/5 pointer-events-none" />
+      <div className="absolute -top-24 -right-24 w-64 h-64 bg-teal-accent/10 blur-[100px] rounded-full animate-pulse" />
+      <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-accent/10 blur-[100px] rounded-full animate-pulse delay-700" />
+      
+      <div className="relative">
+        <div className="absolute inset-0 bg-teal-accent/20 blur-xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+        <Shield className="w-16 h-16 text-teal-accent relative z-10 drop-shadow-[0_0_15px_rgba(45,212,191,0.5)]" />
+      </div>
+      
+      <div className="space-y-2 relative z-10">
+        <h2 className="text-3xl font-black uppercase tracking-tighter text-text-primary">SHIELD PROTOCOL ACTIVE</h2>
+        <div className="h-1 w-24 bg-teal-accent mx-auto rounded-full shadow-[0_0_10px_rgba(45,212,191,0.8)]" />
+      </div>
+      
+      <p className="text-text-muted max-w-2xl text-lg font-medium leading-relaxed relative z-10">
+        30-Day AI Vulnerability Audit: Comprehensive scan of Lakera Guard, Behavioural Anomaly Engine, and OSFI E-21 Gap Analysis.
+      </p>
+      
+      <div className="flex items-center gap-6 text-[10px] font-mono font-bold tracking-[0.2em] text-teal-accent relative z-10 bg-background/40 px-6 py-2 rounded-full border border-teal-accent/20">
         <span>AI AGENT</span>
-        <ChevronRight className="w-4 h-4" />
+        <ChevronRight className="w-3 h-3 opacity-50" />
         <span>BASTION</span>
-        <ChevronRight className="w-4 h-4" />
+        <ChevronRight className="w-3 h-3 opacity-50" />
         <span>SIEM + OSFI REPORTING</span>
       </div>
-      <Button variant="primary" className="mt-4">Generate Full Audit Report</Button>
+      
+      <Button variant="primary" className="mt-8 px-10 py-6 text-sm font-bold uppercase tracking-widest shadow-[0_0_25px_rgba(45,212,191,0.4)] hover:shadow-[0_0_40px_rgba(45,212,191,0.6)] transition-all relative z-10">
+        Generate Full Audit Report
+      </Button>
     </div>
   </div>
 );
@@ -1188,6 +1231,32 @@ function App() {
             <p className="text-[10px] text-text-muted uppercase font-bold mb-1">Tenant Context</p>
             <p className="text-xs font-bold mb-1">Global Enterprise</p>
             <p className="text-[10px] text-text-muted leading-tight">Monitoring 14 active AI agents across fraud, AML, and credit.</p>
+          </Card>
+
+          <Card className="bg-background/50 border-card-border p-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Zap className={cn("w-3 h-3", simulation.showNotifications ? "text-teal-accent" : "text-text-muted")} />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Live Alerts</span>
+              </div>
+              <button
+                onClick={() => simulation.setShowNotifications(!simulation.showNotifications)}
+                className={cn(
+                  "relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-slate-700",
+                  simulation.showNotifications ? "bg-teal-accent" : "bg-slate-700"
+                )}
+                role="switch"
+                aria-checked={simulation.showNotifications}
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                    simulation.showNotifications ? "translate-x-4" : "translate-x-0"
+                  )}
+                />
+              </button>
+            </div>
           </Card>
 
           <Card className="bg-background/50 border-card-border p-3">
