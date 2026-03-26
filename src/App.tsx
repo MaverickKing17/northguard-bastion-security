@@ -42,6 +42,54 @@ const FirebaseProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// --- Tenant & White Labeling Context ---
+
+interface TenantConfig {
+  name: string;
+  logo: string | null;
+  primaryColor: string;
+  onboardingComplete: boolean;
+}
+
+const TenantContext = React.createContext<{
+  tenant: TenantConfig;
+  updateTenant: (updates: Partial<TenantConfig>) => void;
+}>({
+  tenant: {
+    name: 'NorthGuard Security',
+    logo: null,
+    primaryColor: '#2dd4bf', // teal-accent
+    onboardingComplete: true,
+  },
+  updateTenant: () => {},
+});
+
+const TenantProvider = ({ children }: { children: React.ReactNode }) => {
+  const [tenant, setTenant] = useState<TenantConfig>(() => {
+    const saved = localStorage.getItem('bastion_tenant_config');
+    return saved ? JSON.parse(saved) : {
+      name: 'NorthGuard Security',
+      logo: null,
+      primaryColor: '#2dd4bf',
+      onboardingComplete: false, // Default to false for new users to see onboarding
+    };
+  });
+
+  const updateTenant = (updates: Partial<TenantConfig>) => {
+    setTenant(prev => {
+      const next = { ...prev, ...updates };
+      localStorage.setItem('bastion_tenant_config', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  return (
+    <TenantContext.Provider value={{ tenant, updateTenant }}>
+      {children}
+    </TenantContext.Provider>
+  );
+};
+
 // --- UI Components ---
 
 const NotificationToast = ({ notification, onDismiss, onAction }: { notification: Notification, onDismiss: (id: string) => void, onAction: (tab: number) => void }) => (
@@ -1155,6 +1203,7 @@ const BoardReport = () => {
 
 const SettingsTab = ({ simulation }: { simulation: any }) => {
   const { showNotifications, setShowNotifications } = simulation;
+  const { tenant, updateTenant } = React.useContext(TenantContext);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -1167,6 +1216,63 @@ const SettingsTab = ({ simulation }: { simulation: any }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card title="Organization Branding" icon={Globe}>
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Organization Name</label>
+                <input 
+                  type="text"
+                  className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-teal-accent outline-none transition-all"
+                  value={tenant.name}
+                  onChange={e => updateTenant({ name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Enterprise Logo</label>
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-24 bg-background/50 border border-card-border rounded flex items-center justify-center overflow-hidden">
+                    {tenant.logo ? (
+                      <img src={tenant.logo} alt="Current Logo" className="h-full object-contain" />
+                    ) : (
+                      <Shield className="w-6 h-6 text-text-muted" />
+                    )}
+                  </div>
+                  <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-[10px] font-bold uppercase px-3 py-2 rounded transition-colors">
+                    Upload New
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => updateTenant({ logo: reader.result as string });
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                  {tenant.logo && (
+                    <button 
+                      onClick={() => updateTenant({ logo: null })}
+                      className="text-[10px] font-bold uppercase text-red-accent hover:underline"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-card-border">
+              <p className="text-[10px] text-text-muted leading-relaxed italic">
+                Changes to branding will propagate to all tenant users and generated PDF audit reports immediately.
+              </p>
+            </div>
+          </div>
+        </Card>
+
         <Card title="Alerting Preferences" icon={Zap}>
           <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -1239,6 +1345,176 @@ const SettingsTab = ({ simulation }: { simulation: any }) => {
           </div>
         </Card>
       </div>
+    </div>
+  );
+};
+
+const OnboardingExperience = () => {
+  const { updateTenant } = React.useContext(TenantContext);
+  const [step, setStep] = useState(1);
+  const [config, setConfig] = useState({
+    name: '',
+    logo: null as string | null,
+    region: 'Canada Central',
+  });
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setConfig(prev => ({ ...prev, logo: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleComplete = () => {
+    updateTenant({
+      name: config.name || 'NorthGuard Security',
+      logo: config.logo,
+      onboardingComplete: true,
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center p-6 overflow-y-auto">
+      <div className="absolute inset-0 pointer-events-none opacity-20">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(45,212,191,0.1),transparent_70%)]" />
+      </div>
+
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-2xl bg-card border border-card-border rounded-2xl shadow-2xl overflow-hidden relative"
+      >
+        <div className="h-1 w-full bg-gradient-to-r from-teal-accent/20 via-teal-accent to-teal-accent/20" />
+        
+        <div className="p-12 space-y-8">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <Shield className="w-8 h-8 text-teal-accent" />
+              <span className="text-2xl font-bold tracking-tight">Bastion Audit</span>
+            </div>
+            <div className="flex gap-2">
+              {[1, 2, 3].map(s => (
+                <div key={s} className={cn(
+                  "w-8 h-1 rounded-full transition-all",
+                  step >= s ? "bg-teal-accent" : "bg-slate-800"
+                )} />
+              ))}
+            </div>
+          </div>
+
+          <AnimatePresence mode="wait">
+            {step === 1 && (
+              <motion.div 
+                key="step1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-6"
+              >
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold">Welcome to White-Glove Security.</h1>
+                  <p className="text-text-muted leading-relaxed">
+                    Bastion Audit is purpose-built for Canadian Financial Institutions. Let's begin by personalizing your enterprise environment.
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Organization Name</label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. Royal Bank of Canada"
+                      className="w-full bg-background border border-card-border rounded-xl px-4 py-3 text-lg focus:ring-2 focus:ring-teal-accent outline-none transition-all"
+                      value={config.name}
+                      onChange={e => setConfig(prev => ({ ...prev, name: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <Button className="w-full py-4 text-lg" onClick={() => setStep(2)}>
+                  Continue to Branding <ChevronRight className="w-5 h-5 ml-2" />
+                </Button>
+              </motion.div>
+            )}
+
+            {step === 2 && (
+              <motion.div 
+                key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-6"
+              >
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold">Brand Identity.</h1>
+                  <p className="text-text-muted leading-relaxed">
+                    Upload your organization's logo to white-label the entire dashboard and all generated reports.
+                  </p>
+                </div>
+                <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-card-border rounded-2xl bg-background/50 hover:bg-background/80 transition-all cursor-pointer relative group">
+                  <input 
+                    type="file" 
+                    className="absolute inset-0 opacity-0 cursor-pointer" 
+                    onChange={handleLogoUpload}
+                    accept="image/*"
+                  />
+                  {config.logo ? (
+                    <img src={config.logo} alt="Logo Preview" className="h-24 object-contain" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-4">
+                      <Plus className="w-12 h-12 text-text-muted group-hover:text-teal-accent transition-colors" />
+                      <p className="text-sm font-bold text-text-muted">Click to upload logo (PNG/SVG)</p>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-4">
+                  <Button variant="ghost" className="flex-1 py-4" onClick={() => setStep(1)}>Back</Button>
+                  <Button className="flex-[2] py-4" onClick={() => setStep(3)}>Finalize Setup</Button>
+                </div>
+              </motion.div>
+            )}
+
+            {step === 3 && (
+              <motion.div 
+                key="step3"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-6"
+              >
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold">Sovereign Deployment.</h1>
+                  <p className="text-text-muted leading-relaxed">
+                    Confirming your data residency requirements. All data will be stored exclusively within Canadian borders.
+                  </p>
+                </div>
+                <div className="p-6 bg-teal-accent/5 border border-teal-accent/20 rounded-2xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold">Primary Region</span>
+                    <Badge variant="teal">CANADA CENTRAL</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold">Compliance Standard</span>
+                    <Badge variant="blue">OSFI E-21 / PIPEDA</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold">Data Encryption</span>
+                    <Badge variant="slate">AES-256-GCM</Badge>
+                  </div>
+                </div>
+                <div className="flex gap-4 pt-4">
+                  <Button variant="ghost" className="flex-1 py-4" onClick={() => setStep(2)}>Back</Button>
+                  <Button className="flex-[2] py-4" onClick={handleComplete}>
+                    Launch Enterprise Dashboard <Zap className="w-5 h-5 ml-2" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
     </div>
   );
 };
@@ -1634,6 +1910,7 @@ function App() {
   const [showCookieBanner, setShowCookieBanner] = useState(false);
   const simulation = useSimulation();
   const { user, loading } = React.useContext(FirebaseContext);
+  const { tenant } = React.useContext(TenantContext);
 
   useEffect(() => {
     const acknowledged = localStorage.getItem('bastion_privacy_acknowledged');
@@ -1689,17 +1966,25 @@ function App() {
     );
   }
 
+  if (!tenant.onboardingComplete) {
+    return <OnboardingExperience />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Nav */}
       <header className="fixed top-0 left-0 right-0 h-16 bg-card/80 backdrop-blur-xl border-b border-card-border/50 z-40 px-6 flex items-center justify-between shadow-[0_1px_10px_rgba(0,0,0,0.4)]">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Shield className="w-6 h-6 text-teal-accent drop-shadow-[0_0_8px_rgba(15,158,117,0.4)]" />
+            {tenant.logo ? (
+              <img src={tenant.logo} alt="Tenant Logo" className="h-8 object-contain" />
+            ) : (
+              <Shield className="w-6 h-6 text-teal-accent drop-shadow-[0_0_8px_rgba(15,158,117,0.4)]" />
+            )}
             <span className="text-lg font-bold tracking-tight text-white">Bastion Audit</span>
           </div>
           <div className="h-4 w-px bg-card-border/60 mx-2" />
-          <span className="text-[10px] font-bold text-text-muted/80 uppercase tracking-[0.2em]">NorthGuard Security</span>
+          <span className="text-[10px] font-bold text-text-muted/80 uppercase tracking-[0.2em]">{tenant.name}</span>
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
@@ -1732,8 +2017,8 @@ function App() {
         <aside className="w-[220px] fixed left-0 bottom-0 top-16 bg-card border-r border-card-border p-4 space-y-6 overflow-y-auto z-30">
           <Card className="bg-background/50 border-card-border p-3">
             <p className="text-[10px] text-text-muted uppercase font-bold mb-1">Tenant Context</p>
-            <p className="text-xs font-bold mb-1">Global Enterprise</p>
-            <p className="text-[10px] text-text-muted leading-tight">Monitoring 14 active AI agents across fraud, AML, and credit.</p>
+            <p className="text-xs font-bold mb-1 truncate">{tenant.name}</p>
+            <p className="text-[10px] text-text-muted leading-tight">Monitoring active AI agents across fraud, AML, and credit.</p>
           </Card>
 
           <Card className="bg-background/50 border-card-border p-3">
@@ -1980,7 +2265,9 @@ function App() {
 export default function Root() {
   return (
     <FirebaseProvider>
-      <App />
+      <TenantProvider>
+        <App />
+      </TenantProvider>
     </FirebaseProvider>
   );
 }
