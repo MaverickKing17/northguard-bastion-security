@@ -507,9 +507,21 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
 };
 
 const RedTeamSandbox = ({ simulation }: { simulation: any }) => {
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simResult, setSimResult] = useState<string | null>(null);
+
+  const handleStartSimulation = () => {
+    setIsSimulating(true);
+    setSimResult(null);
+    setTimeout(() => {
+      setIsSimulating(false);
+      setSimResult('Simulation Complete: 4 potential jailbreak vectors identified in "Wealth Management Advisor Bot". Mitigation protocols deployed.');
+    }, 4000);
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
           <input 
@@ -517,20 +529,68 @@ const RedTeamSandbox = ({ simulation }: { simulation: any }) => {
             placeholder="Search adversarial patterns..."
           />
         </div>
-        <Badge variant="amber" pulse>Sandbox Active</Badge>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <Button 
+            variant="primary" 
+            onClick={handleStartSimulation}
+            disabled={isSimulating}
+            className="text-[10px] py-2 h-auto"
+          >
+            {isSimulating ? <RefreshCw className="w-3 h-3 animate-spin mr-2" /> : <Zap className="w-3 h-3 mr-2" />}
+            {isSimulating ? 'Running Adversarial Simulation...' : 'Initiate Red Team Simulation'}
+          </Button>
+          <Badge variant="amber" pulse>Sandbox Active</Badge>
+        </div>
       </div>
+
+      {simResult && (
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="p-4 bg-amber-accent/10 border border-amber-accent/20 rounded-xl flex items-start gap-3"
+        >
+          <AlertCircle className="w-5 h-5 text-amber-accent shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs font-bold text-amber-accent uppercase tracking-wider mb-1">Red Team Findings</p>
+            <p className="text-xs text-text-primary leading-relaxed">{simResult}</p>
+          </div>
+        </motion.div>
+      )}
+
       <LiveThreatFeed simulation={simulation} />
     </div>
   );
 };
 
 const ModelInventory = () => {
+  const [isAuditing, setIsAuditing] = useState(false);
+  const [auditLog, setAuditLog] = useState<string[]>([]);
+
   const rows = [
     { name: 'Fraud Detection Agent v3.2.1', dept: 'Fraud & Disputes', provider: 'Google Vertex AI', region: 'Canada Central', date: '2026-03-14', risk: 'LOW RISK', tier: 'Tier 1', status: 'Active' },
     { name: 'AML Transaction Screener v2.4.0', dept: 'Financial Crime', provider: 'Azure OpenAI', region: 'Canada Central', date: '2026-03-10', risk: 'MEDIUM RISK', tier: 'Tier 2', status: 'Active' },
     { name: 'Mortgage Credit Adjudication v4.1.2', dept: 'Personal Banking', provider: 'Internal (On-Premise)', region: 'N/A', date: '2026-02-18', risk: 'HIGH RISK', tier: 'Tier 3', status: 'Review Required' },
     { name: 'Customer Service LLM v2.0.5', dept: 'Retail Banking', provider: 'Anthropic (AWS Canada)', region: 'Canada Central', date: '2026-03-16', risk: 'LOW RISK', tier: 'Tier 1', status: 'Active' },
   ];
+
+  const handleDeepAudit = () => {
+    setIsAuditing(true);
+    setAuditLog([]);
+    const steps = [
+      'Initializing OSFI E-21 compliance check...',
+      'Validating data residency for Canada Central nodes...',
+      'Scanning model weights for bias drift...',
+      'Verifying Three-Lines-of-Defence documentation...',
+      'Audit Complete: All Tier 1 models compliant.'
+    ];
+    
+    steps.forEach((step, i) => {
+      setTimeout(() => {
+        setAuditLog(prev => [...prev, step]);
+        if (i === steps.length - 1) setIsAuditing(false);
+      }, (i + 1) * 800);
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -539,8 +599,40 @@ const ModelInventory = () => {
           <h2 className="text-xl font-bold">Enterprise Model Inventory</h2>
           <p className="text-sm text-text-muted">OSFI E-21 compliant registry of all AI models used in material decisions.</p>
         </div>
-        <Button><Plus className="w-4 h-4" /> Register Agent</Button>
+        <div className="flex gap-3">
+          <Button 
+            variant="outline" 
+            onClick={handleDeepAudit}
+            disabled={isAuditing}
+            className="text-[10px] py-2 h-auto"
+          >
+            {isAuditing ? <RefreshCw className="w-3 h-3 animate-spin mr-2" /> : <Shield className="w-3 h-3 mr-2" />}
+            {isAuditing ? 'Auditing Models...' : 'Run Deep Compliance Audit'}
+          </Button>
+          <Button className="text-[10px] py-2 h-auto"><Plus className="w-3 h-3 mr-2" /> Register Agent</Button>
+        </div>
       </div>
+
+      {auditLog.length > 0 && (
+        <Card title="Live Compliance Audit Log" icon={Terminal} className="bg-background/80">
+          <div className="space-y-2 font-mono text-[10px]">
+            {auditLog.map((log, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className={cn(
+                  "flex items-center gap-2",
+                  log.includes('Complete') ? 'text-teal-accent font-bold' : 'text-text-muted'
+                )}
+              >
+                <span className="text-teal-accent/50">[{new Date().toLocaleTimeString()}]</span>
+                <span>{log}</span>
+              </motion.div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <div className="overflow-x-auto bg-card/40 backdrop-blur-md border border-card-border/50 rounded-xl shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-accent/50 via-teal-accent to-teal-accent/50" />
