@@ -729,15 +729,15 @@ export default function App() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-teal-accent" />
-              <span className="font-bold">Bastion Audit</span>
+              <span className="font-bold text-text-primary">Bastion Audit</span>
             </div>
-            <p className="text-xs text-text-muted leading-relaxed">
+            <p className="text-xs text-text-primary font-bold leading-relaxed">
               Production-grade AI Security Posture Management (AI-SPM) platform purpose-built for Canadian Federally Regulated Financial Institutions.
             </p>
           </div>
           <div className="space-y-4">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-text-primary">Regulatory Frameworks</h4>
-            <ul className="text-xs text-text-muted space-y-2">
+            <ul className="text-xs text-text-primary font-bold space-y-2">
               <li>OSFI Guideline E-21</li>
               <li>PIPEDA Compliance</li>
               <li>FINTRAC AML/ATF</li>
@@ -746,7 +746,7 @@ export default function App() {
           </div>
           <div className="space-y-4">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-text-primary">Security Resources</h4>
-            <ul className="text-xs text-text-muted space-y-2">
+            <ul className="text-xs text-text-primary font-bold space-y-2">
               <li>Threat Intelligence Feed</li>
               <li>Red Team Methodology</li>
               <li>Vulnerability Disclosure</li>
@@ -755,7 +755,7 @@ export default function App() {
           </div>
           <div className="space-y-4">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-text-primary">Enterprise Support</h4>
-            <ul className="text-xs text-text-muted space-y-2">
+            <ul className="text-xs text-text-primary font-bold space-y-2">
               <li>24/7 SOC Operations</li>
               <li>Incident Response</li>
               <li>Professional Services</li>
@@ -764,10 +764,10 @@ export default function App() {
           </div>
         </div>
         <div className="mt-12 pt-8 border-t border-card-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[10px] text-text-muted">
+          <p className="text-[10px] text-text-primary font-bold">
             © 2026 NorthGuard Security. All rights reserved. Headquartered in Toronto, Ontario. Canadian sovereign infrastructure.
           </p>
-          <div className="flex gap-6 text-[10px] text-text-muted uppercase font-bold tracking-widest">
+          <div className="flex gap-6 text-[10px] text-text-primary uppercase font-bold tracking-widest">
             <a href="#" className="hover:text-teal-accent">Privacy Policy</a>
             <a href="#" className="hover:text-teal-accent">Terms of Service</a>
             <a href="#" className="hover:text-teal-accent">Cookie Settings</a>
