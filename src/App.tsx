@@ -530,14 +530,38 @@ const AIChatWidget = () => {
   ]);
   const [input, setInput] = useState('');
   const [model, setModel] = useState('Gemini 3 Flash');
+  const [isScanning, setIsScanning] = useState(false);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isScanning) return;
+
     const userMsg = input;
     setInput('');
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
 
+    setIsScanning(true);
+
     try {
+      // 1. Perform Security Scan via our new Backend Proxy
+      const scanResponse = await fetch('/api/security/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: userMsg })
+      });
+
+      const scanData = await scanResponse.json();
+      const isFlagged = scanData.results?.[0]?.flagged;
+
+      if (isFlagged) {
+        setMessages(prev => [...prev, { 
+          role: 'ai', 
+          text: "⚠️ SECURITY ALERT: Your message was flagged by Lakera Guard as a potential threat (e.g., prompt injection or jailbreak). This event has been logged for OSFI E-21 compliance auditing." 
+        }]);
+        setIsScanning(false);
+        return;
+      }
+
+      // 2. If safe, proceed to Gemini
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
@@ -549,6 +573,8 @@ const AIChatWidget = () => {
       setMessages(prev => [...prev, { role: 'ai', text: response.text || "I'm sorry, I couldn't process that request." }]);
     } catch (error) {
       setMessages(prev => [...prev, { role: 'ai', text: "Error connecting to security layer. Please check your API configuration." }]);
+    } finally {
+      setIsScanning(false);
     }
   };
 
@@ -611,10 +637,17 @@ const AIChatWidget = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  className="flex-1 bg-background border border-card-border rounded-lg px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-orange-500"
-                  placeholder="Ask Sentinel..."
+                  disabled={isScanning}
+                  className="flex-1 bg-background border border-card-border rounded-lg px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-50"
+                  placeholder={isScanning ? "Scanning for threats..." : "Ask Sentinel..."}
                 />
-                <Button onClick={handleSend} className="p-2 h-auto bg-orange-500 hover:bg-orange-600"><Zap className="w-4 h-4" /></Button>
+                <Button 
+                  onClick={handleSend} 
+                  disabled={isScanning}
+                  className="p-2 h-auto bg-orange-500 hover:bg-orange-600 disabled:opacity-50"
+                >
+                  {isScanning ? <Shield className="w-4 h-4 animate-pulse" /> : <Zap className="w-4 h-4" />}
+                </Button>
               </div>
             </div>
           </motion.div>
