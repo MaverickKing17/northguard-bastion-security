@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: audit_logs
+    // Document ID: auto-generated
+    // Fields:
+    //   - timestamp: timestamp (required) - When the event occurred
+    //   - user: string (required) - User or agent name
+    //   - action: string (required) - Action taken
+    //   - status: string (required) - SUCCESS, FLAGGED, ERROR
+    //   - details: string (optional) - Metadata
+    //   - uid: string (required) - User UID
+    //
+    // Collection: threat_feed
+    // Document ID: auto-generated
+    // Fields:
+    //   - timestamp: timestamp (required) - When detected
+    //   - type: string (required) - Threat type
+    //   - severity: string (required) - LOW, MEDIUM, HIGH, CRITICAL
+    //   - source: string (required) - Origin
+    //   - description: string (optional) - Payload details
+    //   - uid: string (required) - User UID
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "kingnarmer702@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function isValidAuditLog(data) {
+      return data.timestamp is timestamp &&
+             data.user is string && data.user.size() < 100 &&
+             data.action is string && data.action.size() < 100 &&
+             data.status in ['SUCCESS', 'FLAGGED', 'ERROR'] &&
+             data.uid == request.auth.uid;
+    }
+
+    function isValidThreatEvent(data) {
+      return data.timestamp is timestamp &&
+             data.type is string && data.type.size() < 100 &&
+             data.severity in ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] &&
+             data.source is string && data.source.size() < 100 &&
+             data.uid == request.auth.uid;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /audit_logs/{logId} {
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isAuthenticated() && hasRequiredFields(['timestamp', 'user', 'action', 'status', 'uid']) && isValidAuditLog(request.resource.data);
+      allow update, delete: if false; // Audit logs are immutable
+    }
+
+    match /threat_feed/{threatId} {
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isAuthenticated() && hasRequiredFields(['timestamp', 'type', 'severity', 'source', 'uid']) && isValidThreatEvent(request.resource.data);
+      allow update, delete: if isAdmin(); // Only admins can manage the feed
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create, update: if isOwner(userId) && request.resource.data.role == 'user';
+      allow delete: if false;
+    }
+
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

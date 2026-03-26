@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "AuditLog": {
+      "title": "Audit Log",
+      "description": "Immutable record of security events and system actions for OSFI E-21 compliance.",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time", "description": "When the event occurred." },
+        "user": { "type": "string", "description": "The user or system agent that performed the action." },
+        "action": { "type": "string", "description": "The specific action taken (e.g., 'SECURITY_SCAN', 'AI_REQUEST')." },
+        "status": { "type": "string", "enum": ["SUCCESS", "FLAGGED", "ERROR"], "description": "The outcome of the action." },
+        "details": { "type": "string", "description": "Additional context or metadata about the event." },
+        "uid": { "type": "string", "description": "The Firebase Auth UID of the user." }
+      },
+      "required": ["timestamp", "user", "action", "status", "uid"]
+    },
+    "ThreatEvent": {
+      "title": "Threat Event",
+      "description": "Real-time security threats intercepted by Lakera Guard.",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time", "description": "When the threat was detected." },
+        "type": { "type": "string", "description": "The type of threat (e.g., 'Prompt Injection', 'Jailbreak')." },
+        "severity": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"], "description": "The risk level." },
+        "source": { "type": "string", "description": "The origin of the threat (e.g., 'Chat Widget')." },
+        "description": { "type": "string", "description": "Detailed description of the intercepted payload." },
+        "uid": { "type": "string", "description": "The Firebase Auth UID of the user who triggered the event." }
+      },
+      "required": ["timestamp", "type", "severity", "source", "uid"]
+    }
+  },
+  "firestore": {
+    "/audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Collection of all system audit logs."
+    },
+    "/threat_feed/{threatId}": {
+      "schema": "ThreatEvent",
+      "description": "Real-time feed of intercepted security threats."
+    }
+  }
+}

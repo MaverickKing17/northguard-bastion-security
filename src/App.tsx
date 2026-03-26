@@ -1,10 +1,46 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Shield, AlertCircle, CheckCircle2, Info, Activity, Lock, Globe, Database, Terminal, Zap, Search, Filter, Plus, ChevronRight, FileText, BarChart3, Users, Settings, LogOut, Menu, X, ArrowUpRight, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect, useCallback, Component } from 'react';
+import { Shield, AlertCircle, CheckCircle2, Info, Activity, Lock, Globe, Database, Terminal, Zap, Search, Filter, Plus, ChevronRight, FileText, BarChart3, Users, Settings, LogOut, Menu, X, ArrowUpRight, TrendingUp, LogIn, User as UserIcon } from 'lucide-react';
 import { cn } from './lib/utils';
 import { useSimulation, LogEntry, ThreatIntel, Notification } from './hooks/useSimulation';
 import { motion, AnimatePresence } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { GoogleGenAI } from "@google/genai";
+import { auth, db, loginWithGoogle, logout, handleFirestoreError, OperationType } from './firebase';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp, Timestamp } from 'firebase/firestore';
+
+// --- Firebase Context ---
+
+const FirebaseContext = React.createContext<{
+  user: User | null;
+  loading: boolean;
+  isAdmin: boolean;
+}>({ user: null, loading: true, isAdmin: false });
+
+const FirebaseProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setLoading(false);
+      if (u && u.email === 'kingnarmer702@gmail.com') {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+    });
+    return unsubscribe;
+  }, []);
+
+  return (
+    <FirebaseContext.Provider value={{ user, loading, isAdmin }}>
+      {children}
+    </FirebaseContext.Provider>
+  );
+};
 
 // --- UI Components ---
 
@@ -109,7 +145,41 @@ const Button = ({ children, variant = 'primary', className, ...props }: React.Bu
 // --- Tabs ---
 
 const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
-  const { logs, threats, stats } = simulation;
+  const { stats } = simulation;
+  const { user, isAdmin } = React.useContext(FirebaseContext);
+  const [realTimeThreats, setRealTimeThreats] = useState<any[]>([]);
+  const [realTimeLogs, setRealTimeLogs] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const threatsQuery = query(
+      collection(db, 'threat_feed'),
+      orderBy('timestamp', 'desc'),
+      limit(10)
+    );
+
+    const logsQuery = query(
+      collection(db, 'audit_logs'),
+      orderBy('timestamp', 'desc'),
+      limit(20)
+    );
+
+    const unsubThreats = onSnapshot(threatsQuery, (snapshot) => {
+      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setRealTimeThreats(items);
+    }, (err) => handleFirestoreError(err, OperationType.LIST, 'threat_feed'));
+
+    const unsubLogs = onSnapshot(logsQuery, (snapshot) => {
+      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setRealTimeLogs(items);
+    }, (err) => handleFirestoreError(err, OperationType.LIST, 'audit_logs'));
+
+    return () => {
+      unsubThreats();
+      unsubLogs();
+    };
+  }, [user]);
 
   return (
     <div className="space-y-6">
@@ -189,16 +259,18 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
               aria-live="polite"
               aria-label="Real-time agent behavior log stream"
             >
-              {logs.map((log: LogEntry) => (
+              {realTimeLogs.length > 0 ? realTimeLogs.map((log: any) => (
                 <div key={log.id} className="flex gap-3">
-                  <span className="text-text-muted">[{log.timestamp}]</span>
-                  <span className="text-blue-accent">[{log.agent}]</span>
+                  <span className="text-text-muted">[{log.timestamp instanceof Timestamp ? log.timestamp.toDate().toLocaleTimeString() : '...'}]</span>
+                  <span className="text-blue-accent">[{log.user}]</span>
                   <span className={cn(
-                    log.status === 'PASSED' ? 'text-teal-accent' : 'text-amber-accent'
+                    log.status === 'SUCCESS' ? 'text-teal-accent' : 'text-amber-accent'
                   )}>{log.status}</span>
-                  <span className="text-text-primary">{log.details}</span>
+                  <span className="text-text-primary">{log.action}: {log.details}</span>
                 </div>
-              ))}
+              )) : (
+                <div className="text-text-muted italic py-4 text-center">Waiting for live audit events...</div>
+              )}
             </div>
           </Card>
         </div>
@@ -215,18 +287,22 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
 
           <Card title="Global Threat Intel" icon={Globe}>
             <div className="space-y-4">
-              {threats.map((threat: ThreatIntel) => (
+              {realTimeThreats.length > 0 ? realTimeThreats.map((threat: any) => (
                 <div key={threat.id} className="flex items-start gap-3">
                   <div className={cn(
                     "mt-1 w-2 h-2 rounded-full shrink-0",
                     threat.severity === 'CRITICAL' ? 'bg-red-accent' : 'bg-amber-accent'
                   )} />
                   <div>
-                    <p className="text-xs font-semibold text-text-primary">{threat.title}</p>
-                    <p className="text-[10px] text-text-muted">{threat.time} • {threat.severity}</p>
+                    <p className="text-xs font-semibold text-text-primary">{threat.type}</p>
+                    <p className="text-[10px] text-text-muted">
+                      {threat.timestamp instanceof Timestamp ? threat.timestamp.toDate().toLocaleTimeString() : '...'} • {threat.severity}
+                    </p>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="text-text-muted italic text-[10px]">No threats intercepted recently.</div>
+              )}
             </div>
           </Card>
 
@@ -524,6 +600,7 @@ const BoardReport = () => {
 // --- Chat Widget ---
 
 const AIChatWidget = () => {
+  const { user } = React.useContext(FirebaseContext);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([
     { role: 'ai', text: 'Hello. I am the Bastion Security Sentinel. How can I assist with your AI security posture today?' }
@@ -534,6 +611,10 @@ const AIChatWidget = () => {
 
   const handleSend = async () => {
     if (!input.trim() || isScanning) return;
+    if (!user) {
+      setMessages(prev => [...prev, { role: 'ai', text: "Please log in to the SOC platform to use the Security Sentinel." }]);
+      return;
+    }
 
     const userMsg = input;
     setInput('');
@@ -553,6 +634,26 @@ const AIChatWidget = () => {
       const isFlagged = scanData.results?.[0]?.flagged;
 
       if (isFlagged) {
+        // Log Threat to Firestore
+        await addDoc(collection(db, 'threat_feed'), {
+          timestamp: serverTimestamp(),
+          type: 'Prompt Injection / Jailbreak',
+          severity: 'HIGH',
+          source: 'Chat Widget',
+          description: `Intercepted: ${userMsg.substring(0, 50)}...`,
+          uid: user.uid
+        });
+
+        // Log Audit to Firestore
+        await addDoc(collection(db, 'audit_logs'), {
+          timestamp: serverTimestamp(),
+          user: user.displayName || user.email || 'Unknown',
+          action: 'SECURITY_SCAN',
+          status: 'FLAGGED',
+          details: 'Prompt injection attempt blocked.',
+          uid: user.uid
+        });
+
         setMessages(prev => [...prev, { 
           role: 'ai', 
           text: "⚠️ SECURITY ALERT: Your message was flagged by Lakera Guard as a potential threat (e.g., prompt injection or jailbreak). This event has been logged for OSFI E-21 compliance auditing." 
@@ -561,16 +662,26 @@ const AIChatWidget = () => {
         return;
       }
 
-      // 2. If safe, proceed to Gemini
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: userMsg,
-        config: {
-          systemInstruction: "You are the Bastion Security Sentinel, an AI security advisor for Canadian financial institutions. You have deep knowledge of OSFI E-21, PIPEDA, AIDA, and FINTRAC. Always provide professional, regulatory-aligned advice. Mention CAD for financial risks. Greet as Sentinel."
-        }
+      // 2. If safe, proceed to AI Chat via Proxy
+      const chatResponse = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMsg, model })
       });
-      setMessages(prev => [...prev, { role: 'ai', text: response.text || "I'm sorry, I couldn't process that request." }]);
+
+      const chatData = await chatResponse.json();
+
+      // Log Audit to Firestore
+      await addDoc(collection(db, 'audit_logs'), {
+        timestamp: serverTimestamp(),
+        user: user.displayName || user.email || 'Unknown',
+        action: 'AI_REQUEST',
+        status: 'SUCCESS',
+        details: `Model: ${model}`,
+        uid: user.uid
+      });
+
+      setMessages(prev => [...prev, { role: 'ai', text: chatData.text || "I'm sorry, I couldn't process that request." }]);
     } catch (error) {
       setMessages(prev => [...prev, { role: 'ai', text: "Error connecting to security layer. Please check your API configuration." }]);
     } finally {
@@ -605,6 +716,7 @@ const AIChatWidget = () => {
               >
                 <option>Gemini 3 Flash</option>
                 <option>Claude 3.5 Haiku</option>
+                <option>GPT-4o Mini</option>
               </select>
             </div>
             
@@ -870,11 +982,12 @@ const CookieBanner = ({ onAccept, onOpenLegal }: { onAccept: () => void, onOpenL
 
 // --- Main App ---
 
-export default function App() {
+function App() {
   const [activeTab, setActiveTab] = React.useState(0);
   const [activeModalPage, setActiveModalPage] = useState<string | null>(null);
   const [showCookieBanner, setShowCookieBanner] = useState(false);
   const simulation = useSimulation();
+  const { user, loading } = React.useContext(FirebaseContext);
 
   useEffect(() => {
     const acknowledged = localStorage.getItem('bastion_privacy_acknowledged');
@@ -897,6 +1010,37 @@ export default function App() {
     { id: 4, label: 'Behavioral Drift', icon: TrendingUp, badge: 'NEW' },
     { id: 5, label: 'Board Report', icon: BarChart3 },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Shield className="w-12 h-12 text-teal-accent animate-pulse" />
+          <p className="text-xs font-bold uppercase tracking-widest text-text-muted">Initializing Bastion Security Layer...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <Card className="max-w-md w-full p-8 text-center space-y-6">
+          <div className="w-16 h-16 bg-teal-accent/10 rounded-full flex items-center justify-center mx-auto">
+            <Lock className="w-8 h-8 text-teal-accent" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold uppercase tracking-tight">SOC Access Required</h1>
+            <p className="text-sm text-text-muted">Please authenticate to access the Bastion Audit & Security Operations Center.</p>
+          </div>
+          <Button onClick={loginWithGoogle} className="w-full justify-center py-3">
+            <LogIn className="w-4 h-4" /> Authenticate with Google
+          </Button>
+          <p className="text-[10px] text-text-muted uppercase tracking-widest">OSFI E-21 • PIPEDA • FINTRAC COMPLIANT</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -983,6 +1127,24 @@ export default function App() {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="pt-4 border-t border-card-border">
+            <div className="flex items-center gap-3 px-1 mb-4">
+              {user.photoURL ? (
+                <img src={user.photoURL} alt="" className="w-8 h-8 rounded-full border border-teal-accent/20" referrerPolicy="no-referrer" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-teal-accent/10 flex items-center justify-center">
+                  <UserIcon className="w-4 h-4 text-teal-accent" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold truncate">{user.displayName || 'SOC Agent'}</p>
+                <p className="text-[10px] text-text-muted truncate">{user.email}</p>
+              </div>
+            </div>
+            <Button variant="ghost" className="w-full justify-start text-red-accent hover:bg-red-accent/10" onClick={logout}>
+              <LogOut className="w-4 h-4" /> Terminate Session
+            </Button>
           </div>
         </aside>
 
@@ -1126,5 +1288,13 @@ export default function App() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function Root() {
+  return (
+    <FirebaseProvider>
+      <App />
+    </FirebaseProvider>
   );
 }
