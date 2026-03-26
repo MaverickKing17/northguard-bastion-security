@@ -637,44 +637,77 @@ const ModelInventory = () => {
   );
 };
 
-const VulnerabilityAudit = () => (
-  <div className="space-y-6">
-    <div className="relative overflow-hidden bg-card/40 backdrop-blur-xl border border-teal-accent/30 rounded-2xl p-12 flex flex-col items-center text-center space-y-6 shadow-2xl group">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-teal-accent/10 via-transparent to-teal-accent/5 pointer-events-none" />
-      <div className="absolute -top-24 -right-24 w-64 h-64 bg-teal-accent/10 blur-[100px] rounded-full animate-pulse" />
-      <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-accent/10 blur-[100px] rounded-full animate-pulse delay-700" />
-      
-      <div className="relative">
-        <div className="absolute inset-0 bg-teal-accent/20 blur-xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-        <Shield className="w-16 h-16 text-teal-accent relative z-10 drop-shadow-[0_0_15px_rgba(45,212,191,0.5)]" />
+const VulnerabilityAudit = () => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [reportReady, setReportReady] = useState(false);
+
+  const handleGenerate = () => {
+    setIsGenerating(true);
+    setTimeout(() => {
+      setIsGenerating(false);
+      setReportReady(true);
+    }, 2500);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="relative overflow-hidden bg-card/40 backdrop-blur-xl border border-teal-accent/30 rounded-2xl p-12 flex flex-col items-center text-center space-y-6 shadow-2xl group">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-accent/10 via-transparent to-teal-accent/5 pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-teal-accent/10 blur-[100px] rounded-full animate-pulse" />
+        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-accent/10 blur-[100px] rounded-full animate-pulse delay-700" />
+        
+        <div className="relative">
+          <div className="absolute inset-0 bg-teal-accent/20 blur-xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          <Shield className="w-16 h-16 text-teal-accent relative z-10 drop-shadow-[0_0_15px_rgba(45,212,191,0.5)]" />
+        </div>
+        
+        <div className="space-y-2 relative z-10">
+          <h2 className="text-3xl font-black uppercase tracking-tighter text-text-primary">SHIELD PROTOCOL ACTIVE</h2>
+          <div className="h-1 w-24 bg-teal-accent mx-auto rounded-full shadow-[0_0_10px_rgba(45,212,191,0.8)]" />
+        </div>
+        
+        <p className="text-text-muted max-w-2xl text-lg font-medium leading-relaxed relative z-10">
+          30-Day AI Vulnerability Audit: Comprehensive scan of Lakera Guard, Behavioural Anomaly Engine, and OSFI E-21 Gap Analysis.
+        </p>
+        
+        <div className="flex items-center gap-6 text-[10px] font-mono font-bold tracking-[0.2em] text-teal-accent relative z-10 bg-background/40 px-6 py-2 rounded-full border border-teal-accent/20">
+          <span>AI AGENT</span>
+          <ChevronRight className="w-3 h-3 opacity-50" />
+          <span>BASTION</span>
+          <ChevronRight className="w-3 h-3 opacity-50" />
+          <span>SIEM + OSFI REPORTING</span>
+        </div>
+        
+        <Button 
+          variant="primary" 
+          onClick={handleGenerate}
+          disabled={isGenerating}
+          className="mt-8 px-10 py-6 text-sm font-bold uppercase tracking-widest shadow-[0_0_25px_rgba(45,212,191,0.4)] hover:shadow-[0_0_40px_rgba(45,212,191,0.6)] transition-all relative z-10"
+        >
+          {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : null}
+          {isGenerating ? 'Scanning Infrastructure...' : reportReady ? 'Audit Report Generated' : 'Generate Full Audit Report'}
+        </Button>
+
+        {reportReady && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 p-4 bg-teal-accent/10 border border-teal-accent/20 rounded-xl text-teal-accent text-xs font-mono"
+          >
+            Audit Complete: 0 Critical Vulnerabilities Found. 2 Minor OSFI E-21 Gaps Identified.
+          </motion.div>
+        )}
       </div>
-      
-      <div className="space-y-2 relative z-10">
-        <h2 className="text-3xl font-black uppercase tracking-tighter text-text-primary">SHIELD PROTOCOL ACTIVE</h2>
-        <div className="h-1 w-24 bg-teal-accent mx-auto rounded-full shadow-[0_0_10px_rgba(45,212,191,0.8)]" />
-      </div>
-      
-      <p className="text-text-muted max-w-2xl text-lg font-medium leading-relaxed relative z-10">
-        30-Day AI Vulnerability Audit: Comprehensive scan of Lakera Guard, Behavioural Anomaly Engine, and OSFI E-21 Gap Analysis.
-      </p>
-      
-      <div className="flex items-center gap-6 text-[10px] font-mono font-bold tracking-[0.2em] text-teal-accent relative z-10 bg-background/40 px-6 py-2 rounded-full border border-teal-accent/20">
-        <span>AI AGENT</span>
-        <ChevronRight className="w-3 h-3 opacity-50" />
-        <span>BASTION</span>
-        <ChevronRight className="w-3 h-3 opacity-50" />
-        <span>SIEM + OSFI REPORTING</span>
-      </div>
-      
-      <Button variant="primary" className="mt-8 px-10 py-6 text-sm font-bold uppercase tracking-widest shadow-[0_0_25px_rgba(45,212,191,0.4)] hover:shadow-[0_0_40px_rgba(45,212,191,0.6)] transition-all relative z-10">
-        Generate Full Audit Report
-      </Button>
     </div>
-  </div>
-);
+  );
+};
 
 const BehavioralDrift = () => {
+  const [sensitivity, setSensitivity] = useState(75);
+  const [isQuarantined, setIsQuarantined] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
   const data = [
     { name: 'Day 1', baseline: 10, live: 12 },
     { name: 'Day 5', baseline: 10, live: 11 },
@@ -685,42 +718,130 @@ const BehavioralDrift = () => {
     { name: 'Day 30', baseline: 10, live: 12 },
   ];
 
+  const handleDeepAnalysis = () => {
+    setIsAnalyzing(true);
+    setTimeout(() => setIsAnalyzing(false), 2000);
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <select className="bg-card border border-card-border rounded-lg px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-teal-accent">
-          <option>Mortgage Credit Adjudication — HIGH RISK</option>
-          <option>Fraud Detection Agent v3.2.1</option>
-        </select>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <select className="bg-card border border-card-border rounded-lg px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-teal-accent">
+            <option>Mortgage Credit Adjudication — HIGH RISK</option>
+            <option>Fraud Detection Agent v3.2.1</option>
+            <option>Wealth Management Advisor Bot</option>
+          </select>
+          <Badge variant={isQuarantined ? 'red' : 'teal'} className="animate-pulse">
+            {isQuarantined ? 'AGENT QUARANTINED' : 'MODEL STABLE'}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="flex-1 md:w-48 space-y-1">
+            <div className="flex justify-between text-[10px] font-bold uppercase text-text-muted">
+              <span>Drift Sensitivity</span>
+              <span>{sensitivity}%</span>
+            </div>
+            <input 
+              type="range" 
+              min="0" 
+              max="100" 
+              value={sensitivity} 
+              onChange={(e) => setSensitivity(parseInt(e.target.value))}
+              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-accent"
+            />
+          </div>
+          <Button 
+            variant={isQuarantined ? 'primary' : 'danger'} 
+            className="text-[10px] py-1 h-auto"
+            onClick={() => setIsQuarantined(!isQuarantined)}
+          >
+            {isQuarantined ? 'Restore Agent' : 'Emergency Kill-Switch'}
+          </Button>
+        </div>
       </div>
 
-      <Card title="30-Day Drift Analysis" icon={Activity}>
-        <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="name" stroke="#64748b" fontSize={10} />
-              <YAxis stroke="#64748b" fontSize={10} />
-              <Tooltip 
-                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
-                itemStyle={{ color: '#f1f5f9' }}
-              />
-              <Area type="monotone" dataKey="baseline" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} />
-              <Area type="monotone" dataKey="live" stroke="#0f9e75" fill="#0f9e75" fillOpacity={0.2} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card title="30-Day Drift Analysis" icon={Activity} className="lg:col-span-2">
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                <XAxis dataKey="name" stroke="#64748b" fontSize={10} />
+                <YAxis stroke="#64748b" fontSize={10} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
+                  itemStyle={{ color: '#f1f5f9' }}
+                />
+                <Area type="monotone" dataKey="baseline" name="Baseline (Expected)" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} />
+                <Area type="monotone" dataKey="live" name="Live Performance" stroke="#0f9e75" fill="#0f9e75" fillOpacity={0.2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card title="Drift Diagnostics" icon={Zap}>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-[10px] text-text-muted uppercase font-bold">Concept Drift Score</p>
+              <div className="flex items-end gap-2">
+                <p className="text-3xl font-bold text-text-primary">0.14</p>
+                <p className="text-xs text-red-accent mb-1 font-bold">↑ 12% vs Baseline</p>
+              </div>
+              <p className="text-[10px] text-text-muted leading-relaxed">
+                Model is showing early signs of "Concept Drift" in credit risk weighting for urban demographics.
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-card-border space-y-4">
+              <p className="text-[10px] text-text-muted uppercase font-bold">Automated Mitigation</p>
+              <div className="space-y-3">
+                {[
+                  { label: 'Weight Re-calibration', status: 'PENDING' },
+                  { label: 'Feature Pruning', status: 'ACTIVE' },
+                  { label: 'Bias Correction', status: 'COMPLETED' },
+                ].map((task, i) => (
+                  <div key={i} className="flex items-center justify-between text-[10px]">
+                    <span className="text-text-primary">{task.label}</span>
+                    <span className={cn(
+                      "font-bold",
+                      task.status === 'COMPLETED' ? 'text-teal-accent' : 
+                      task.status === 'ACTIVE' ? 'text-blue-accent' : 'text-amber-accent'
+                    )}>{task.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Button 
+              variant="outline" 
+              className="w-full text-[10px] py-2 h-auto mt-4"
+              onClick={handleDeepAnalysis}
+              disabled={isAnalyzing}
+            >
+              {isAnalyzing ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
+              {isAnalyzing ? 'Running Deep Diagnostics...' : 'Run Deep Drift Analysis'}
+            </Button>
+          </div>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: 'Anomalies This Month', val: '3' },
-          { label: 'Avg Deviation', val: '4.2%' },
-          { label: 'Sessions Terminated', val: '12' },
-          { label: 'OSFI Alerts', val: '1' },
+          { label: 'Anomalies This Month', val: '3', trend: '+1' },
+          { label: 'Avg Deviation', val: '4.2%', trend: '-0.5%' },
+          { label: 'Sessions Terminated', val: '12', trend: '+4' },
+          { label: 'OSFI Alerts', val: '1', trend: '0' },
         ].map((stat, i) => (
           <Card key={i}>
-            <p className="text-[10px] text-text-muted uppercase font-bold mb-1">{stat.label}</p>
+            <div className="flex justify-between items-start mb-1">
+              <p className="text-[10px] text-text-muted uppercase font-bold">{stat.label}</p>
+              <span className={cn(
+                "text-[8px] font-bold px-1 rounded",
+                stat.trend.startsWith('+') ? "bg-red-accent/10 text-red-accent" : 
+                stat.trend === '0' ? "bg-slate-800 text-text-muted" : "bg-teal-accent/10 text-teal-accent"
+              )}>{stat.trend}</span>
+            </div>
             <p className="text-xl font-bold text-text-primary">{stat.val}</p>
           </Card>
         ))}
@@ -729,8 +850,9 @@ const BehavioralDrift = () => {
       <Card title="Anomaly Event Log" icon={AlertCircle}>
         <div className="space-y-4">
           {[
-            { date: '2026-03-24', agent: 'Mortgage Adjudicator', desc: 'Sudden shift in credit weighting for postal code M5V', severity: 'HIGH', ref: 'OSFI E-21 / PIPEDA' },
-            { date: '2026-03-20', agent: 'Fraud Detection', desc: 'Unusual spike in false positives for e-transfer validation', severity: 'MEDIUM', ref: 'FINTRAC' },
+            { date: '2026-03-24', agent: 'Mortgage Adjudicator', desc: 'Sudden shift in credit weighting for postal code M5V (Toronto Core)', severity: 'HIGH', ref: 'OSFI E-21 / PIPEDA' },
+            { date: '2026-03-20', agent: 'Fraud Detection', desc: 'Unusual spike in false positives for Interac e-transfer validation', severity: 'MEDIUM', ref: 'FINTRAC' },
+            { date: '2026-03-15', agent: 'Wealth Advisor', desc: 'Model attempting to recommend high-risk assets to low-risk profiles', severity: 'HIGH', ref: 'OSFI E-21' },
           ].map((event, i) => (
             <div key={i} className="flex items-center justify-between py-3 border-b border-card-border last:border-0">
               <div className="flex items-center gap-4">
@@ -753,6 +875,9 @@ const BehavioralDrift = () => {
 };
 
 const BoardReport = () => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [reportReady, setReportReady] = useState(false);
+
   const data = [
     { month: 'Oct', injection: 400, pii: 240, bias: 100 },
     { month: 'Nov', injection: 300, pii: 139, bias: 200 },
@@ -762,36 +887,113 @@ const BoardReport = () => {
     { month: 'Mar', injection: 239, pii: 380, bias: 600 },
   ];
 
+  const handleGenerateReport = () => {
+    setIsGenerating(true);
+    setTimeout(() => {
+      setIsGenerating(false);
+      setReportReady(true);
+    }, 3000);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">Executive Security Report — March 2026</h2>
-          <p className="text-sm text-text-muted">Global Enterprise • Canadian Banking</p>
+          <p className="text-sm text-text-muted">Global Enterprise • Canadian Banking • OSFI E-21 Compliant</p>
         </div>
-        <Button variant="outline"><FileText className="w-4 h-4" /> Export PDF</Button>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={handleGenerateReport} disabled={isGenerating}>
+            {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+            {isGenerating ? 'Analyzing Data...' : 'Generate AI Summary'}
+          </Button>
+          <Button 
+            variant="primary"
+            onClick={() => {
+              const btn = document.activeElement as HTMLButtonElement;
+              const originalText = btn.innerText;
+              btn.innerText = 'Exporting...';
+              setTimeout(() => {
+                btn.innerText = originalText;
+                alert('Executive PDF Report has been generated and sent to your secure email.');
+              }, 2000);
+            }}
+          >
+            <FileText className="w-4 h-4" /> Export PDF
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {[
-          { label: 'OSFI E-21', val: '94%' },
-          { label: 'PIPEDA', val: '98%' },
-          { label: 'AIDA', val: '86%' },
-          { label: 'FINTRAC AML', val: '92%' },
-          { label: 'SOC 2', val: '100%' },
+          { label: 'OSFI E-21', val: '94%', sub: 'Model Risk' },
+          { label: 'PIPEDA', val: '98%', sub: 'Privacy' },
+          { label: 'AIDA', val: '86%', sub: 'AI Ethics' },
+          { label: 'FINTRAC', val: '92%', sub: 'AML/ATF' },
+          { label: 'SOC 2', val: '100%', sub: 'Security' },
         ].map((comp, i) => (
           <Card key={i} className="text-center">
             <p className="text-[10px] text-text-muted uppercase font-bold mb-1">{comp.label}</p>
             <p className="text-xl font-bold text-teal-accent">{comp.val}</p>
+            <p className="text-[8px] text-text-muted uppercase tracking-widest mt-1">{comp.sub}</p>
           </Card>
         ))}
       </div>
 
-      <Card title="AI Narrative Summary" icon={FileText}>
-        <p className="text-sm text-text-muted leading-relaxed italic">
-          "Bastion Audit has successfully neutralized 1,847 security events this month, preventing an estimated $2.3M CAD in potential PIPEDA breach liabilities. Our OSFI E-21 compliance posture remains strong at 94.2%, with ongoing monitoring of 14 active AI agents. Behavioral drift in the Mortgage Adjudication model was detected and mitigated within 4 hours, ensuring continued fairness and regulatory alignment."
-        </p>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card title="AI Executive Narrative" icon={FileText} className="lg:col-span-2">
+          <div className="space-y-4">
+            <p className="text-sm text-text-muted leading-relaxed italic">
+              "Bastion Audit has successfully neutralized 1,847 security events this month, preventing an estimated $2.3M CAD in potential PIPEDA breach liabilities. Our OSFI E-21 compliance posture remains strong at 94.2%, with ongoing monitoring of 14 active AI agents. Behavioral drift in the Mortgage Adjudication model was detected and mitigated within 4 hours, ensuring continued fairness and regulatory alignment."
+            </p>
+            {reportReady && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="pt-4 border-t border-card-border space-y-3"
+              >
+                <p className="text-xs font-bold text-teal-accent uppercase tracking-wider">Deep Insights — March Update</p>
+                <p className="text-xs text-text-primary leading-relaxed">
+                  <strong>Liability Mitigation:</strong> The automated interception of SIN exfiltration attempts in the Vancouver region prevented a high-probability PIPEDA violation.
+                </p>
+                <p className="text-xs text-text-primary leading-relaxed">
+                  <strong>Regulatory Outlook:</strong> With Bill C-27 (AIDA) approaching, our current bias detection coverage (86%) is ahead of the industry average (64%).
+                </p>
+              </motion.div>
+            )}
+          </div>
+        </Card>
+
+        <Card title="Projected Liability Savings" icon={TrendingUp}>
+          <div className="space-y-6">
+            <div className="space-y-1">
+              <p className="text-[10px] text-text-muted uppercase font-bold">Est. Savings (CAD)</p>
+              <p className="text-4xl font-bold text-teal-accent">$2.34M</p>
+              <p className="text-[10px] text-text-muted">Based on average PIPEDA breach fines and legal costs.</p>
+            </div>
+            <div className="space-y-4 pt-4 border-t border-card-border">
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px] font-bold">
+                  <span>Risk Reduction</span>
+                  <span className="text-teal-accent">92%</span>
+                </div>
+                <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-teal-accent h-full w-[92%]" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px] font-bold">
+                  <span>Audit Readiness</span>
+                  <span className="text-blue-accent">98%</span>
+                </div>
+                <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-blue-accent h-full w-[98%]" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
 
       <Card title="Monthly Threat Breakdown" icon={BarChart3}>
         <div className="h-[300px] w-full">
