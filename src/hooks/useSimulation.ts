@@ -52,13 +52,29 @@ export function useSimulation() {
     console.log(`[EMAIL ALERT SIMULATION] To: security-ops@northguard.ca | Subject: ${notif.severity} ALERT: ${notif.message}`);
   }, [showNotifications]);
 
-  const addLog = useCallback((entry: Omit<LogEntry, 'id' | 'timestamp'>) => {
+  const addLog = useCallback(async (entry: Omit<LogEntry, 'id' | 'timestamp'>) => {
     const newLog: LogEntry = {
       ...entry,
       id: Math.random().toString(36).substr(2, 9),
       timestamp: new Date().toLocaleTimeString('en-CA', { hour12: false }),
     };
     setLogs((prev) => [newLog, ...prev].slice(0, 50));
+
+    // Write to Firestore if user is authenticated to populate the live feed
+    if (auth.currentUser) {
+      try {
+        await addDoc(collection(db, 'audit_logs'), {
+          timestamp: serverTimestamp(),
+          user: entry.agent,
+          action: entry.action,
+          status: entry.status === 'PASSED' || entry.status === 'INFO' ? 'SUCCESS' : 'WARNING',
+          details: entry.details,
+          uid: auth.currentUser.uid
+        });
+      } catch (error) {
+        console.error("Manual log failed to write to Firestore:", error);
+      }
+    }
   }, []);
 
   useEffect(() => {
