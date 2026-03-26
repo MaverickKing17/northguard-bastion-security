@@ -109,12 +109,12 @@ const Badge = ({ children, variant = 'teal', pulse = false, className }: { child
   );
 };
 
-const Card = ({ children, className, title, subtitle, icon: Icon, badge, titleClassName }: { children: React.ReactNode, className?: string, title?: string, subtitle?: string, icon?: any, badge?: React.ReactNode, key?: any, titleClassName?: string }) => (
+const Card = ({ children, className, title, subtitle, icon: Icon, badge, titleClassName, iconClassName }: { children: React.ReactNode, className?: string, title?: string, subtitle?: string, icon?: any, badge?: React.ReactNode, key?: any, titleClassName?: string, iconClassName?: string }) => (
   <div className={cn('bg-card border border-card-border rounded-xl overflow-hidden', className)}>
     {(title || Icon) && (
       <div className="px-4 py-3 border-b border-card-border flex items-center justify-between">
         <div className="flex items-center gap-2">
-          {Icon && <Icon className="w-4 h-4 text-teal-accent" />}
+          {Icon && <Icon className={cn("w-4 h-4 text-teal-accent", iconClassName)} />}
           <div>
             <h3 className={cn("text-sm font-semibold text-text-primary uppercase tracking-tight", titleClassName)}>{title}</h3>
             {subtitle && <p className="text-[10px] text-text-muted uppercase tracking-wider">{subtitle}</p>}
@@ -123,7 +123,7 @@ const Card = ({ children, className, title, subtitle, icon: Icon, badge, titleCl
         {badge}
       </div>
     )}
-    <div className="p-4">{children}</div>
+    <div className="p-4 relative z-10">{children}</div>
   </div>
 );
 
@@ -280,14 +280,18 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
           <Card 
             title="Why This Matters" 
             icon={Info} 
-            titleClassName="text-white"
-            className="border-teal-accent/40 bg-teal-accent/10 relative overflow-hidden shadow-[0_0_20px_rgba(15,158,117,0.1)]"
+            titleClassName="text-white brightness-125"
+            iconClassName="text-white brightness-125"
+            className="border-teal-accent/60 bg-gradient-to-br from-teal-accent/20 via-teal-accent/5 to-transparent relative overflow-hidden shadow-[0_0_30px_rgba(15,158,117,0.15)] backdrop-blur-md"
           >
-            <div className="absolute top-0 left-0 w-1 h-full bg-teal-accent" />
-            <div className="space-y-3 text-xs text-white font-medium leading-relaxed">
-              <p>OSFI E-21 requires robust risk management for models used in material decisions.</p>
-              <p>PIPEDA breach costs in Canada average $7M per incident. Bastion Audit mitigates this risk.</p>
-              <p>FINTRAC liability can reach millions for non-compliant AML monitoring.</p>
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-teal-accent shadow-[0_0_15px_rgba(15,158,117,0.5)]" />
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-45 animate-light-sweep" />
+            </div>
+            <div className="space-y-3 text-xs text-white/90 font-medium leading-relaxed relative z-10">
+              <p className="drop-shadow-sm">OSFI E-21 requires robust risk management for models used in material decisions.</p>
+              <p className="drop-shadow-sm">PIPEDA breach costs in Canada average $7M per incident. Bastion Audit mitigates this risk.</p>
+              <p className="drop-shadow-sm">FINTRAC liability can reach millions for non-compliant AML monitoring.</p>
             </div>
           </Card>
 
@@ -1142,38 +1146,38 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Nav */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-card border-b border-card-border z-40 px-6 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-card/80 backdrop-blur-xl border-b border-card-border/50 z-40 px-6 flex items-center justify-between shadow-[0_1px_10px_rgba(0,0,0,0.4)]">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Shield className="w-6 h-6 text-teal-accent" />
-            <span className="text-lg font-bold">Bastion Audit</span>
+            <Shield className="w-6 h-6 text-teal-accent drop-shadow-[0_0_8px_rgba(15,158,117,0.4)]" />
+            <span className="text-lg font-bold tracking-tight text-white">Bastion Audit</span>
           </div>
-          <div className="h-4 w-px bg-card-border mx-2" />
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">NorthGuard Security</span>
+          <div className="h-4 w-px bg-card-border/60 mx-2" />
+          <span className="text-[10px] font-bold text-text-muted/80 uppercase tracking-[0.2em]">NorthGuard Security</span>
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
-          <Badge variant="teal">OSFI E-21</Badge>
-          <Badge variant="teal">PIPEDA</Badge>
-          <Badge variant="amber">AIDA</Badge>
-          <Badge variant="teal">SOC2</Badge>
+          <Badge variant="teal" className="bg-teal-accent/5 border-teal-accent/30 shadow-[inset_0_0_10px_rgba(15,158,117,0.05)]">OSFI E-21</Badge>
+          <Badge variant="teal" className="bg-teal-accent/5 border-teal-accent/30 shadow-[inset_0_0_10px_rgba(15,158,117,0.05)]">PIPEDA</Badge>
+          <Badge variant="amber" className="bg-amber-accent/5 border-amber-accent/30 shadow-[inset_0_0_10px_rgba(245,158,11,0.05)]">AIDA</Badge>
+          <Badge variant="teal" className="bg-teal-accent/5 border-teal-accent/30 shadow-[inset_0_0_10px_rgba(15,158,117,0.05)]">SOC2</Badge>
         </div>
 
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-[10px] text-text-muted uppercase font-bold">Security Health</p>
-              <p className="text-sm font-bold text-teal-accent">100.0%</p>
+              <p className="text-[10px] text-text-muted uppercase font-bold tracking-wider">Security Health</p>
+              <p className="text-sm font-bold text-teal-accent drop-shadow-[0_0_10px_rgba(15,158,117,0.3)]">100.0%</p>
             </div>
-            <div className="w-24 h-1.5 bg-background rounded-full overflow-hidden">
-              <div className="h-full bg-teal-accent" style={{ width: '100%' }} />
+            <div className="w-24 h-1.5 bg-background/60 rounded-full overflow-hidden border border-card-border/30">
+              <div className="h-full bg-teal-accent shadow-[0_0_8px_rgba(15,158,117,0.6)]" style={{ width: '100%' }} />
             </div>
           </div>
-          <Button variant="danger" className="text-[10px] font-bold px-3 py-1.5 h-auto">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+          <Button variant="danger" className="text-[10px] font-bold px-3 py-1.5 h-auto shadow-[0_0_15px_rgba(239,68,68,0.2)] hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all duration-300 border border-red-accent/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse shadow-[0_0_5px_white]" />
             LIVE KILL-SWITCH
           </Button>
-          <Button variant="ghost" className="text-xs">Sign In</Button>
+          <Button variant="ghost" className="text-xs text-text-muted hover:text-white transition-colors">Sign In</Button>
         </div>
       </header>
 
