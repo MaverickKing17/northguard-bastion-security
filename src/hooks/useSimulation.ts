@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db, auth } from '../firebase';
 
 export interface LogEntry {
   id: string;
@@ -60,18 +62,36 @@ export function useSimulation() {
   }, []);
 
   useEffect(() => {
-    const logInterval = setInterval(() => {
+    const logInterval = setInterval(async () => {
       const agents = ['Fraud Detection v3.2', 'AML Screener v2.4', 'Mortgage Adjudicator v4.1', 'Customer Service LLM'];
       const actions = ['Input Validation', 'PII Scan', 'Prompt Injection Check', 'Bias Analysis', 'FINTRAC Compliance Check'];
       const agent = agents[Math.floor(Math.random() * agents.length)];
       const action = actions[Math.floor(Math.random() * actions.length)];
+      const status = Math.random() > 0.1 ? 'PASSED' : 'INFO';
+      const details = `Request analyzed for ${agent} - No anomalies detected.`;
       
       addLog({
         agent,
         action,
-        status: Math.random() > 0.1 ? 'PASSED' : 'INFO',
-        details: `Request analyzed for ${agent} - No anomalies detected.`,
+        status,
+        details,
       });
+
+      // Write to Firestore if user is authenticated to populate the live feed
+      if (auth.currentUser) {
+        try {
+          await addDoc(collection(db, 'audit_logs'), {
+            timestamp: serverTimestamp(),
+            user: agent,
+            action: action,
+            status: status === 'PASSED' || status === 'INFO' ? 'SUCCESS' : 'ERROR', // Map simulation status to Firestore allowed status
+            details: details,
+            uid: auth.currentUser.uid
+          });
+        } catch (error) {
+          console.error("Simulation failed to write to Firestore:", error);
+        }
+      }
 
       // Occasionally increment stats
       if (Math.random() > 0.7) {
@@ -81,7 +101,7 @@ export function useSimulation() {
           riskAvoided: +(prev.riskAvoided + 0.01).toFixed(2)
         }));
       }
-    }, 3000);
+    }, 1200);
 
     const threatInterval = setInterval(() => {
       const isCritical = Math.random() > 0.7;
