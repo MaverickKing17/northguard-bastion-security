@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, Component } from 'react';
-import { Shield, AlertCircle, CheckCircle2, Info, Activity, Lock, Globe, Database, Terminal, Zap, Search, Filter, Plus, ChevronRight, FileText, BarChart3, Users, Settings, LogOut, Menu, X, ArrowUpRight, TrendingUp, LogIn, User as UserIcon, Send, RefreshCw } from 'lucide-react';
+import { Shield, AlertCircle, CheckCircle2, Info, Activity, Lock, Globe, Database, Terminal, Zap, Search, Filter, Plus, ChevronRight, FileText, BarChart3, Users, Settings, LogOut, Menu, X, ArrowUpRight, TrendingUp, LogIn, User as UserIcon, Send, RefreshCw, ExternalLink } from 'lucide-react';
 import { cn } from './lib/utils';
 import { useSimulation, LogEntry, ThreatIntel, Notification } from './hooks/useSimulation';
 import { motion, AnimatePresence } from 'motion/react';
