@@ -16,15 +16,37 @@ export interface ThreatIntel {
   time: string;
 }
 
+export interface Notification {
+  id: string;
+  type: 'THREAT' | 'DRIFT';
+  severity: 'CRITICAL' | 'HIGH';
+  message: string;
+  timestamp: string;
+  linkTab: number;
+}
+
 export function useSimulation() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [threats, setThreats] = useState<ThreatIntel[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [stats, setStats] = useState({
     events: 1847,
     riskAvoided: 2.3,
     compliance: 94.2,
   });
   const [isKillSwitchActive, setIsKillSwitchActive] = useState(false);
+
+  const addNotification = useCallback((notif: Omit<Notification, 'id' | 'timestamp'>) => {
+    const newNotif: Notification = {
+      ...notif,
+      id: Math.random().toString(36).substr(2, 9),
+      timestamp: new Date().toLocaleTimeString('en-CA', { hour12: false }),
+    };
+    setNotifications(prev => [newNotif, ...prev].slice(0, 10));
+    
+    // Placeholder for email alert
+    console.log(`[EMAIL ALERT SIMULATION] To: security-ops@northguard.ca | Subject: ${notif.severity} ALERT: ${notif.message}`);
+  }, []);
 
   const addLog = useCallback((entry: Omit<LogEntry, 'id' | 'timestamp'>) => {
     const newLog: LogEntry = {
@@ -60,20 +82,50 @@ export function useSimulation() {
     }, 3000);
 
     const threatInterval = setInterval(() => {
+      const isCritical = Math.random() > 0.7;
+      const severity = isCritical ? 'CRITICAL' : 'HIGH';
+      const title = Math.random() > 0.5 ? 'Attempted Prompt Injection' : 'Potential SIN Exfiltration';
+      
       const newThreat: ThreatIntel = {
         id: Math.random().toString(36).substr(2, 9),
-        severity: Math.random() > 0.7 ? 'CRITICAL' : 'HIGH',
-        title: Math.random() > 0.5 ? 'Attempted Prompt Injection' : 'Potential SIN Exfiltration',
+        severity,
+        title,
         time: 'Just now',
       };
       setThreats(prev => [newThreat, ...prev].slice(0, 5));
+
+      if (isCritical) {
+        addNotification({
+          type: 'THREAT',
+          severity: 'CRITICAL',
+          message: `CRITICAL THREAT: ${title} detected in live traffic.`,
+          linkTab: 0
+        });
+      }
     }, 15000);
+
+    // Simulate Drift Alert
+    const driftInterval = setInterval(() => {
+      if (Math.random() > 0.8) {
+        addNotification({
+          type: 'DRIFT',
+          severity: 'HIGH',
+          message: `BEHAVIORAL DRIFT: Mortgage Adjudicator v4.1 showing anomalous bias patterns.`,
+          linkTab: 4
+        });
+      }
+    }, 45000);
 
     return () => {
       clearInterval(logInterval);
       clearInterval(threatInterval);
+      clearInterval(driftInterval);
     };
-  }, [addLog]);
+  }, [addLog, addNotification]);
 
-  return { logs, threats, stats, isKillSwitchActive, setIsKillSwitchActive, addLog };
+  const dismissNotification = (id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  return { logs, threats, notifications, stats, isKillSwitchActive, setIsKillSwitchActive, addLog, dismissNotification };
 }

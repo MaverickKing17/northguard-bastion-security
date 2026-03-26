@@ -1,12 +1,49 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Shield, AlertCircle, CheckCircle2, Info, Activity, Lock, Globe, Database, Terminal, Zap, Search, Filter, Plus, ChevronRight, FileText, BarChart3, Users, Settings, LogOut, Menu, X, ArrowUpRight, TrendingUp } from 'lucide-react';
 import { cn } from './lib/utils';
-import { useSimulation, LogEntry, ThreatIntel } from './hooks/useSimulation';
+import { useSimulation, LogEntry, ThreatIntel, Notification } from './hooks/useSimulation';
 import { motion, AnimatePresence } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { GoogleGenAI } from "@google/genai";
 
 // --- UI Components ---
+
+const NotificationToast = ({ notification, onDismiss, onAction }: { notification: Notification, onDismiss: (id: string) => void, onAction: (tab: number) => void }) => (
+  <motion.div
+    initial={{ opacity: 0, x: 50, y: -20 }}
+    animate={{ opacity: 1, x: 0, y: 0 }}
+    exit={{ opacity: 0, x: 50 }}
+    className={cn(
+      "bg-card border-l-4 p-4 rounded-lg shadow-2xl flex items-start gap-3 w-80 mb-3",
+      notification.severity === 'CRITICAL' ? "border-red-accent" : "border-amber-accent"
+    )}
+  >
+    <div className={cn(
+      "mt-1 p-1 rounded-full",
+      notification.severity === 'CRITICAL' ? "bg-red-accent/20 text-red-accent" : "bg-amber-accent/20 text-amber-accent"
+    )}>
+      <AlertCircle className="w-4 h-4" />
+    </div>
+    <div className="flex-1">
+      <div className="flex justify-between items-start">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">{notification.type} ALERT</p>
+        <button onClick={() => onDismiss(notification.id)} className="text-text-muted hover:text-text-primary">
+          <X className="w-3 h-3" />
+        </button>
+      </div>
+      <p className="text-xs font-semibold text-text-primary mt-1">{notification.message}</p>
+      <div className="flex items-center justify-between mt-3">
+        <span className="text-[10px] font-mono text-text-muted">{notification.timestamp}</span>
+        <button 
+          onClick={() => { onAction(notification.linkTab); onDismiss(notification.id); }}
+          className="text-[10px] font-bold text-teal-accent hover:underline uppercase tracking-wider"
+        >
+          Investigate →
+        </button>
+      </div>
+    </div>
+  </motion.div>
+);
 
 const Badge = ({ children, variant = 'teal', pulse = false, className }: { children: React.ReactNode, variant?: 'teal' | 'amber' | 'red' | 'blue' | 'slate', pulse?: boolean, className?: string }) => {
   const variants = {
@@ -683,7 +720,22 @@ export default function App() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 ml-[220px] p-8 bg-background">
+        <main className="flex-1 ml-[220px] p-8 bg-background relative">
+          {/* Notification Overlay */}
+          <div className="fixed top-20 right-8 z-50 flex flex-col items-end pointer-events-none">
+            <AnimatePresence>
+              {simulation.notifications.map((n: Notification) => (
+                <div key={n.id} className="pointer-events-auto">
+                  <NotificationToast 
+                    notification={n} 
+                    onDismiss={simulation.dismissNotification} 
+                    onAction={setActiveTab} 
+                  />
+                </div>
+              ))}
+            </AnimatePresence>
+          </div>
+
           {/* Tab Nav */}
           <nav className="flex items-center gap-1 border-b border-card-border mb-8 overflow-x-auto no-scrollbar">
             {tabs.map((tab) => (
