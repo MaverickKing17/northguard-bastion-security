@@ -597,6 +597,96 @@ const BoardReport = () => {
   );
 };
 
+const SettingsTab = ({ simulation }: { simulation: any }) => {
+  const { showNotifications, setShowNotifications } = simulation;
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="flex items-center justify-between border-b border-card-border pb-4">
+        <div>
+          <h2 className="text-xl font-bold text-text-primary uppercase tracking-tight">Platform Settings</h2>
+          <p className="text-xs text-text-muted uppercase tracking-wider mt-1">Configure your SOC experience and alerting preferences.</p>
+        </div>
+        <Badge variant="slate">v2.4.0-STABLE</Badge>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card title="Alerting Preferences" icon={Zap}>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-text-primary">Real-time Threat Alerts</p>
+                <p className="text-[10px] text-text-muted leading-relaxed">
+                  Toggle on-screen toast notifications for critical threats and behavioral drift events.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className={cn(
+                  "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-accent focus:ring-offset-2 bg-slate-700",
+                  showNotifications ? "bg-teal-accent" : "bg-slate-700"
+                )}
+                role="switch"
+                aria-checked={showNotifications}
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                    showNotifications ? "translate-x-5" : "translate-x-0"
+                  )}
+                />
+              </button>
+            </div>
+
+            <div className="pt-4 border-t border-card-border space-y-4 opacity-50 pointer-events-none">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-text-primary">Email Notifications</p>
+                  <p className="text-[10px] text-text-muted">Receive critical alerts via SOC-ops email.</p>
+                </div>
+                <div className="h-6 w-11 rounded-full bg-slate-800" />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-text-primary">Slack Integration</p>
+                  <p className="text-[10px] text-text-muted">Forward threat intel to #security-alerts.</p>
+                </div>
+                <div className="h-6 w-11 rounded-full bg-slate-800" />
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Compliance & Data" icon={Database}>
+          <div className="space-y-4">
+            <div className="p-3 bg-background/50 rounded-lg border border-card-border">
+              <p className="text-[10px] font-bold text-text-muted uppercase mb-2">Data Residency Status</p>
+              <div className="flex items-center gap-2 text-xs font-semibold text-teal-accent">
+                <Globe className="w-3 h-3" />
+                SOVEREIGN: CANADA CENTRAL (PRIMARY)
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold text-text-muted uppercase">Audit Log Retention</p>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-text-primary">Standard Retention</span>
+                <span className="font-mono text-text-muted">7 YEARS (OSFI COMPLIANT)</span>
+              </div>
+              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-teal-accent h-full w-full" />
+              </div>
+            </div>
+            <Button variant="outline" className="w-full text-[10px] py-1 h-auto mt-2">
+              <FileText className="w-3 h-3" /> Export Compliance Report (PDF)
+            </Button>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
 // --- Chat Widget ---
 
 const AIChatWidget = () => {
@@ -1009,6 +1099,7 @@ function App() {
     { id: 3, label: 'Vulnerability Audit', icon: Shield, badge: 'SHIELD' },
     { id: 4, label: 'Behavioral Drift', icon: TrendingUp, badge: 'NEW' },
     { id: 5, label: 'Board Report', icon: BarChart3 },
+    { id: 6, label: 'Settings', icon: Settings },
   ];
 
   if (loading) {
@@ -1142,6 +1233,16 @@ function App() {
                 <p className="text-[10px] text-text-muted truncate">{user.email}</p>
               </div>
             </div>
+            <Button 
+              variant="ghost" 
+              className={cn(
+                "w-full justify-start mb-1",
+                activeTab === 6 ? "bg-teal-accent/10 text-teal-accent" : "text-text-muted"
+              )} 
+              onClick={() => setActiveTab(6)}
+            >
+              <Settings className="w-4 h-4" /> Platform Settings
+            </Button>
             <Button variant="ghost" className="w-full justify-start text-red-accent hover:bg-red-accent/10" onClick={logout}>
               <LogOut className="w-4 h-4" /> Terminate Session
             </Button>
@@ -1162,19 +1263,21 @@ function App() {
           </AnimatePresence>
 
           {/* Notification Overlay */}
-          <div className="fixed top-20 right-8 z-50 flex flex-col items-end pointer-events-none">
-            <AnimatePresence>
-              {simulation.notifications.map((n: Notification) => (
-                <div key={n.id} className="pointer-events-auto">
-                  <NotificationToast 
-                    notification={n} 
-                    onDismiss={simulation.dismissNotification} 
-                    onAction={setActiveTab} 
-                  />
-                </div>
-              ))}
-            </AnimatePresence>
-          </div>
+          {simulation.showNotifications && (
+            <div className="fixed top-20 right-8 z-50 flex flex-col items-end pointer-events-none">
+              <AnimatePresence>
+                {simulation.notifications.map((n: Notification) => (
+                  <div key={n.id} className="pointer-events-auto">
+                    <NotificationToast 
+                      notification={n} 
+                      onDismiss={simulation.dismissNotification} 
+                      onAction={setActiveTab} 
+                    />
+                  </div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
 
           {/* Tab Nav */}
           <nav className="flex items-center gap-1 border-b border-card-border mb-8 overflow-x-auto no-scrollbar" role="tablist" aria-label="Security Dashboard Tabs">
@@ -1219,6 +1322,7 @@ function App() {
               {activeTab === 3 && <VulnerabilityAudit />}
               {activeTab === 4 && <BehavioralDrift />}
               {activeTab === 5 && <BoardReport />}
+              {activeTab === 6 && <SettingsTab simulation={simulation} />}
             </motion.div>
           </AnimatePresence>
         </main>

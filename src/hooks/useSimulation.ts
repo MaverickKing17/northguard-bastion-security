@@ -35,8 +35,10 @@ export function useSimulation() {
     compliance: 94.2,
   });
   const [isKillSwitchActive, setIsKillSwitchActive] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(true);
 
   const addNotification = useCallback((notif: Omit<Notification, 'id' | 'timestamp'>) => {
+    if (!showNotifications) return;
     const newNotif: Notification = {
       ...notif,
       id: Math.random().toString(36).substr(2, 9),
@@ -123,9 +125,15 @@ export function useSimulation() {
     };
   }, [addLog, addNotification]);
 
+  useEffect(() => {
+    if (!showNotifications) {
+      setNotifications([]);
+    }
+  }, [showNotifications]);
+
   const dismissNotification = (id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  return { logs, threats, notifications, stats, isKillSwitchActive, setIsKillSwitchActive, addLog, dismissNotification };
+  return { logs, threats, notifications, stats, isKillSwitchActive, setIsKillSwitchActive, showNotifications, setShowNotifications, addLog, dismissNotification };
 }
