@@ -13,6 +13,8 @@ const NotificationToast = ({ notification, onDismiss, onAction }: { notification
     initial={{ opacity: 0, x: 50, y: -20 }}
     animate={{ opacity: 1, x: 0, y: 0 }}
     exit={{ opacity: 0, x: 50 }}
+    role="alert"
+    aria-live="assertive"
     className={cn(
       "bg-card border-l-4 p-4 rounded-lg shadow-2xl flex items-start gap-3 w-80 mb-3",
       notification.severity === 'CRITICAL' ? "border-red-accent" : "border-amber-accent"
@@ -22,12 +24,16 @@ const NotificationToast = ({ notification, onDismiss, onAction }: { notification
       "mt-1 p-1 rounded-full",
       notification.severity === 'CRITICAL' ? "bg-red-accent/20 text-red-accent" : "bg-amber-accent/20 text-amber-accent"
     )}>
-      <AlertCircle className="w-4 h-4" />
+      <AlertCircle className="w-4 h-4" aria-hidden="true" />
     </div>
     <div className="flex-1">
       <div className="flex justify-between items-start">
         <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">{notification.type} ALERT</p>
-        <button onClick={() => onDismiss(notification.id)} className="text-text-muted hover:text-text-primary">
+        <button 
+          onClick={() => onDismiss(notification.id)} 
+          className="text-text-muted hover:text-text-primary focus-visible:ring-2 focus-visible:ring-teal-accent rounded"
+          aria-label="Dismiss notification"
+        >
           <X className="w-3 h-3" />
         </button>
       </div>
@@ -36,7 +42,8 @@ const NotificationToast = ({ notification, onDismiss, onAction }: { notification
         <span className="text-[10px] font-mono text-text-muted">{notification.timestamp}</span>
         <button 
           onClick={() => { onAction(notification.linkTab); onDismiss(notification.id); }}
-          className="text-[10px] font-bold text-teal-accent hover:underline uppercase tracking-wider"
+          className="text-[10px] font-bold text-teal-accent hover:underline uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-teal-accent rounded"
+          aria-label={`Investigate ${notification.type} alert`}
         >
           Investigate →
         </button>
@@ -93,7 +100,7 @@ const Button = ({ children, variant = 'primary', className, ...props }: React.Bu
   };
 
   return (
-    <button className={cn('px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50', variants[variant], className)} {...props}>
+    <button className={cn('px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-accent outline-none', variants[variant], className)} {...props}>
       {children}
     </button>
   );
@@ -112,7 +119,7 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
           { label: 'Security Events Intercepted', value: stats.events.toLocaleString(), change: '+12% this month', color: 'teal' },
           { label: 'AI Agents Monitored', value: '14', change: 'Across fraud, AML, credit', color: 'blue' },
           { label: 'Financial Risk Avoided', value: `$${stats.riskAvoided}M CAD`, change: 'Est. PIPEDA breach cost avoided', color: 'teal' },
-          { label: 'Compliance Score', value: `${stats.compliance}%`, change: '+2.1% this week', color: 'teal' },
+          { label: 'Explainability (XAI) Index', value: '88.4%', change: 'OSFI E-21 transparency metric', color: 'teal' },
         ].map((kpi, i) => (
           <Card key={i} className="relative overflow-hidden group">
             <div className={cn("absolute top-0 left-0 w-1 h-full", kpi.color === 'teal' ? 'bg-teal-accent' : 'bg-blue-accent')} />
@@ -145,9 +152,9 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
                     BASTION SECURITY LAYER v2.0
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="ghost" className="text-[10px] py-1 h-auto">PII Leak</Button>
-                    <Button variant="ghost" className="text-[10px] py-1 h-auto">AML Bypass</Button>
-                    <Button variant="primary" className="text-[10px] py-1 h-auto">Run Simulation</Button>
+                    <Button variant="ghost" className="text-[10px] py-1 h-auto" aria-label="Simulate PII Leak">PII Leak</Button>
+                    <Button variant="ghost" className="text-[10px] py-1 h-auto" aria-label="Simulate AML Bypass">AML Bypass</Button>
+                    <Button variant="primary" className="text-[10px] py-1 h-auto" aria-label="Run Security Simulation">Run Simulation</Button>
                   </div>
                 </div>
               </div>
@@ -162,7 +169,10 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
                   { name: 'Credit Decision Bias', time: '52ms', status: 'PASSED' },
                 ].map((row, i) => (
                   <div key={i} className="flex items-center justify-between py-2 border-b border-card-border last:border-0">
-                    <span className="text-xs font-medium">{row.name}</span>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium">{row.name}</span>
+                      <span className="text-[8px] text-text-muted uppercase tracking-tighter">Human-in-the-loop verified</span>
+                    </div>
                     <div className="flex items-center gap-4">
                       <span className="text-[10px] font-mono text-text-muted">{row.time}</span>
                       <Badge variant="teal">{row.status}</Badge>
@@ -174,7 +184,11 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
           </Card>
 
           <Card title="Agent Behavior Stream" icon={Terminal} className="p-0">
-            <div className="bg-black/40 p-4 font-mono text-xs h-[300px] overflow-y-auto space-y-1">
+            <div 
+              className="bg-black/40 p-4 font-mono text-xs h-[300px] overflow-y-auto space-y-1"
+              aria-live="polite"
+              aria-label="Real-time agent behavior log stream"
+            >
               {logs.map((log: LogEntry) => (
                 <div key={log.id} className="flex gap-3">
                   <span className="text-text-muted">[{log.timestamp}]</span>
@@ -548,14 +562,14 @@ const AIChatWidget = () => {
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             className="bg-card border border-card-border rounded-2xl w-[380px] h-[500px] shadow-2xl flex flex-col mb-4 overflow-hidden"
           >
-            <div className="p-4 border-b border-card-border bg-teal-accent/5 flex items-center justify-between">
+            <div className="p-4 border-b border-card-border bg-orange-500/10 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-teal-accent flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center">
                   <Shield className="w-4 h-4 text-white" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold">Security Sentinel</h3>
-                  <p className="text-[10px] text-teal-accent uppercase font-bold tracking-widest">Active Guardrail</p>
+                  <p className="text-[10px] text-orange-500 uppercase font-bold tracking-widest">Active Guardrail</p>
                 </div>
               </div>
               <select 
@@ -576,7 +590,7 @@ const AIChatWidget = () => {
                 )}>
                   <div className={cn(
                     "max-w-[80%] p-3 rounded-xl text-xs",
-                    msg.role === 'user' ? 'bg-teal-accent text-white' : 'bg-card-border text-text-primary'
+                    msg.role === 'user' ? 'bg-orange-500 text-white' : 'bg-card-border text-text-primary'
                   )}>
                     {msg.text}
                   </div>
@@ -597,10 +611,10 @@ const AIChatWidget = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  className="flex-1 bg-background border border-card-border rounded-lg px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-teal-accent"
+                  className="flex-1 bg-background border border-card-border rounded-lg px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-orange-500"
                   placeholder="Ask Sentinel..."
                 />
-                <Button onClick={handleSend} className="p-2 h-auto"><Zap className="w-4 h-4" /></Button>
+                <Button onClick={handleSend} className="p-2 h-auto bg-orange-500 hover:bg-orange-600"><Zap className="w-4 h-4" /></Button>
               </div>
             </div>
           </motion.div>
@@ -608,7 +622,7 @@ const AIChatWidget = () => {
       </AnimatePresence>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 rounded-full bg-teal-accent shadow-lg flex items-center justify-center text-white hover:scale-110 transition-transform"
+        className="w-14 h-14 rounded-full bg-orange-500 shadow-lg flex items-center justify-center text-white hover:scale-110 transition-transform"
       >
         {isOpen ? <X className="w-6 h-6" /> : <Shield className="w-6 h-6" />}
       </button>
@@ -616,11 +630,231 @@ const AIChatWidget = () => {
   );
 };
 
+// --- Modal Content System ---
+
+const ContentModal = ({ title, content, onClose }: { title: string, content: React.ReactNode, onClose: () => void }) => (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="bg-card border border-card-border rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl"
+    >
+      <div className="p-6 border-b border-card-border flex items-center justify-between">
+        <h2 className="text-xl font-bold text-text-primary">{title}</h2>
+        <button onClick={onClose} className="p-2 hover:bg-card-border rounded-full transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+      <div className="p-8 overflow-y-auto text-sm text-text-primary leading-relaxed space-y-6">
+        {content}
+      </div>
+    </motion.div>
+  </div>
+);
+
+const LEGAL_CONTENT = {
+  'OSFI Guideline E-21': (
+    <>
+      <p className="font-bold text-teal-accent">Operational Risk Management for AI Models</p>
+      <p>OSFI Guideline E-21 sets the standard for Model Risk Management (MRM) within Canadian Federally Regulated Financial Institutions (FRFIs). Bastion Audit aligns with these requirements by providing:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li><strong>Three Lines of Defence:</strong> Clear separation between model developers, independent validation teams, and internal audit.</li>
+        <li><strong>Model Inventory:</strong> A comprehensive, centralized registry of all models used in material decision-making.</li>
+        <li><strong>Ongoing Monitoring:</strong> Real-time tracking of model performance, behavioral drift, and data integrity.</li>
+        <li><strong>Board Oversight:</strong> Automated reporting designed to provide the Board of Directors with clear insights into AI-related operational risks.</li>
+      </ul>
+    </>
+  ),
+  'PIPEDA Compliance': (
+    <>
+      <p className="font-bold text-teal-accent">Personal Information Protection and Electronic Documents Act</p>
+      <p>Bastion Audit ensures that AI deployments remain compliant with PIPEDA's 10 Fair Information Principles:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li><strong>Accountability:</strong> Cryptographically secured audit trails for all data processing activities.</li>
+        <li><strong>Identifying Purposes:</strong> Clear documentation of why PII is being processed by AI agents.</li>
+        <li><strong>Limiting Collection:</strong> Real-time guardrails to prevent AI agents from collecting or exfiltrating unnecessary PII/SIN data.</li>
+        <li><strong>Safeguards:</strong> Strict data residency in Canada Central/East regions, ensuring sovereign data protection.</li>
+      </ul>
+    </>
+  ),
+  'FINTRAC AML/ATF': (
+    <>
+      <p className="font-bold text-teal-accent">Anti-Money Laundering and Anti-Terrorist Financing</p>
+      <p>For Schedule I and II banks, compliance with FINTRAC is non-negotiable. Bastion Audit provides:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li><strong>Suspicious Transaction Detection:</strong> AI-driven monitoring for complex AML bypass attempts.</li>
+        <li><strong>KYC Integrity:</strong> Ensuring AI agents do not bypass Know Your Customer protocols during automated onboarding.</li>
+        <li><strong>Record Keeping:</strong> Immutable logs of all compliance-related AI decisions for regulatory examination.</li>
+        <li><strong>Risk Assessment:</strong> Real-time tiering of transactions based on FINTRAC-aligned risk parameters.</li>
+      </ul>
+    </>
+  ),
+  'AIDA / Bill C-27': (
+    <>
+      <p className="font-bold text-teal-accent">Artificial Intelligence and Data Act</p>
+      <p>As Canada moves toward formal AI regulation, Bastion Audit prepares FRFIs for AIDA requirements:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li><strong>High-Impact System Management:</strong> Identification and rigorous monitoring of AI systems that could cause material harm.</li>
+        <li><strong>Bias Mitigation:</strong> Proactive detection of discriminatory patterns in credit adjudication and mortgage models.</li>
+        <li><strong>Transparency:</strong> Explainability scores and narrative summaries for AI-driven decisions.</li>
+        <li><strong>Enforcement Readiness:</strong> Tools to demonstrate due diligence and prevent significant administrative monetary penalties.</li>
+      </ul>
+    </>
+  ),
+  'Threat Intelligence Feed': (
+    <>
+      <p className="font-bold text-teal-accent">Canadian Banking-Specific Threat Monitoring</p>
+      <p>Our feed provides real-time updates on threats targeting the Canadian financial sector:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li><strong>Interac e-Transfer Fraud:</strong> Monitoring for new social engineering patterns targeting P2P payments.</li>
+        <li><strong>SIN Exfiltration:</strong> Specific guardrails for Social Insurance Number patterns in customer service chats.</li>
+        <li><strong>Bypass Techniques:</strong> Alerts on new prompt injection methods designed to circumvent banking security layers.</li>
+        <li><strong>Regional Trends:</strong> Data on threat actors specifically targeting Toronto and Montreal financial hubs.</li>
+      </ul>
+    </>
+  ),
+  'Red Team Methodology': (
+    <>
+      <p className="font-bold text-teal-accent">Adversarial Testing for Financial Resilience</p>
+      <p>Our red-teaming approach is calibrated to the unique risk profile of FRFIs:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li><strong>Contextual Scenarios:</strong> Simulations based on real-world Canadian banking use cases (e.g., mortgage fraud).</li>
+        <li><strong>OSFI E-21 Alignment:</strong> Testing designed to validate the "Second Line of Defence" effectiveness.</li>
+        <li><strong>Safe Sandbox:</strong> Isolated environment to test adversarial prompts without impacting production systems.</li>
+        <li><strong>Remediation Tracking:</strong> Automated mapping of vulnerabilities to specific regulatory controls.</li>
+      </ul>
+    </>
+  ),
+  'Vulnerability Disclosure': (
+    <>
+      <p className="font-bold text-teal-accent">Responsible Reporting for Financial Infrastructure</p>
+      <p>Bastion Audit facilitates a secure channel for vulnerability reporting:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li><strong>Safe Harbor:</strong> Legal protection for researchers operating within our disclosure guidelines.</li>
+        <li><strong>Triage Process:</strong> Rapid assessment of reported flaws by our Canadian-based security operations center.</li>
+        <li><strong>Coordinated Response:</strong> Alignment with CCIRC and other Canadian national security bodies.</li>
+        <li><strong>Integrity Checks:</strong> Ensuring that reported vulnerabilities are addressed without introducing secondary risks.</li>
+      </ul>
+    </>
+  ),
+  'Audit Log Verification': (
+    <>
+      <p className="font-bold text-teal-accent">Cryptographic Proof of Regulatory Compliance</p>
+      <p>Ensuring that audit trails are tamper-proof and ready for examination:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li><strong>Hashing & Chaining:</strong> Using cryptographic hashes to link log entries, preventing retroactive modification.</li>
+        <li><strong>Timestamping:</strong> Trusted time-stamping from Canadian sovereign time sources.</li>
+        <li><strong>Access Control:</strong> Strict logging of who accessed or exported audit data.</li>
+        <li><strong>Export Readiness:</strong> One-click generation of cryptographically signed reports for OSFI and FINTRAC auditors.</li>
+      </ul>
+    </>
+  ),
+  'Privacy Policy': (
+    <>
+      <p className="font-bold text-teal-accent">Data Privacy at NorthGuard Security</p>
+      <p>Our privacy policy is built on the foundation of Canadian data sovereignty:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li><strong>Zero Data Export:</strong> No customer data or AI metadata ever leaves the Canada Central or Canada East regions.</li>
+        <li><strong>Purpose Limitation:</strong> Data is processed solely for the purpose of security monitoring and compliance auditing.</li>
+        <li><strong>Retention:</strong> Strict data retention schedules aligned with FINTRAC and OSFI record-keeping requirements.</li>
+        <li><strong>Encryption:</strong> All data is encrypted at rest and in transit using FIPS 140-2 validated modules.</li>
+      </ul>
+    </>
+  ),
+  'Terms of Service': (
+    <>
+      <p className="font-bold text-teal-accent">Enterprise Service Agreement</p>
+      <p>Governing the use of Bastion Audit within FRFI environments:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li><strong>Service Level Agreements:</strong> 99.99% availability for critical threat interception layers.</li>
+        <li><strong>Liability:</strong> Clear definition of responsibilities in the shared security model for AI.</li>
+        <li><strong>Compliance Warranty:</strong> Guarantee that the platform remains updated with the latest OSFI and FINTRAC requirements.</li>
+        <li><strong>Termination:</strong> Secure data handover and destruction protocols upon contract conclusion.</li>
+      </ul>
+    </>
+  ),
+  'Cookie Settings': (
+    <>
+      <p className="font-bold text-teal-accent">Transparency in Web Tracking</p>
+      <p>We use minimal, essential cookies to maintain security and session integrity:</p>
+      <ul className="list-disc pl-5 space-y-2">
+        <li><strong>Essential Cookies:</strong> Required for authentication and CSRF protection.</li>
+        <li><strong>Security Cookies:</strong> Used to detect and prevent malicious login attempts.</li>
+        <li><strong>Preference Cookies:</strong> Storing your dashboard layout and theme selections.</li>
+        <li><strong>No Third-Party Tracking:</strong> We do not use advertising or third-party analytics cookies.</li>
+      </ul>
+    </>
+  ),
+};
+
+// --- Cookie Banner ---
+
+const CookieBanner = ({ onAccept, onOpenLegal }: { onAccept: () => void, onOpenLegal: (page: string) => void }) => (
+  <motion.div
+    initial={{ y: 100, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    exit={{ y: 100, opacity: 0 }}
+    className="fixed bottom-6 left-6 right-6 md:left-auto md:right-24 md:w-[450px] z-[60] bg-card border border-card-border shadow-2xl rounded-2xl p-6 flex flex-col gap-4"
+    role="status"
+    aria-live="polite"
+  >
+    <div className="flex items-start gap-4">
+      <div className="p-2 bg-teal-accent/10 rounded-full">
+        <Lock className="w-5 h-5 text-teal-accent" aria-hidden="true" />
+      </div>
+      <div className="space-y-1">
+        <h3 className="text-sm font-bold text-text-primary">Privacy & Transparency Notice</h3>
+        <p className="text-xs text-text-muted leading-relaxed">
+          Bastion Audit uses essential security cookies to maintain session integrity and ensure OSFI E-21 audit trails. No third-party tracking or advertising cookies are used.
+        </p>
+      </div>
+    </div>
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex gap-3">
+        <button 
+          onClick={() => onOpenLegal('Privacy Policy')}
+          className="text-[10px] font-bold uppercase tracking-widest text-teal-accent hover:underline focus-visible:ring-2 focus-visible:ring-teal-accent rounded outline-none"
+        >
+          Privacy Policy
+        </button>
+        <button 
+          onClick={() => onOpenLegal('Cookie Settings')}
+          className="text-[10px] font-bold uppercase tracking-widest text-teal-accent hover:underline focus-visible:ring-2 focus-visible:ring-teal-accent rounded outline-none"
+        >
+          Cookie Settings
+        </button>
+      </div>
+      <Button 
+        onClick={onAccept} 
+        className="text-[10px] font-bold px-4 py-1.5 h-auto uppercase tracking-widest"
+        aria-label="Acknowledge privacy notice"
+      >
+        Acknowledge
+      </Button>
+    </div>
+  </motion.div>
+);
+
 // --- Main App ---
 
 export default function App() {
   const [activeTab, setActiveTab] = React.useState(0);
+  const [activeModalPage, setActiveModalPage] = useState<string | null>(null);
+  const [showCookieBanner, setShowCookieBanner] = useState(false);
   const simulation = useSimulation();
+
+  useEffect(() => {
+    const acknowledged = localStorage.getItem('bastion_privacy_acknowledged');
+    if (!acknowledged) {
+      const timer = setTimeout(() => setShowCookieBanner(true), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleAcceptCookies = () => {
+    localStorage.setItem('bastion_privacy_acknowledged', 'true');
+    setShowCookieBanner(false);
+  };
 
   const tabs = [
     { id: 0, label: 'Live Threat Feed', icon: Activity },
@@ -721,6 +955,17 @@ export default function App() {
 
         {/* Main Content */}
         <main className="flex-1 ml-[220px] p-8 bg-background relative">
+          {/* Modal Overlay */}
+          <AnimatePresence>
+            {activeModalPage && (
+              <ContentModal 
+                title={activeModalPage} 
+                content={LEGAL_CONTENT[activeModalPage as keyof typeof LEGAL_CONTENT]} 
+                onClose={() => setActiveModalPage(null)} 
+              />
+            )}
+          </AnimatePresence>
+
           {/* Notification Overlay */}
           <div className="fixed top-20 right-8 z-50 flex flex-col items-end pointer-events-none">
             <AnimatePresence>
@@ -737,19 +982,23 @@ export default function App() {
           </div>
 
           {/* Tab Nav */}
-          <nav className="flex items-center gap-1 border-b border-card-border mb-8 overflow-x-auto no-scrollbar">
+          <nav className="flex items-center gap-1 border-b border-card-border mb-8 overflow-x-auto no-scrollbar" role="tablist" aria-label="Security Dashboard Tabs">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`tabpanel-${tab.id}`}
+                id={`tab-${tab.id}`}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-2 shrink-0",
+                  "px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-2 shrink-0 focus-visible:ring-2 focus-visible:ring-teal-accent outline-none",
                   activeTab === tab.id 
                     ? "border-teal-accent text-teal-accent bg-teal-accent/5" 
                     : "border-transparent text-text-muted hover:text-text-primary hover:bg-card-border/50"
                 )}
               >
-                <tab.icon className="w-4 h-4" />
+                <tab.icon className="w-4 h-4" aria-hidden="true" />
                 {tab.label}
                 {tab.badge && <Badge variant={tab.badge === 'SHIELD' ? 'teal' : 'blue'} className="text-[8px] px-1.5 py-0">{tab.badge}</Badge>}
               </button>
@@ -759,10 +1008,15 @@ export default function App() {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
+              role="tabpanel"
+              id={`tabpanel-${activeTab}`}
+              aria-labelledby={`tab-${activeTab}`}
+              tabIndex={0}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
+              className="outline-none focus-visible:ring-2 focus-visible:ring-teal-accent/20 rounded-xl"
             >
               {activeTab === 0 && <LiveThreatFeed simulation={simulation} />}
               {activeTab === 1 && <RedTeamSandbox simulation={simulation} />}
@@ -789,20 +1043,20 @@ export default function App() {
           </div>
           <div className="space-y-4">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-text-primary">Regulatory Frameworks</h4>
-            <ul className="text-xs text-text-primary font-bold space-y-2">
-              <li>OSFI Guideline E-21</li>
-              <li>PIPEDA Compliance</li>
-              <li>FINTRAC AML/ATF</li>
-              <li>AIDA / Bill C-27</li>
+            <ul className="text-xs text-text-primary font-bold space-y-2" role="list">
+              <li><button onClick={() => setActiveModalPage('OSFI Guideline E-21')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View OSFI Guideline E-21 details">OSFI Guideline E-21</button></li>
+              <li><button onClick={() => setActiveModalPage('PIPEDA Compliance')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View PIPEDA Compliance details">PIPEDA Compliance</button></li>
+              <li><button onClick={() => setActiveModalPage('FINTRAC AML/ATF')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View FINTRAC AML/ATF details">FINTRAC AML/ATF</button></li>
+              <li><button onClick={() => setActiveModalPage('AIDA / Bill C-27')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View AIDA / Bill C-27 details">AIDA / Bill C-27</button></li>
             </ul>
           </div>
           <div className="space-y-4">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-text-primary">Security Resources</h4>
-            <ul className="text-xs text-text-primary font-bold space-y-2">
-              <li>Threat Intelligence Feed</li>
-              <li>Red Team Methodology</li>
-              <li>Vulnerability Disclosure</li>
-              <li>Audit Log Verification</li>
+            <ul className="text-xs text-text-primary font-bold space-y-2" role="list">
+              <li><button onClick={() => setActiveModalPage('Threat Intelligence Feed')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View Threat Intelligence Feed details">Threat Intelligence Feed</button></li>
+              <li><button onClick={() => setActiveModalPage('Red Team Methodology')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View Red Team Methodology details">Red Team Methodology</button></li>
+              <li><button onClick={() => setActiveModalPage('Vulnerability Disclosure')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View Vulnerability Disclosure details">Vulnerability Disclosure</button></li>
+              <li><button onClick={() => setActiveModalPage('Audit Log Verification')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View Audit Log Verification details">Audit Log Verification</button></li>
             </ul>
           </div>
           <div className="space-y-4">
@@ -820,14 +1074,24 @@ export default function App() {
             © 2026 NorthGuard Security. All rights reserved. Headquartered in Toronto, Ontario. Canadian sovereign infrastructure.
           </p>
           <div className="flex gap-6 text-[10px] text-text-primary uppercase font-bold tracking-widest">
-            <a href="#" className="hover:text-teal-accent">Privacy Policy</a>
-            <a href="#" className="hover:text-teal-accent">Terms of Service</a>
-            <a href="#" className="hover:text-teal-accent">Cookie Settings</a>
+            <button onClick={() => setActiveModalPage('Privacy Policy')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View Privacy Policy">Privacy Policy</button>
+            <button onClick={() => setActiveModalPage('Terms of Service')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View Terms of Service">Terms of Service</button>
+            <button onClick={() => setActiveModalPage('Cookie Settings')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View Cookie Settings">Cookie Settings</button>
           </div>
         </div>
       </footer>
 
       <AIChatWidget />
+
+      {/* Cookie Banner */}
+      <AnimatePresence>
+        {showCookieBanner && (
+          <CookieBanner 
+            onAccept={handleAcceptCookies} 
+            onOpenLegal={setActiveModalPage} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
