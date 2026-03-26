@@ -109,14 +109,14 @@ const Badge = ({ children, variant = 'teal', pulse = false, className }: { child
   );
 };
 
-const Card = ({ children, className, title, subtitle, icon: Icon, badge }: { children: React.ReactNode, className?: string, title?: string, subtitle?: string, icon?: any, badge?: React.ReactNode, key?: any }) => (
+const Card = ({ children, className, title, subtitle, icon: Icon, badge, titleClassName }: { children: React.ReactNode, className?: string, title?: string, subtitle?: string, icon?: any, badge?: React.ReactNode, key?: any, titleClassName?: string }) => (
   <div className={cn('bg-card border border-card-border rounded-xl overflow-hidden', className)}>
     {(title || Icon) && (
       <div className="px-4 py-3 border-b border-card-border flex items-center justify-between">
         <div className="flex items-center gap-2">
           {Icon && <Icon className="w-4 h-4 text-teal-accent" />}
           <div>
-            <h3 className="text-sm font-semibold text-text-primary uppercase tracking-tight">{title}</h3>
+            <h3 className={cn("text-sm font-semibold text-text-primary uppercase tracking-tight", titleClassName)}>{title}</h3>
             {subtitle && <p className="text-[10px] text-text-muted uppercase tracking-wider">{subtitle}</p>}
           </div>
         </div>
@@ -277,8 +277,14 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
 
         {/* Right Sidebar */}
         <div className="space-y-6">
-          <Card title="Why This Matters" icon={Info}>
-            <div className="space-y-3 text-xs text-text-muted leading-relaxed">
+          <Card 
+            title="Why This Matters" 
+            icon={Info} 
+            titleClassName="text-white"
+            className="border-teal-accent/40 bg-teal-accent/10 relative overflow-hidden shadow-[0_0_20px_rgba(15,158,117,0.1)]"
+          >
+            <div className="absolute top-0 left-0 w-1 h-full bg-teal-accent" />
+            <div className="space-y-3 text-xs text-white font-medium leading-relaxed">
               <p>OSFI E-21 requires robust risk management for models used in material decisions.</p>
               <p>PIPEDA breach costs in Canada average $7M per incident. Bastion Audit mitigates this risk.</p>
               <p>FINTRAC liability can reach millions for non-compliant AML monitoring.</p>
