@@ -22,8 +22,8 @@ export const loginWithGoogle = async () => {
       // Check for common errors
       if (error.message.includes('popup-blocked')) {
         alert("The login popup was blocked by your browser. Please allow popups for this site.");
-      } else if (error.message.includes('unauthorized-domain')) {
-        alert("This domain is not authorized for Firebase Authentication. Please check your Firebase console.");
+      } else if (error.message.includes('auth/unauthorized-domain') || error.message.includes('unauthorized-domain')) {
+        alert(`This domain (${window.location.hostname}) is not authorized for Firebase Authentication. Please add it to your Authorized Domains in the Firebase Console or use your production URL: northguard-bastion-security.vercel.app`);
       } else {
         alert("Login failed: " + error.message);
       }
