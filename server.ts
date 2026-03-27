@@ -9,8 +9,9 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const app = express();
+
 async function startServer() {
-  const app = express();
   const PORT = 3000;
 
   app.use(express.json());
@@ -38,22 +39,45 @@ async function startServer() {
     }
 
     try {
-      const response = await fetch("https://api.lakera.ai/v1/guard", {
+      console.log(`Starting security scan for input: "${input.substring(0, 50)}..."`);
+      const maskedKey = apiKey ? `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}` : "MISSING";
+      console.log(`Using Lakera API Key: ${maskedKey}`);
+
+      // Try the primary prompt_injection endpoint first
+      let response = await fetch("https://api.lakera.ai/v1/prompt_injection", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${apiKey}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          input: [{ role: "user", content: input }]
+          input: input
         })
       });
 
+      // If prompt_injection fails with 404, try the guard fallback
+      if (response.status === 404) {
+        console.warn("Lakera prompt_injection endpoint returned 404. Trying fallback /v1/guard...");
+        response = await fetch("https://api.lakera.ai/v1/guard", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            input: [{ role: "user", content: input }]
+          })
+        });
+      }
+
       if (!response.ok) {
-        throw new Error(`Lakera API error: ${response.statusText}`);
+        const errorBody = await response.text();
+        console.error(`Lakera API Error (${response.status}):`, errorBody);
+        throw new Error(`Lakera API error: ${response.statusText} (${response.status}) - ${errorBody}`);
       }
 
       const data = await response.json();
+      console.log("Lakera scan successful:", data.flagged ? "FLAGGED" : "CLEAN");
       res.json(data);
     } catch (error) {
       console.error("Lakera Scan Error:", error);
@@ -152,4 +176,14 @@ async function startServer() {
   });
 }
 
-startServer();
+export default app;
+
+if (process.env.NODE_ENV !== "production") {
+  startServer();
+} else {
+  // In production (like Vercel), we still need to run the setup logic
+  // but Vercel handles the listening.
+  // However, we need to make sure API routes are registered.
+  startServer();
+}
+
