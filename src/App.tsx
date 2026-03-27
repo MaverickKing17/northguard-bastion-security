@@ -1584,14 +1584,31 @@ const AIChatWidget = () => {
         return;
       }
 
-      // 2. If safe, proceed to AI Chat via Proxy
-      const chatResponse = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg, model })
-      });
+      // 2. If safe, proceed to AI Chat
+      let aiResponseText = "";
 
-      const chatData = await chatResponse.json();
+      if (model === 'Gemini 3 Flash') {
+        // Use Frontend SDK for Gemini as per platform guidelines
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+        const response = await ai.models.generateContent({
+          model: "gemini-3-flash-preview",
+          contents: userMsg,
+          config: {
+            systemInstruction: "You are the Bastion Security Sentinel, an AI security advisor for Canadian financial institutions. You have deep knowledge of OSFI E-21, PIPEDA, AIDA, and FINTRAC. Always provide professional, regulatory-aligned advice. Mention CAD for financial risks. Greet as Sentinel. Keep responses concise and actionable.",
+          }
+        });
+        aiResponseText = response.text || "I'm sorry, I couldn't generate a response.";
+      } else {
+        // Use Proxy for other models (Claude, GPT) via OpenRouter
+        const chatResponse = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: userMsg, model })
+        });
+
+        const chatData = await chatResponse.json();
+        aiResponseText = chatData.text || chatData.error || "I'm sorry, I couldn't process that request.";
+      }
 
       // Log Audit to Firestore
       await addDoc(collection(db, 'audit_logs'), {
@@ -1603,9 +1620,10 @@ const AIChatWidget = () => {
         uid: user.uid
       });
 
-      setMessages(prev => [...prev, { role: 'ai', text: chatData.text || "I'm sorry, I couldn't process that request." }]);
+      setMessages(prev => [...prev, { role: 'ai', text: aiResponseText }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'ai', text: "Error connecting to security layer. Please check your API configuration." }]);
+      console.error("Chat Error:", error);
+      setMessages(prev => [...prev, { role: 'ai', text: "Error connecting to security layer. Please check your API configuration and ensure your keys are set in the platform settings." }]);
     } finally {
       setIsScanning(false);
     }
@@ -1649,8 +1667,8 @@ const AIChatWidget = () => {
                   msg.role === 'user' ? 'justify-end' : 'justify-start'
                 )}>
                   <div className={cn(
-                    "max-w-[80%] p-3 rounded-xl text-xs",
-                    msg.role === 'user' ? 'bg-orange-500 text-white' : 'bg-card-border text-text-primary'
+                    "max-w-[80%] p-3 rounded-xl text-xs font-medium",
+                    msg.role === 'user' ? 'bg-orange-500 text-white' : 'bg-card-border text-white'
                   )}>
                     {msg.text}
                   </div>
@@ -1660,8 +1678,8 @@ const AIChatWidget = () => {
 
             <div className="p-4 border-t border-card-border space-y-3">
               <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                {['OSFI E-21 Help', 'PIPEDA Risk', 'Drift Alert'].map(pill => (
-                  <button key={pill} onClick={() => setInput(pill)} className="shrink-0 px-2 py-1 bg-background border border-card-border rounded-full text-[10px] text-text-muted hover:text-text-primary transition-colors">
+                {['OSFI E-21 Help', 'PIPEDA Risk', 'Drift Alert', 'AIDA Compliance', 'FINTRAC Audit'].map(pill => (
+                  <button key={pill} onClick={() => setInput(pill)} className="shrink-0 px-2 py-1 bg-background border border-card-border rounded-full text-[10px] text-text-muted hover:text-white hover:border-orange-500 transition-colors">
                     {pill}
                   </button>
                 ))}

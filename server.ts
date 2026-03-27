@@ -73,7 +73,8 @@ async function startServer() {
     try {
       if (model.includes("Claude") || model.includes("GPT")) {
         if (!openRouterKey) {
-          throw new Error("OpenRouter API Key not configured");
+          console.error("OpenRouter API Key missing in environment variables.");
+          return res.status(400).json({ error: "OpenRouter API Key not configured. Please add OPENROUTER_API_KEY to your environment variables in the platform settings." });
         }
 
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -93,11 +94,16 @@ async function startServer() {
           })
         });
 
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("OpenRouter API Error:", errorData);
+          return res.status(response.status).json({ error: errorData.error?.message || "OpenRouter API error" });
+        }
+
         const data = await response.json();
-        return res.json({ text: data.choices[0].message.content });
+        return res.json({ text: data.choices?.[0]?.message?.content || "No response from AI model." });
       } else {
-        // Default to Gemini (using OpenRouter as a proxy if no direct key, or just use OpenRouter for everything)
-        // For simplicity in this multi-model setup, we'll use OpenRouter for all models if the key exists.
+        // Gemini is now handled on the frontend, but we keep this as a fallback or for other models
         if (openRouterKey) {
           const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
@@ -114,15 +120,14 @@ async function startServer() {
             })
           });
           const data = await response.json();
-          return res.json({ text: data.choices[0].message.content });
+          return res.json({ text: data.choices?.[0]?.message?.content || "No response from AI model." });
         }
         
-        // Fallback or direct Gemini logic could go here if needed
-        res.status(400).json({ error: "No API key configured for this model" });
+        res.status(400).json({ error: "No API key configured for this model. Gemini should be handled via frontend SDK." });
       }
     } catch (error) {
-      console.error("Chat Error:", error);
-      res.status(500).json({ error: "Failed to generate AI response" });
+      console.error("Chat Proxy Error:", error);
+      res.status(500).json({ error: "Internal server error in chat proxy. Please check server logs." });
     }
   });
 
