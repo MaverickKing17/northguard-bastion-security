@@ -23,7 +23,9 @@ const FirebaseProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    console.log("FirebaseProvider mounted, setting up onAuthStateChanged...");
     const unsubscribe = onAuthStateChanged(auth, (u) => {
+      console.log("Auth state changed:", u ? u.email : "No user");
       setUser(u);
       setLoading(false);
       if (u && u.email === 'kingnarmer702@gmail.com') {
@@ -1975,7 +1977,13 @@ function App() {
             <h1 className="text-2xl font-bold uppercase tracking-tight">SOC Access Required</h1>
             <p className="text-sm text-text-muted">Please authenticate to access the Bastion Audit & Security Operations Center.</p>
           </div>
-          <Button onClick={loginWithGoogle} className="w-full justify-center py-3">
+          <Button 
+            onClick={() => {
+              console.log("Login button clicked");
+              loginWithGoogle();
+            }} 
+            className="w-full justify-center py-3"
+          >
             <LogIn className="w-4 h-4" /> Authenticate with Google
           </Button>
           <p className="text-[10px] text-text-muted uppercase tracking-widest">OSFI E-21 • PIPEDA • FINTRAC COMPLIANT</p>

@@ -10,7 +10,27 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
 // Auth Helpers
-export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
+export const loginWithGoogle = async () => {
+  try {
+    console.log("Attempting Google login...");
+    const result = await signInWithPopup(auth, googleProvider);
+    console.log("Login successful:", result.user.email);
+    return result;
+  } catch (error) {
+    console.error("Login error:", error);
+    if (error instanceof Error) {
+      // Check for common errors
+      if (error.message.includes('popup-blocked')) {
+        alert("The login popup was blocked by your browser. Please allow popups for this site.");
+      } else if (error.message.includes('unauthorized-domain')) {
+        alert("This domain is not authorized for Firebase Authentication. Please check your Firebase console.");
+      } else {
+        alert("Login failed: " + error.message);
+      }
+    }
+    throw error;
+  }
+};
 export const logout = () => signOut(auth);
 
 // Firestore Error Handling
