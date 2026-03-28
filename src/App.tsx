@@ -60,7 +60,7 @@ const TenantContext = React.createContext<{
   tenant: {
     name: 'NorthGuard Security',
     logo: null,
-    primaryColor: '#2dd4bf', // teal-accent
+    primaryColor: '#f59e0b', // amber-accent
     onboardingComplete: true,
   },
   updateTenant: () => {},
@@ -72,7 +72,7 @@ const TenantProvider = ({ children }: { children: React.ReactNode }) => {
     return saved ? JSON.parse(saved) : {
       name: 'NorthGuard Security',
       logo: null,
-      primaryColor: '#2dd4bf',
+      primaryColor: '#f59e0b',
       onboardingComplete: false, // Default to false for new users to see onboarding
     };
   });
@@ -138,10 +138,11 @@ const NotificationToast = ({ notification, onDismiss, onAction }: { notification
   </motion.div>
 );
 
-const Badge = ({ children, variant = 'teal', pulse = false, className }: { children: React.ReactNode, variant?: 'teal' | 'amber' | 'red' | 'blue' | 'slate', pulse?: boolean, className?: string }) => {
+const Badge = ({ children, variant = 'teal', pulse = false, className }: { children: React.ReactNode, variant?: 'teal' | 'amber' | 'red' | 'blue' | 'slate' | 'emerald', pulse?: boolean, className?: string }) => {
   const variants = {
     teal: 'bg-teal-accent/5 text-teal-accent/70 border-teal-accent/10',
     amber: 'bg-amber-accent/5 text-amber-accent/70 border-amber-accent/10',
+    emerald: 'bg-emerald-accent/5 text-emerald-accent/70 border-emerald-accent/10',
     red: 'bg-red-accent/5 text-red-accent/70 border-red-accent/10',
     blue: 'bg-blue-accent/5 text-blue-accent/70 border-blue-accent/10',
     slate: 'bg-surface text-text-muted border-card-border',
@@ -153,7 +154,7 @@ const Badge = ({ children, variant = 'teal', pulse = false, className }: { child
       variants[variant],
       className
     )}>
-      {pulse && <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5 animate-pulse-teal" />}
+      {pulse && <span className={cn("w-1.5 h-1.5 rounded-full bg-current mr-1.5", variant === 'emerald' ? 'animate-pulse' : 'animate-pulse-teal')} />}
       {children}
     </span>
   );
@@ -177,16 +178,17 @@ const Card = ({ children, className, title, subtitle, icon: Icon, badge, titleCl
   </div>
 );
 
-const Button = ({ children, variant = 'primary', className, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost' | 'danger' | 'outline' }) => {
+const Button = ({ children, variant = 'primary', className, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost' | 'danger' | 'outline' | 'amber' }) => {
   const variants = {
     primary: 'bg-teal-accent text-white hover:bg-teal-accent/90 shadow-sm',
+    amber: 'bg-amber-400 text-slate-900 hover:bg-amber-500 shadow-[0_0_20px_rgba(251,191,36,0.2)] font-black',
     ghost: 'text-text-muted hover:text-text-primary hover:bg-surface',
     danger: 'bg-red-accent/5 text-red-accent border border-red-accent/10 hover:bg-red-accent/10',
     outline: 'border border-card-border text-text-primary hover:bg-surface',
   };
 
   return (
-    <button className={cn('px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-accent outline-none', variants[variant], className)} {...props}>
+    <button className={cn('px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-amber-400 outline-none', variants[variant], className)} {...props}>
       {children}
     </button>
   );
@@ -340,7 +342,7 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
           <Card 
             title="Real-time Interception Gateway" 
             icon={Shield}
-            badge={<Badge pulse variant="teal" className="bg-teal-accent/5 text-teal-accent/70 border-teal-accent/10 shadow-none">Active Monitoring</Badge>}
+            badge={<Badge pulse variant="emerald" className="bg-emerald-accent/5 text-emerald-accent/70 border-emerald-accent/10 shadow-none">Active Monitoring</Badge>}
             className="border-card-border bg-card shadow-sm relative overflow-hidden group/gateway"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-teal-accent/[0.02] blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none group-hover/gateway:bg-teal-accent/[0.04] transition-colors duration-700" />
@@ -432,8 +434,8 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
                     BASTION SECURITY LAYER v2.0
                   </div>
                   <Button 
-                    variant="primary" 
-                    className="text-[10px] py-1.5 px-4 h-auto shadow-none flex items-center gap-2 border border-teal-accent/10 font-black uppercase tracking-widest" 
+                    variant="amber" 
+                    className="text-[10px] py-1.5 px-4 h-auto shadow-[0_0_20px_rgba(251,191,36,0.2)] flex items-center gap-2 border border-amber-400/20 font-black uppercase tracking-widest" 
                     aria-label="Run Security Simulation"
                     onClick={handleRunSimulation}
                     disabled={isAnalyzing || !prompt.trim()}
@@ -1145,7 +1147,7 @@ const BoardReport = () => {
             {isGenerating ? 'Analyzing Data...' : 'Generate AI Summary'}
           </Button>
           <Button 
-            variant="primary"
+            variant="amber"
             onClick={() => {
               const btn = document.activeElement as HTMLButtonElement;
               const originalText = btn.innerText;
@@ -1487,7 +1489,7 @@ const OnboardingExperience = () => {
                     />
                   </div>
                 </div>
-                <Button className="w-full py-4 text-lg" onClick={() => setStep(2)}>
+                <Button variant="amber" className="w-full py-4 text-lg" onClick={() => setStep(2)}>
                   Continue to Branding <ChevronRight className="w-5 h-5 ml-2" />
                 </Button>
               </motion.div>
@@ -1525,7 +1527,7 @@ const OnboardingExperience = () => {
                 </div>
                 <div className="flex gap-4">
                   <Button variant="ghost" className="flex-1 py-4" onClick={() => setStep(1)}>Back</Button>
-                  <Button className="flex-[2] py-4" onClick={() => setStep(3)}>Finalize Setup</Button>
+                  <Button variant="amber" className="flex-[2] py-4" onClick={() => setStep(3)}>Finalize Setup</Button>
                 </div>
               </motion.div>
             )}
@@ -1547,7 +1549,7 @@ const OnboardingExperience = () => {
                 <div className="p-6 bg-teal-accent/5 border border-teal-accent/20 rounded-2xl space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-text-primary">Primary Region</span>
-                    <Badge variant="teal">CANADA CENTRAL</Badge>
+                    <Badge variant="amber">CANADA CENTRAL</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-text-primary">Compliance Standard</span>
@@ -1560,7 +1562,7 @@ const OnboardingExperience = () => {
                 </div>
                 <div className="flex gap-4 pt-4">
                   <Button variant="ghost" className="flex-1 py-4" onClick={() => setStep(2)}>Back</Button>
-                  <Button className="flex-[2] py-4" onClick={handleComplete}>
+                  <Button variant="amber" className="flex-[2] py-4" onClick={handleComplete}>
                     Launch Enterprise Dashboard <Zap className="w-5 h-5 ml-2" />
                   </Button>
                 </div>
@@ -2066,10 +2068,10 @@ function App() {
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
-          <Badge variant="teal" className="bg-teal-accent/5 border-teal-accent/10 text-teal-accent/70 font-black">OSFI E-21</Badge>
-          <Badge variant="teal" className="bg-teal-accent/5 border-teal-accent/10 text-teal-accent/70 font-black">PIPEDA</Badge>
+          <Badge variant="amber" className="bg-amber-accent/5 border-amber-accent/10 text-amber-accent/70 font-black">OSFI E-21</Badge>
+          <Badge variant="amber" className="bg-amber-accent/5 border-amber-accent/10 text-amber-accent/70 font-black">PIPEDA</Badge>
           <Badge variant="amber" className="bg-amber-accent/5 border-amber-accent/10 text-amber-accent/70 font-black">AIDA</Badge>
-          <Badge variant="teal" className="bg-teal-accent/5 border-teal-accent/10 text-teal-accent/70 font-black">SOC2</Badge>
+          <Badge variant="amber" className="bg-amber-accent/5 border-amber-accent/10 text-amber-accent/70 font-black">SOC2</Badge>
         </div>
 
         <div className="flex items-center gap-6">
@@ -2175,7 +2177,7 @@ function App() {
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <p className="text-[11px] text-blue-accent font-black uppercase tracking-[0.3em] whitespace-nowrap group-hover/residency:text-amber-400/80 transition-colors">Data Residency</p>
-                      <Badge variant="teal" className="text-[8px] px-2 py-0.5 bg-amber-400/10 border-amber-400/30 text-amber-400 font-black shadow-[0_0_10px_rgba(251,191,36,0.1)] shrink-0">Compliant</Badge>
+                      <Badge variant="emerald" className="text-[8px] px-2 py-0.5 bg-emerald-accent/10 border-emerald-accent/30 text-emerald-accent font-black shadow-[0_0_10px_rgba(16,185,129,0.1)] shrink-0">Compliant</Badge>
                     </div>
                     <div className="h-px w-full bg-blue-accent/10 group-hover/residency:bg-amber-400/20 transition-colors" />
                   </div>
