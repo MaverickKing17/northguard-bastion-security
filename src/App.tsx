@@ -114,18 +114,18 @@ const NotificationToast = ({ notification, onDismiss, onAction }: { notification
     </div>
     <div className="flex-1">
       <div className="flex justify-between items-start">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">{notification.type} ALERT</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-white/90">{notification.type} ALERT</p>
         <button 
           onClick={() => onDismiss(notification.id)} 
-          className="text-text-muted hover:text-text-primary focus-visible:ring-2 focus-visible:ring-teal-accent rounded"
+          className="text-white/50 hover:text-white focus-visible:ring-2 focus-visible:ring-teal-accent rounded"
           aria-label="Dismiss notification"
         >
           <X className="w-3 h-3" />
         </button>
       </div>
-      <p className="text-xs font-semibold text-text-primary mt-1">{notification.message}</p>
+      <p className="text-xs font-semibold text-white mt-1">{notification.message}</p>
       <div className="flex items-center justify-between mt-3">
-        <span className="text-[10px] font-mono text-text-muted">{notification.timestamp}</span>
+        <span className="text-[10px] font-mono text-white/40">{notification.timestamp}</span>
         <button 
           onClick={() => { onAction(notification.linkTab); onDismiss(notification.id); }}
           className="text-[10px] font-bold text-teal-accent hover:underline uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-teal-accent rounded"
@@ -166,8 +166,8 @@ const Card = ({ children, className, title, subtitle, icon: Icon, badge, titleCl
         <div className="flex items-center gap-2">
           {Icon && <Icon className={cn("w-4 h-4 text-teal-accent", iconClassName)} />}
           <div>
-            <h3 className={cn("text-sm font-semibold text-text-primary uppercase tracking-tight", titleClassName)}>{title}</h3>
-            {subtitle && <p className="text-[10px] text-text-muted uppercase tracking-wider">{subtitle}</p>}
+            <h3 className={cn("text-sm font-semibold text-white uppercase tracking-tight", titleClassName)}>{title}</h3>
+            {subtitle && <p className="text-[10px] text-white/60 uppercase tracking-wider">{subtitle}</p>}
           </div>
         </div>
         {badge}
@@ -180,9 +180,9 @@ const Card = ({ children, className, title, subtitle, icon: Icon, badge, titleCl
 const Button = ({ children, variant = 'primary', className, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost' | 'danger' | 'outline' }) => {
   const variants = {
     primary: 'bg-teal-accent text-white hover:bg-teal-accent/90',
-    ghost: 'text-text-muted hover:text-text-primary hover:bg-card-border',
+    ghost: 'text-white/70 hover:text-white hover:bg-card-border',
     danger: 'bg-red-accent text-white hover:bg-red-accent/90',
-    outline: 'border border-card-border text-text-primary hover:bg-card-border',
+    outline: 'border border-card-border text-white hover:bg-card-border',
   };
 
   return (
@@ -325,12 +325,12 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
         ].map((kpi, i) => (
           <Card key={i} className="relative overflow-hidden group bg-gradient-to-br from-card to-card/40 backdrop-blur-md border-card-border/50 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)] hover:border-teal-accent/40 hover:shadow-[0_0_25px_rgba(15,158,117,0.1)] transition-all duration-500">
             <div className={cn("absolute top-0 left-0 w-1 h-full transition-all duration-500 group-hover:w-1.5", kpi.color === 'teal' ? 'bg-teal-accent shadow-[0_0_15px_rgba(15,158,117,0.5)]' : 'bg-blue-accent shadow-[0_0_15px_rgba(59,130,246,0.5)]')} />
-            <p className="text-[10px] text-text-muted uppercase font-bold tracking-widest mb-1 opacity-80">{kpi.label}</p>
+            <p className="text-[10px] text-white uppercase font-bold tracking-widest mb-1 opacity-90">{kpi.label}</p>
             <div className="flex items-baseline gap-2 relative">
-              <span className="text-2xl font-bold text-text-primary tracking-tight drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">{kpi.value}</span>
+              <span className="text-2xl font-bold text-white tracking-tight drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{kpi.value}</span>
               <div className="absolute -inset-1 bg-white/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             </div>
-            <p className="text-[10px] text-text-muted mt-1 font-medium">{kpi.change}</p>
+            <p className="text-[10px] text-white/70 mt-1 font-medium">{kpi.change}</p>
           </Card>
         ))}
       </div>
@@ -351,7 +351,7 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
             <div className="space-y-4 relative z-10">
               <div className="bg-background/60 border border-card-border/60 rounded-xl p-5 shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)] backdrop-blur-sm group-hover/gateway:border-teal-accent/20 transition-colors duration-500">
                 <textarea 
-                  className="w-full bg-transparent border-none focus:ring-0 text-sm font-mono placeholder:text-text-muted/40 resize-none text-text-primary leading-relaxed"
+                  className="w-full bg-transparent border-none focus:ring-0 text-sm font-mono placeholder:text-white/30 resize-none text-white leading-relaxed"
                   placeholder="Enter prompt to simulate banking agent interaction..."
                   rows={3}
                   value={prompt}
@@ -453,15 +453,15 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-widest opacity-70">Live Guardrail Execution</h4>
+                <h4 className="text-[10px] font-bold text-white uppercase tracking-widest opacity-90">Live Guardrail Execution</h4>
                 {guardrails.map((row, i) => (
                   <div key={i} className="flex items-center justify-between py-2 border-b border-card-border/30 last:border-0 hover:bg-white/5 transition-colors px-1 rounded">
                     <div className="flex flex-col">
-                      <span className="text-xs font-medium text-text-primary">{row.name}</span>
-                      <span className="text-[8px] text-text-muted uppercase tracking-tighter">Human-in-the-loop verified</span>
+                      <span className="text-xs font-medium text-white">{row.name}</span>
+                      <span className="text-[8px] text-white/60 uppercase tracking-tighter">Human-in-the-loop verified</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-[10px] font-mono text-text-muted">{row.time}</span>
+                      <span className="text-[10px] font-mono text-white/70">{row.time}</span>
                       <Badge 
                         variant={row.status === 'PASSED' ? 'teal' : row.status === 'SCANNING...' ? 'slate' : row.status === 'FLAGGED' ? 'amber' : 'red'} 
                         className={cn(
@@ -488,17 +488,17 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
             >
               {realTimeLogs.length > 0 ? realTimeLogs.map((log: any) => (
                 <div key={log.id} className="flex gap-3 animate-in fade-in slide-in-from-left-2 duration-300">
-                  <span className="text-text-muted/60">[{log.timestamp instanceof Timestamp ? log.timestamp.toDate().toLocaleTimeString() : '...'}]</span>
+                  <span className="text-white/40">[{log.timestamp instanceof Timestamp ? log.timestamp.toDate().toLocaleTimeString() : '...'}]</span>
                   <span className="text-blue-accent font-bold">[{log.user}]</span>
                   <span className={cn(
                     "font-bold",
                     log.status === 'SUCCESS' ? 'text-teal-accent' : 
                     log.status === 'WARNING' ? 'text-red-accent' : 'text-amber-accent'
                   )}>{log.status}</span>
-                  <span className="text-text-primary/90">{log.action}: {log.details}</span>
+                  <span className="text-white/90">{log.action}: {log.details}</span>
                 </div>
               )) : (
-                <div className="text-text-muted italic py-4 text-center">Waiting for live audit events...</div>
+                <div className="text-white/50 italic py-4 text-center">Waiting for live audit events...</div>
               )}
             </div>
           </Card>
@@ -531,7 +531,7 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
                 <div className="w-2 h-2 bg-red-accent rounded-full animate-ping shadow-[0_0_10px_rgba(239,68,68,0.6)]" />
                 <span className="text-[10px] font-bold text-red-accent uppercase tracking-[0.15em] drop-shadow-[0_0_8px_rgba(239,68,68,0.3)]">Live Feed</span>
               </div>
-              <span className="text-[9px] text-text-muted font-mono opacity-60">Source: Lakera Guard Network</span>
+              <span className="text-[9px] text-white/50 font-mono opacity-60">Source: Lakera Guard Network</span>
             </div>
             <div className="space-y-4 relative z-10">
               {realTimeThreats.length > 0 ? realTimeThreats.map((threat: any) => (
@@ -541,20 +541,20 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
                     threat.severity === 'CRITICAL' ? 'bg-red-accent shadow-red-accent/50' : 'bg-amber-accent shadow-amber-accent/50'
                   )} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-text-primary group-hover/item:text-teal-accent transition-colors truncate tracking-tight">{threat.type}</p>
+                    <p className="text-xs font-bold text-white group-hover/item:text-teal-accent transition-colors truncate tracking-tight">{threat.type}</p>
                     <div className="flex items-center justify-between gap-2 mt-1">
-                      <p className="text-[10px] text-text-muted font-semibold opacity-80">
+                      <p className="text-[10px] text-white/80 font-semibold opacity-90">
                         {threat.timestamp instanceof Date ? threat.timestamp.toLocaleTimeString() : threat.timestamp instanceof Timestamp ? threat.timestamp.toDate().toLocaleTimeString() : '...'} • <span className={cn(
                           "uppercase tracking-tighter",
                           threat.severity === 'CRITICAL' ? 'text-red-accent' : 'text-amber-accent'
                         )}>{threat.severity}</span>
                       </p>
-                      <span className="text-[9px] text-text-muted/50 font-mono tracking-tighter">{threat.source || 'Global'}</span>
+                      <span className="text-[9px] text-white/40 font-mono tracking-tighter">{threat.source || 'Global'}</span>
                     </div>
                   </div>
                 </div>
               )) : (
-                <div className="text-text-muted italic text-[10px] py-4 text-center">No threats intercepted recently.</div>
+                <div className="text-white/50 italic text-[10px] py-4 text-center">No threats intercepted recently.</div>
               )}
             </div>
             <Button variant="ghost" className="w-full mt-5 text-[9px] py-2 h-auto border-t border-card-border/30 rounded-none -mb-2 hover:bg-teal-accent/5 font-bold uppercase tracking-widest transition-all">
@@ -564,7 +564,7 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
 
           <Card title="Compliance Trend" icon={TrendingUp} className="relative overflow-hidden">
             <div className="absolute top-2 right-4 text-right">
-              <p className="text-[10px] text-text-muted uppercase font-bold">Current Score</p>
+              <p className="text-[10px] text-white/80 uppercase font-bold">Current Score</p>
               <p className="text-xl font-bold text-teal-accent">94.2%</p>
             </div>
             <div className="h-[100px] w-full mt-4">
@@ -586,7 +586,7 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex justify-between mt-2 text-[8px] text-text-muted font-bold uppercase tracking-tighter">
+            <div className="flex justify-between mt-2 text-[8px] text-white/70 font-bold uppercase tracking-tighter">
               <span>OSFI E-21</span>
               <span>PIPEDA</span>
               <span>FINTRAC</span>
@@ -615,9 +615,9 @@ const RedTeamSandbox = ({ simulation }: { simulation: any }) => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
           <input 
-            className="w-full bg-card border border-card-border rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-teal-accent outline-none"
+            className="w-full bg-card border border-card-border rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:ring-1 focus:ring-teal-accent outline-none placeholder:text-white/30"
             placeholder="Search adversarial patterns..."
           />
         </div>
@@ -644,7 +644,7 @@ const RedTeamSandbox = ({ simulation }: { simulation: any }) => {
           <AlertCircle className="w-5 h-5 text-amber-accent shrink-0 mt-0.5" />
           <div>
             <p className="text-xs font-bold text-amber-accent uppercase tracking-wider mb-1">Red Team Findings</p>
-            <p className="text-xs text-text-primary leading-relaxed">{simResult}</p>
+            <p className="text-xs text-white leading-relaxed">{simResult}</p>
           </div>
         </motion.div>
       )}
@@ -688,8 +688,8 @@ const ModelInventory = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Enterprise Model Inventory</h2>
-          <p className="text-sm text-text-muted">OSFI E-21 compliant registry of all AI models used in material decisions.</p>
+          <h2 className="text-xl font-bold text-white">Enterprise Model Inventory</h2>
+          <p className="text-sm text-white/70">OSFI E-21 compliant registry of all AI models used in material decisions.</p>
         </div>
         <div className="flex gap-3">
           <Button 
@@ -737,7 +737,7 @@ const ModelInventory = () => {
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-accent/50 via-teal-accent to-teal-accent/50" />
         <table className="w-full text-left border-collapse relative z-10">
           <thead>
-            <tr className="border-b border-card-border/30 text-[10px] text-text-muted uppercase tracking-widest bg-background/30">
+            <tr className="border-b border-card-border/30 text-[10px] text-white/80 uppercase tracking-widest bg-background/30">
               <th className="py-5 px-6 font-bold">Agent</th>
               <th className="py-5 px-6 font-bold">Department</th>
               <th className="py-5 px-6 font-bold">Provider / Region</th>
@@ -751,18 +751,18 @@ const ModelInventory = () => {
               <tr key={i} className="border-b border-card-border/20 hover:bg-teal-accent/[0.03] transition-all group">
                 <td className="py-5 px-6">
                   <div className="flex flex-col">
-                    <span className="font-bold text-text-primary group-hover:text-teal-accent transition-colors">{row.name}</span>
-                    <span className="text-[10px] text-text-muted font-mono uppercase">ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+                    <span className="font-bold text-white group-hover:text-teal-accent transition-colors">{row.name}</span>
+                    <span className="text-[10px] text-white/50 font-mono uppercase">ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
                   </div>
                 </td>
-                <td className="py-5 px-6 text-text-muted font-medium">{row.dept}</td>
+                <td className="py-5 px-6 text-white/70 font-medium">{row.dept}</td>
                 <td className="py-5 px-6">
                   <div className="flex flex-col">
-                    <span className="text-text-primary/90 font-medium">{row.provider}</span>
-                    <span className="text-[10px] text-text-muted">{row.region}</span>
+                    <span className="text-white font-medium">{row.provider}</span>
+                    <span className="text-[10px] text-white/60">{row.region}</span>
                   </div>
                 </td>
-                <td className="py-5 px-6 font-mono text-xs text-center text-text-muted">{row.date}</td>
+                <td className="py-5 px-6 font-mono text-xs text-center text-white/70">{row.date}</td>
                 <td className="py-5 px-6 text-center">
                   <Badge variant={row.risk.includes('LOW') ? 'teal' : row.risk.includes('MEDIUM') ? 'amber' : 'red'} className="shadow-sm">
                     {row.risk}
@@ -796,7 +796,7 @@ const ModelInventory = () => {
               { label: 'Explainability Score', val: 86 },
             ].map((bar, i) => (
               <div key={i} className="space-y-1">
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
+                <div className="flex justify-between text-[10px] font-bold text-white/90 uppercase tracking-wider">
                   <span>{bar.label}</span>
                   <span>{bar.val}%</span>
                 </div>
@@ -817,8 +817,8 @@ const ModelInventory = () => {
               { label: 'OSFI Compliant', val: '11' },
             ].map((stat, i) => (
               <div key={i} className="p-3 bg-background/50 rounded-lg border border-card-border">
-                <p className="text-[10px] text-text-muted uppercase font-bold mb-1">{stat.label}</p>
-                <p className="text-lg font-bold text-text-primary">{stat.val}</p>
+                <p className="text-[10px] text-white/80 uppercase font-bold mb-1">{stat.label}</p>
+                <p className="text-lg font-bold text-white">{stat.val}</p>
               </div>
             ))}
           </div>
@@ -854,11 +854,11 @@ const VulnerabilityAudit = () => {
         </div>
         
         <div className="space-y-2 relative z-10">
-          <h2 className="text-3xl font-black uppercase tracking-tighter text-text-primary">SHIELD PROTOCOL ACTIVE</h2>
+          <h2 className="text-3xl font-black uppercase tracking-tighter text-white">SHIELD PROTOCOL ACTIVE</h2>
           <div className="h-1 w-24 bg-teal-accent mx-auto rounded-full shadow-[0_0_10px_rgba(45,212,191,0.8)]" />
         </div>
         
-        <p className="text-text-muted max-w-2xl text-lg font-medium leading-relaxed relative z-10">
+        <p className="text-white/80 max-w-2xl text-lg font-medium leading-relaxed relative z-10">
           30-Day AI Vulnerability Audit: Comprehensive scan of Lakera Guard, Behavioural Anomaly Engine, and OSFI E-21 Gap Analysis.
         </p>
         
@@ -2128,15 +2128,15 @@ function App() {
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold truncate">{user.displayName || 'SOC Agent'}</p>
-                <p className="text-[10px] text-text-muted truncate">{user.email}</p>
+                <p className="text-xs font-bold text-white truncate">{user.displayName || 'SOC Agent'}</p>
+                <p className="text-[10px] text-white/50 truncate">{user.email}</p>
               </div>
             </div>
             <Button 
               variant="ghost" 
               className={cn(
                 "w-full justify-start mb-1",
-                activeTab === 6 ? "bg-teal-accent/10 text-teal-accent" : "text-text-muted"
+                activeTab === 6 ? "bg-teal-accent/10 text-teal-accent" : "text-white/60 hover:text-white"
               )} 
               onClick={() => setActiveTab(6)}
             >
@@ -2192,7 +2192,7 @@ function App() {
                   "px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-2 shrink-0 focus-visible:ring-2 focus-visible:ring-teal-accent outline-none",
                   activeTab === tab.id 
                     ? "border-teal-accent text-teal-accent bg-teal-accent/5" 
-                    : "border-transparent text-text-muted hover:text-text-primary hover:bg-card-border/50"
+                    : "border-transparent text-white/60 hover:text-white hover:bg-card-border/50"
                 )}
               >
                 <tab.icon className="w-4 h-4" aria-hidden="true" />
@@ -2233,15 +2233,15 @@ function App() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-teal-accent" />
-              <span className="font-bold text-text-primary">Bastion Audit</span>
+              <span className="font-bold text-white">Bastion Audit</span>
             </div>
-            <p className="text-xs text-text-primary font-bold leading-relaxed">
+            <p className="text-xs text-white font-bold leading-relaxed">
               Production-grade AI Security Posture Management (AI-SPM) platform purpose-built for Canadian Federally Regulated Financial Institutions.
             </p>
           </div>
           <div className="space-y-4">
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-text-primary">Regulatory Frameworks</h4>
-            <ul className="text-xs text-text-primary font-bold space-y-2" role="list">
+            <h4 className="text-[10px] font-bold uppercase tracking-widest text-white">Regulatory Frameworks</h4>
+            <ul className="text-xs text-white font-bold space-y-2" role="list">
               <li><button onClick={() => setActiveModalPage('OSFI Guideline E-21')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View OSFI Guideline E-21 details">OSFI Guideline E-21</button></li>
               <li><button onClick={() => setActiveModalPage('PIPEDA Compliance')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View PIPEDA Compliance details">PIPEDA Compliance</button></li>
               <li><button onClick={() => setActiveModalPage('FINTRAC AML/ATF')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View FINTRAC AML/ATF details">FINTRAC AML/ATF</button></li>
