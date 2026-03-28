@@ -2166,26 +2166,32 @@ function App() {
               </Card>
 
               <Card className="!bg-gradient-to-br !from-slate-800/60 !to-blue-accent/10 !border-blue-accent/30 backdrop-blur-xl p-5 relative overflow-hidden group/residency transition-all duration-500 hover:!border-blue-accent/60 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-4 border-l-blue-accent">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-blue-accent/20 border border-blue-accent/40 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-                      <MapPin className="w-5 h-5 text-blue-accent" />
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="p-2.5 rounded-xl bg-blue-accent/20 border border-blue-accent/40 shadow-[0_0_20px_rgba(59,130,246,0.3)] shrink-0 mt-1">
+                    <MapPin className="w-5 h-5 text-blue-accent" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <p className="text-[11px] text-blue-accent font-black uppercase tracking-[0.3em] whitespace-nowrap">Data Residency</p>
+                      <Badge variant="teal" className="text-[8px] px-2 py-0.5 bg-teal-accent/20 border-teal-accent/30 text-teal-accent font-black shadow-none shrink-0">Compliant</Badge>
                     </div>
-                    <p className="text-[11px] text-blue-accent font-black uppercase tracking-[0.3em]">Data Residency</p>
+                    <div className="h-px w-full bg-blue-accent/10" />
                   </div>
-                  <Badge variant="teal" className="text-[10px] px-3 py-1 bg-teal-accent/20 border-teal-accent/40 text-teal-accent font-black shadow-none">Compliant</Badge>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 rounded-xl bg-black/50 border border-blue-accent/10 transition-all shadow-inner">
-                    <span className="text-[11px] text-slate-300 font-black uppercase tracking-widest">Primary Node</span>
-                    <span className="text-[12px] font-black text-text-primary flex items-center gap-3">
+                <div className="space-y-3">
+                  <div className="p-4 rounded-xl bg-black/50 border border-blue-accent/10 transition-all shadow-inner space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Primary Node</span>
                       <div className="w-2 h-2 rounded-full bg-teal-accent animate-pulse shadow-[0_0_12px_rgba(15,158,117,0.7)]" />
-                      CANADA CENTRAL
-                    </span>
+                    </div>
+                    <p className="text-[13px] font-black text-text-primary tracking-tight">CANADA CENTRAL</p>
                   </div>
-                  <div className="flex justify-between items-center p-4 rounded-xl bg-black/50 border border-slate-700/50 transition-all shadow-inner">
-                    <span className="text-[11px] text-slate-300 font-black uppercase tracking-widest">Failover Node</span>
-                    <span className="text-[12px] font-black text-slate-400">CANADA EAST</span>
+                  <div className="p-4 rounded-xl bg-black/50 border border-slate-700/50 transition-all shadow-inner space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Failover Node</span>
+                      <div className="w-2 h-2 rounded-full bg-slate-600" />
+                    </div>
+                    <p className="text-[13px] font-black text-slate-400 tracking-tight">CANADA EAST</p>
                   </div>
                 </div>
                 <div className="mt-6 pt-5 border-t border-slate-700/50">
