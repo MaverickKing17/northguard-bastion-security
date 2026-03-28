@@ -323,13 +323,14 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
           { label: 'Financial Risk Avoided', value: `$${stats.riskAvoided}M CAD`, change: 'Est. PIPEDA breach cost avoided', color: 'teal' },
           { label: 'Explainability (XAI) Index', value: '88.4%', change: 'OSFI E-21 transparency metric', color: 'teal' },
         ].map((kpi, i) => (
-          <Card key={i} className="relative overflow-hidden group">
-            <div className={cn("absolute top-0 left-0 w-1 h-full", kpi.color === 'teal' ? 'bg-teal-accent' : 'bg-blue-accent')} />
-            <p className="text-[10px] text-text-muted uppercase font-bold tracking-wider mb-1">{kpi.label}</p>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-text-primary">{kpi.value}</span>
+          <Card key={i} className="relative overflow-hidden group bg-gradient-to-br from-card to-card/40 backdrop-blur-md border-card-border/50 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)] hover:border-teal-accent/40 hover:shadow-[0_0_25px_rgba(15,158,117,0.1)] transition-all duration-500">
+            <div className={cn("absolute top-0 left-0 w-1 h-full transition-all duration-500 group-hover:w-1.5", kpi.color === 'teal' ? 'bg-teal-accent shadow-[0_0_15px_rgba(15,158,117,0.5)]' : 'bg-blue-accent shadow-[0_0_15px_rgba(59,130,246,0.5)]')} />
+            <p className="text-[10px] text-text-muted uppercase font-bold tracking-widest mb-1 opacity-80">{kpi.label}</p>
+            <div className="flex items-baseline gap-2 relative">
+              <span className="text-2xl font-bold text-text-primary tracking-tight drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">{kpi.value}</span>
+              <div className="absolute -inset-1 bg-white/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             </div>
-            <p className="text-[10px] text-text-muted mt-1">{kpi.change}</p>
+            <p className="text-[10px] text-text-muted mt-1 font-medium">{kpi.change}</p>
           </Card>
         ))}
       </div>
@@ -340,14 +341,17 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
           <Card 
             title="Real-time Interception Gateway" 
             icon={Shield}
-            badge={<Badge pulse variant="teal" className="bg-teal-accent/10 text-teal-accent border-teal-accent/20">Active Monitoring</Badge>}
-            className="border-card-border/40 bg-card/60 backdrop-blur-sm shadow-xl relative overflow-hidden"
+            badge={<Badge pulse variant="teal" className="bg-teal-accent/10 text-teal-accent border-teal-accent/30 shadow-[0_0_15px_rgba(15,158,117,0.1)]">Active Monitoring</Badge>}
+            className="border-card-border/40 bg-gradient-to-br from-card/80 via-card/60 to-background/40 backdrop-blur-md shadow-2xl relative overflow-hidden group/gateway"
           >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-teal-accent/5 blur-2xl rounded-full -mr-12 -mt-12 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-teal-accent/10 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none group-hover/gateway:bg-teal-accent/15 transition-colors duration-700" />
+            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
+              <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-45 animate-light-sweep" />
+            </div>
             <div className="space-y-4 relative z-10">
-              <div className="bg-background/40 border border-card-border/50 rounded-lg p-4 shadow-inner">
+              <div className="bg-background/60 border border-card-border/60 rounded-xl p-5 shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)] backdrop-blur-sm group-hover/gateway:border-teal-accent/20 transition-colors duration-500">
                 <textarea 
-                  className="w-full bg-transparent border-none focus:ring-0 text-sm font-mono placeholder:text-text-muted/50 resize-none text-text-primary"
+                  className="w-full bg-transparent border-none focus:ring-0 text-sm font-mono placeholder:text-text-muted/40 resize-none text-text-primary leading-relaxed"
                   placeholder="Enter prompt to simulate banking agent interaction..."
                   rows={3}
                   value={prompt}
@@ -433,7 +437,7 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
                   </div>
                   <Button 
                     variant="primary" 
-                    className="text-[10px] py-1 h-auto shadow-[0_0_15px_rgba(45,212,191,0.3)] flex items-center gap-2" 
+                    className="text-[10px] py-1.5 px-4 h-auto shadow-[0_0_20px_rgba(45,212,191,0.25)] hover:shadow-[0_0_30px_rgba(45,212,191,0.4)] transition-all duration-300 flex items-center gap-2 border border-teal-accent/30" 
                     aria-label="Run Security Simulation"
                     onClick={handleRunSimulation}
                     disabled={isAnalyzing || !prompt.trim()}
@@ -474,10 +478,11 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
             </div>
           </Card>
 
-          <Card title="Agent Behavior Stream" icon={Terminal} className="p-0 border-card-border/40 bg-card/60 backdrop-blur-sm shadow-xl overflow-hidden relative">
-            <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-20 bg-[length:100%_2px,3px_100%]" />
+          <Card title="Agent Behavior Stream" icon={Terminal} className="p-0 border-card-border/40 bg-card/80 backdrop-blur-md shadow-2xl overflow-hidden relative group/stream">
+            <div className="absolute inset-0 pointer-events-none opacity-[0.05] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-20 bg-[length:100%_2px,3px_100%]" />
+            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-teal-accent/30 to-transparent" />
             <div 
-              className="bg-black/60 p-4 font-mono text-xs h-[300px] overflow-y-auto space-y-1 relative z-10 custom-scrollbar"
+              className="bg-black/80 p-5 font-mono text-[11px] h-[320px] overflow-y-auto space-y-1.5 relative z-10 custom-scrollbar selection:bg-teal-accent/30"
               aria-live="polite"
               aria-label="Real-time agent behavior log stream"
             >
@@ -519,40 +524,41 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
             </div>
           </Card>
 
-          <Card title="Global Threat Intel" icon={Globe} className="border-card-border/40 bg-card/60 backdrop-blur-sm shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-amber-accent/5 blur-2xl rounded-full -mr-10 -mt-10 pointer-events-none" />
-            <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-red-accent rounded-full animate-ping" />
-                <span className="text-[10px] font-bold text-red-accent uppercase tracking-widest">Live Feed</span>
+          <Card title="Global Threat Intel" icon={Globe} className="border-card-border/40 bg-card/70 backdrop-blur-md shadow-2xl relative overflow-hidden group/intel">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-accent/10 blur-3xl rounded-full -mr-12 -mt-12 pointer-events-none group-hover/intel:bg-amber-accent/15 transition-colors duration-700" />
+            <div className="flex items-center justify-between mb-5 relative z-10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-2 h-2 bg-red-accent rounded-full animate-ping shadow-[0_0_10px_rgba(239,68,68,0.6)]" />
+                <span className="text-[10px] font-bold text-red-accent uppercase tracking-[0.15em] drop-shadow-[0_0_8px_rgba(239,68,68,0.3)]">Live Feed</span>
               </div>
-              <span className="text-[9px] text-text-muted font-mono">Source: Lakera Guard Network</span>
+              <span className="text-[9px] text-text-muted font-mono opacity-60">Source: Lakera Guard Network</span>
             </div>
             <div className="space-y-4 relative z-10">
               {realTimeThreats.length > 0 ? realTimeThreats.map((threat: any) => (
-                <div key={threat.id} className="flex items-start gap-3 group/item hover:bg-white/5 p-1.5 rounded-lg transition-all border border-transparent hover:border-card-border/30">
+                <div key={threat.id} className="flex items-start gap-3 group/item hover:bg-white/[0.03] p-2 rounded-xl transition-all border border-transparent hover:border-card-border/40 hover:shadow-lg">
                   <div className={cn(
-                    "mt-1.5 w-2 h-2 rounded-full shrink-0 shadow-[0_0_8px_rgba(0,0,0,0.3)]",
-                    threat.severity === 'CRITICAL' ? 'bg-red-accent shadow-red-accent/40' : 'bg-amber-accent shadow-amber-accent/40'
+                    "mt-1.5 w-2 h-2 rounded-full shrink-0 shadow-[0_0_12px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover/item:scale-125",
+                    threat.severity === 'CRITICAL' ? 'bg-red-accent shadow-red-accent/50' : 'bg-amber-accent shadow-amber-accent/50'
                   )} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-text-primary group-hover/item:text-teal-accent transition-colors truncate">{threat.type}</p>
-                    <div className="flex items-center justify-between gap-2 mt-0.5">
-                      <p className="text-[10px] text-text-muted font-medium">
+                    <p className="text-xs font-bold text-text-primary group-hover/item:text-teal-accent transition-colors truncate tracking-tight">{threat.type}</p>
+                    <div className="flex items-center justify-between gap-2 mt-1">
+                      <p className="text-[10px] text-text-muted font-semibold opacity-80">
                         {threat.timestamp instanceof Date ? threat.timestamp.toLocaleTimeString() : threat.timestamp instanceof Timestamp ? threat.timestamp.toDate().toLocaleTimeString() : '...'} • <span className={cn(
-                          threat.severity === 'CRITICAL' ? 'text-red-accent font-bold' : 'text-amber-accent font-bold'
+                          "uppercase tracking-tighter",
+                          threat.severity === 'CRITICAL' ? 'text-red-accent' : 'text-amber-accent'
                         )}>{threat.severity}</span>
                       </p>
-                      <span className="text-[9px] text-text-muted/60 font-mono">{threat.source || 'Global'}</span>
+                      <span className="text-[9px] text-text-muted/50 font-mono tracking-tighter">{threat.source || 'Global'}</span>
                     </div>
                   </div>
                 </div>
               )) : (
-                <div className="text-text-muted italic text-[10px] py-2 text-center">No threats intercepted recently.</div>
+                <div className="text-text-muted italic text-[10px] py-4 text-center">No threats intercepted recently.</div>
               )}
             </div>
-            <Button variant="ghost" className="w-full mt-4 text-[9px] py-1 h-auto border-t border-card-border/30 rounded-none -mb-2 hover:bg-teal-accent/5">
-              View Full Threat Intelligence Map <ChevronRight className="w-3 h-3 ml-1" />
+            <Button variant="ghost" className="w-full mt-5 text-[9px] py-2 h-auto border-t border-card-border/30 rounded-none -mb-2 hover:bg-teal-accent/5 font-bold uppercase tracking-widest transition-all">
+              View Full Threat Intelligence Map <ChevronRight className="w-3 h-3 ml-1 group-hover/intel:translate-x-1 transition-transform" />
             </Button>
           </Card>
 
