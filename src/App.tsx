@@ -1128,7 +1128,7 @@ const BoardReport = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card title="AI Executive Narrative" icon={FileText} className="lg:col-span-2">
           <div className="space-y-4">
-            <p className="text-sm text-text-muted leading-relaxed italic">
+            <p className="text-sm text-text-primary leading-relaxed italic">
               "Bastion Audit has successfully neutralized 1,847 security events this month, preventing an estimated $2.3M CAD in potential PIPEDA breach liabilities. Our OSFI E-21 compliance posture remains strong at 94.2%, with ongoing monitoring of 14 active AI agents. Behavioral drift in the Mortgage Adjudication model was detected and mitigated within 4 hours, ensuring continued fairness and regulatory alignment."
             </p>
             {reportReady && (
