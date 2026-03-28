@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, Component } from 'react';
-import { Shield, AlertCircle, CheckCircle2, Info, Activity, Lock, Globe, Database, Terminal, Zap, Search, Filter, Plus, ChevronRight, FileText, BarChart3, Users, Settings, LogOut, Menu, X, ArrowUpRight, TrendingUp, LogIn, User as UserIcon, Send, RefreshCw, ExternalLink } from 'lucide-react';
+import { Shield, AlertCircle, CheckCircle2, Info, Activity, Lock, Globe, Database, Terminal, Zap, Search, Filter, Plus, ChevronRight, FileText, BarChart3, Users, Settings, LogOut, Menu, X, ArrowUpRight, TrendingUp, LogIn, User as UserIcon, Send, RefreshCw, ExternalLink, ShieldCheck, Building2, MapPin, Cpu, Server } from 'lucide-react';
 import { cn } from './lib/utils';
 import { useSimulation, LogEntry, ThreatIntel, Notification } from './hooks/useSimulation';
 import { motion, AnimatePresence } from 'motion/react';
@@ -524,72 +524,132 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
             </div>
           </Card>
 
-          <Card title="Global Threat Intel" icon={Globe} className="border-card-border/40 bg-card/70 backdrop-blur-md shadow-2xl relative overflow-hidden group/intel">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-accent/10 blur-3xl rounded-full -mr-12 -mt-12 pointer-events-none group-hover/intel:bg-amber-accent/15 transition-colors duration-700" />
+          <Card title="Global Threat Intel" icon={Globe} className="border-teal-accent/20 bg-card/80 backdrop-blur-xl shadow-2xl relative overflow-hidden group/intel transition-all duration-500 hover:border-teal-accent/40" iconClassName="animate-spin-slow">
+            {/* Grid Overlay */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                 style={{ backgroundImage: 'linear-gradient(to right, #2dd4bf 1px, transparent 1px), linear-gradient(to bottom, #2dd4bf 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+            
+            {/* Scanning Line */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="w-full h-[200%] bg-gradient-to-b from-transparent via-teal-accent/5 to-transparent -translate-y-full animate-scanline" />
+            </div>
+
+            <div className="absolute top-0 right-0 w-32 h-32 bg-teal-accent/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none group-hover/intel:bg-teal-accent/10 transition-colors duration-1000" />
+            
             <div className="flex items-center justify-between mb-5 relative z-10">
               <div className="flex items-center gap-2.5">
-                <div className="w-2 h-2 bg-red-accent rounded-full animate-ping shadow-[0_0_10px_rgba(239,68,68,0.6)]" />
-                <span className="text-[10px] font-bold text-red-accent uppercase tracking-[0.15em] drop-shadow-[0_0_8px_rgba(239,68,68,0.3)]">Live Feed</span>
+                <div className="relative flex items-center justify-center">
+                  <div className="w-2 h-2 bg-red-accent rounded-full animate-ping absolute opacity-75" />
+                  <div className="w-2 h-2 bg-red-accent rounded-full relative shadow-[0_0_12px_rgba(239,68,68,0.8)]" />
+                </div>
+                <span className="text-[10px] font-bold text-red-accent uppercase tracking-[0.15em] drop-shadow-[0_0_8px_rgba(239,68,68,0.4)] animate-pulse">Live Feed</span>
               </div>
-              <span className="text-[9px] text-white/50 font-mono opacity-60">Source: Lakera Guard Network</span>
+              <span className="text-[9px] text-white/40 font-mono tracking-wider opacity-60 group-hover/intel:opacity-100 transition-opacity">Source: Lakera Guard Network</span>
             </div>
+            
             <div className="space-y-4 relative z-10">
               {realTimeThreats.length > 0 ? realTimeThreats.map((threat: any) => (
-                <div key={threat.id} className="flex items-start gap-3 group/item hover:bg-white/[0.03] p-2 rounded-xl transition-all border border-transparent hover:border-card-border/40 hover:shadow-lg">
+                <div key={threat.id} className="flex items-start gap-3 group/item hover:bg-white/[0.04] p-2 rounded-xl transition-all border border-transparent hover:border-card-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)] cursor-pointer">
                   <div className={cn(
-                    "mt-1.5 w-2 h-2 rounded-full shrink-0 shadow-[0_0_12px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover/item:scale-125",
-                    threat.severity === 'CRITICAL' ? 'bg-red-accent shadow-red-accent/50' : 'bg-amber-accent shadow-amber-accent/50'
+                    "mt-1.5 w-2 h-2 rounded-full shrink-0 transition-all duration-300 group-hover/item:scale-125 group-hover/item:shadow-[0_0_15px_rgba(255,255,255,0.5)]",
+                    threat.severity === 'CRITICAL' ? 'bg-red-accent shadow-[0_0_10px_rgba(239,68,68,0.6)]' : 'bg-amber-accent shadow-[0_0_10px_rgba(245,158,11,0.6)]'
                   )} />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold text-white group-hover/item:text-teal-accent transition-colors truncate tracking-tight">{threat.type}</p>
                     <div className="flex items-center justify-between gap-2 mt-1">
-                      <p className="text-[10px] text-white/80 font-semibold opacity-90">
+                      <p className="text-[10px] text-white/70 font-semibold">
                         {threat.timestamp instanceof Date ? threat.timestamp.toLocaleTimeString() : threat.timestamp instanceof Timestamp ? threat.timestamp.toDate().toLocaleTimeString() : '...'} • <span className={cn(
-                          "uppercase tracking-tighter",
+                          "uppercase tracking-tighter font-bold",
                           threat.severity === 'CRITICAL' ? 'text-red-accent' : 'text-amber-accent'
                         )}>{threat.severity}</span>
                       </p>
-                      <span className="text-[9px] text-white/40 font-mono tracking-tighter">{threat.source || 'Global'}</span>
+                      <span className="text-[9px] text-white/30 font-mono tracking-tighter group-hover/item:text-white/50 transition-colors">{threat.source || 'Global'}</span>
                     </div>
                   </div>
                 </div>
               )) : (
-                <div className="text-white/50 italic text-[10px] py-4 text-center">No threats intercepted recently.</div>
+                <div className="flex flex-col items-center py-6 space-y-2 group/empty">
+                  <ShieldCheck className="w-8 h-8 text-teal-accent/20 group-hover/empty:text-teal-accent/40 transition-colors duration-500 animate-pulse" />
+                  <div className="text-white/40 italic text-[10px] text-center tracking-wide">No threats intercepted recently. System secure.</div>
+                </div>
               )}
             </div>
-            <Button variant="ghost" className="w-full mt-5 text-[9px] py-2 h-auto border-t border-card-border/30 rounded-none -mb-2 hover:bg-teal-accent/5 font-bold uppercase tracking-widest transition-all">
-              View Full Threat Intelligence Map <ChevronRight className="w-3 h-3 ml-1 group-hover/intel:translate-x-1 transition-transform" />
+            <Button variant="ghost" className="w-full mt-5 text-[9px] py-2.5 h-auto border-t border-card-border/40 rounded-none -mb-2 hover:bg-teal-accent/10 text-white/60 hover:text-white font-bold uppercase tracking-widest transition-all group/btn">
+              View Full Threat Intelligence Map <ChevronRight className="w-3 h-3 ml-1 group-hover/btn:translate-x-1 transition-transform text-teal-accent" />
             </Button>
           </Card>
 
-          <Card title="Compliance Trend" icon={TrendingUp} className="relative overflow-hidden">
-            <div className="absolute top-2 right-4 text-right">
-              <p className="text-[10px] text-white/80 uppercase font-bold">Current Score</p>
-              <p className="text-xl font-bold text-teal-accent">94.2%</p>
+          <Card title="Compliance Trend" icon={TrendingUp} className="relative overflow-hidden border-teal-accent/20 bg-card/80 backdrop-blur-xl group/trend transition-all duration-500 hover:border-teal-accent/40">
+            <div className="absolute top-0 left-0 w-32 h-32 bg-teal-accent/5 blur-3xl rounded-full -ml-16 -mt-16 pointer-events-none" />
+            
+            <div className="absolute top-3 right-4 text-right z-10">
+              <div className="flex items-center justify-end gap-2 mb-0.5">
+                <span className="px-1.5 py-0.5 rounded-full bg-teal-accent/10 border border-teal-accent/20 text-[8px] font-bold text-teal-accent uppercase tracking-wider">Compliant</span>
+                <p className="text-[9px] text-white/50 uppercase font-bold tracking-wider">Current Score</p>
+              </div>
+              <div className="flex items-baseline justify-end gap-1.5">
+                <p className="text-2xl font-bold text-white drop-shadow-[0_0_10px_rgba(45,212,191,0.3)]">94.2%</p>
+                <span className="text-[10px] font-bold text-teal-accent flex items-center gap-0.5">
+                  <ArrowUpRight className="w-2.5 h-2.5" />
+                  +2.1%
+                </span>
+              </div>
             </div>
-            <div className="h-[100px] w-full mt-4">
+
+            <div className="h-[120px] w-full mt-8 relative z-10">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={[
-                  { name: 'Mon', v: 91 }, { name: 'Tue', v: 92 }, { name: 'Wed', v: 91.5 }, { name: 'Thu', v: 93 }, { name: 'Fri', v: 94.2 }, { name: 'Sat', v: 93.8 }, { name: 'Sun', v: 94.2 }
-                ]}>
+                  { name: 'Mon', v: 89 }, { name: 'Tue', v: 91 }, { name: 'Wed', v: 90.5 }, { name: 'Thu', v: 92 }, { name: 'Fri', v: 94.2 }, { name: 'Sat', v: 93.8 }, { name: 'Sun', v: 94.2 }
+                ]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorCompliance" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#0f9e75" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#0f9e75" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#2dd4bf" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#2dd4bf" stopOpacity={0}/>
                     </linearGradient>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur stdDeviation="3" result="blur" />
+                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
                   </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff08" />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', fontSize: '10px' }}
-                    itemStyle={{ color: '#2dd4bf' }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-card/95 backdrop-blur-md border border-card-border/60 p-2 rounded-lg shadow-2xl">
+                            <p className="text-[8px] text-white/50 uppercase font-bold mb-1">{payload[0].payload.name}</p>
+                            <p className="text-xs font-bold text-teal-accent">{payload[0].value}% <span className="text-[8px] text-white/40 font-normal">Compliance</span></p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
                   />
-                  <Area type="monotone" dataKey="v" name="Compliance %" stroke="#0f9e75" strokeWidth={2} fill="url(#colorCompliance)" />
+                  <Area 
+                    type="monotone" 
+                    dataKey="v" 
+                    stroke="#2dd4bf" 
+                    strokeWidth={3} 
+                    fill="url(#colorCompliance)" 
+                    animationDuration={2000}
+                    dot={{ r: 0, fill: '#2dd4bf', strokeWidth: 2, stroke: '#0f172a' }}
+                    activeDot={{ r: 4, fill: '#2dd4bf', strokeWidth: 2, stroke: '#ffffff' }}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex justify-between mt-2 text-[8px] text-white/70 font-bold uppercase tracking-tighter">
-              <span>OSFI E-21</span>
-              <span>PIPEDA</span>
-              <span>FINTRAC</span>
+            
+            <div className="grid grid-cols-3 gap-2 mt-4 relative z-10">
+              {[
+                { label: 'OSFI E-21', val: '96%', color: 'text-teal-accent' },
+                { label: 'PIPEDA', val: '92%', color: 'text-blue-accent' },
+                { label: 'FINTRAC', val: '94%', color: 'text-amber-accent' }
+              ].map((item, idx) => (
+                <div key={idx} className="bg-white/[0.02] border border-white/[0.05] rounded-lg p-2 hover:bg-white/[0.05] transition-colors group/stat">
+                  <p className="text-[7px] text-white/40 uppercase font-bold tracking-widest mb-1 group-hover/stat:text-white/60 transition-colors">{item.label}</p>
+                  <p className={cn("text-xs font-bold", item.color)}>{item.val}</p>
+                </div>
+              ))}
             </div>
           </Card>
         </div>
@@ -2046,77 +2106,173 @@ function App() {
 
       <div className="flex flex-1 pt-16">
         {/* Sidebar */}
-        <aside className="w-[220px] fixed left-0 bottom-0 top-16 bg-card border-r border-card-border p-4 space-y-6 overflow-y-auto z-30">
-          <Card className="bg-background/50 border-card-border p-3">
-            <p className="text-[10px] text-text-muted uppercase font-bold mb-1">Tenant Context</p>
-            <p className="text-xs font-bold mb-1 truncate">{tenant.name}</p>
-            <p className="text-[10px] text-text-muted leading-tight">Monitoring active AI agents across fraud, AML, and credit.</p>
-          </Card>
+        <aside className="w-[300px] fixed left-0 bottom-0 top-16 bg-[#050505]/98 backdrop-blur-3xl border-r-4 border-teal-accent p-6 space-y-8 overflow-y-auto z-30 shadow-[25px_0_80px_rgba(0,0,0,0.7)] no-scrollbar transition-all duration-700">
+          {/* Decorative Background Element */}
+          <div className="absolute inset-0 opacity-[0.05] pointer-events-none overflow-hidden">
+            <div className="absolute -top-40 -left-40 w-96 h-96 bg-teal-accent rounded-full blur-[150px] animate-pulse" />
+            <div className="absolute top-1/2 -right-48 w-96 h-96 bg-blue-accent rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '3s' }} />
+            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-teal-accent/20 to-transparent" />
+          </div>
 
-          <Card className="bg-background/50 border-card-border p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Zap className={cn("w-3 h-3", simulation.showNotifications ? "text-teal-accent" : "text-text-muted")} />
-                <span className="text-[10px] font-bold uppercase tracking-wider">Live Alerts</span>
+          <div className="relative z-10 space-y-10">
+            <div className="px-2 flex items-center justify-between">
+              <div>
+                <h2 className="text-[11px] font-black text-teal-accent uppercase tracking-[0.5em] mb-1 drop-shadow-[0_0_10px_rgba(45,212,191,0.5)]">Mission Control</h2>
+                <div className="h-1 w-16 bg-teal-accent rounded-full shadow-[0_0_15px_rgba(45,212,191,0.8)]" />
               </div>
-              <button
-                onClick={() => simulation.setShowNotifications(!simulation.showNotifications)}
-                className={cn(
-                  "relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-slate-700",
-                  simulation.showNotifications ? "bg-teal-accent" : "bg-slate-700"
-                )}
-                role="switch"
-                aria-checked={simulation.showNotifications}
-              >
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                    simulation.showNotifications ? "translate-x-4" : "translate-x-0"
-                  )}
-                />
-              </button>
-            </div>
-          </Card>
-
-          <Card className="bg-background/50 border-card-border p-3">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] text-text-muted uppercase font-bold">Data Residency</p>
-              <Badge variant="teal" className="text-[8px] px-1.5 py-0">Compliant</Badge>
-            </div>
-            <div className="space-y-1">
-              <div className="flex justify-between text-[10px]">
-                <span className="text-text-muted">Primary:</span>
-                <span className="font-bold">CANADA CENTRAL</span>
-              </div>
-              <div className="flex justify-between text-[10px]">
-                <span className="text-text-muted">Failover:</span>
-                <span className="font-bold">CANADA EAST</span>
+              <div className="px-2 py-0.5 rounded bg-white/5 border border-white/10">
+                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">v4.2.0</span>
               </div>
             </div>
-            <p className="text-[9px] text-text-muted mt-2 leading-tight italic">No data leaves Canada per OSFI/PIPEDA.</p>
-          </Card>
 
-          <div className="space-y-3">
-            <p className="text-[10px] text-white uppercase font-bold px-1">System Status</p>
-            {[
-              { label: 'Lakera Guard', status: 'ACTIVE', color: 'teal' },
-              { label: 'AML Monitor', status: 'ACTIVE', color: 'teal' },
-              { label: 'Fraud Sentinel', status: 'ACTIVE', color: 'teal' },
-              { label: 'Firestore DB', status: 'STABLE', color: 'blue' },
-              { label: 'Agent Monitor', status: 'ONLINE', color: 'teal' },
-            ].map((s, i) => (
-              <div key={i} className="flex items-center justify-between px-1">
-                <span className="text-[10px] text-white/90">{s.label}</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-bold text-white">{s.status}</span>
-                  <div className={cn(
-                    "w-1.5 h-1.5 rounded-full",
-                    s.color === 'teal' ? 'bg-teal-accent animate-pulse' : 'bg-blue-accent'
-                  )} />
+            <div className="space-y-5">
+              <Card className="!bg-white/[0.04] !border-white/10 p-5 relative overflow-hidden group/tenant transition-all duration-700 hover:!bg-white/[0.08] hover:!border-teal-accent/50 shadow-2xl">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-teal-accent/10 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none group-hover/tenant:bg-teal-accent/25 transition-all duration-1000" />
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-2xl bg-teal-accent/10 border border-teal-accent/20 shadow-[inset_0_0_10px_rgba(45,212,191,0.1)]">
+                      <Building2 className="w-5 h-5 text-teal-accent" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">Active Tenant</p>
+                      <p className="text-base font-black text-white truncate drop-shadow-lg tracking-tight">{tenant.name}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-teal-accent/20 border border-teal-accent/50 shadow-[0_0_15px_rgba(45,212,191,0.3)]">
+                    <div className="w-2 h-2 rounded-full bg-teal-accent animate-pulse" />
+                    <span className="text-[9px] font-black text-teal-accent uppercase tracking-tighter">Verified</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 text-[11px] text-white/80 font-bold leading-relaxed bg-white/[0.03] p-3 rounded-xl border border-white/10 shadow-inner">
+                  <Cpu className="w-4 h-4 text-teal-accent/70 mt-0.5 shrink-0" />
+                  Real-time monitoring of autonomous AI agents across Fraud, AML, and Credit risk vectors.
+                </div>
+              </Card>
+
+              <Card className="!bg-white/[0.04] !border-white/10 p-5 group/alerts transition-all duration-700 hover:!bg-white/[0.08] hover:!border-teal-accent/50 shadow-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-5">
+                    <div className={cn(
+                      "p-3 rounded-2xl transition-all duration-1000 relative overflow-hidden",
+                      simulation.showNotifications ? "bg-teal-accent/20 border border-teal-accent/50 shadow-[0_0_25px_rgba(45,212,191,0.4)]" : "bg-white/5 border border-white/10"
+                    )}>
+                      <Zap className={cn("w-6 h-6 transition-all duration-1000 relative z-10", simulation.showNotifications ? "text-teal-accent drop-shadow-[0_0_12px_rgba(45,212,191,0.9)]" : "text-white/20")} />
+                      {simulation.showNotifications && <div className="absolute inset-0 bg-teal-accent/40 blur-xl rounded-full animate-pulse" />}
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[13px] font-black text-white uppercase tracking-[0.2em]">Live Alerts</span>
+                      <p className={cn(
+                        "text-[10px] font-black uppercase tracking-widest transition-colors duration-700",
+                        simulation.showNotifications ? "text-teal-accent" : "text-white/30"
+                      )}>{simulation.showNotifications ? 'System Armed' : 'Monitoring Paused'}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => simulation.setShowNotifications(!simulation.showNotifications)}
+                    className={cn(
+                      "relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-white/10 transition-all duration-700 ease-in-out focus:outline-none shadow-[inset_0_4px_10px_rgba(0,0,0,0.8)]",
+                      simulation.showNotifications ? "bg-teal-accent shadow-[0_0_25px_rgba(45,212,191,0.6)]" : "bg-slate-950"
+                    )}
+                    role="switch"
+                    aria-checked={simulation.showNotifications}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)] ring-0 transition duration-700 ease-in-out mt-0.5",
+                        simulation.showNotifications ? "translate-x-7" : "translate-x-1"
+                      )}
+                    />
+                  </button>
+                </div>
+              </Card>
+
+              <Card className="!bg-white/[0.04] !border-white/10 p-5 relative overflow-hidden group/residency transition-all duration-700 hover:!bg-white/[0.08] hover:!border-blue-accent/50 shadow-2xl">
+                <div className="absolute bottom-0 right-0 w-24 h-24 bg-blue-accent/10 blur-3xl rounded-full -mr-12 -mb-12 pointer-events-none" />
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-blue-accent/10 border border-blue-accent/20">
+                      <MapPin className="w-5 h-5 text-blue-accent" />
+                    </div>
+                    <p className="text-[11px] text-white/50 uppercase font-black tracking-[0.3em]">Data Residency</p>
+                  </div>
+                  <Badge variant="teal" className="text-[10px] px-3 py-1 bg-teal-accent/20 border-teal-accent/50 text-teal-accent font-black shadow-[0_0_20px_rgba(45,212,191,0.4)] animate-pulse">Compliant</Badge>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-4 rounded-xl bg-white/[0.03] border border-white/10 group-hover/residency:bg-white/[0.05] transition-all shadow-inner">
+                    <span className="text-[11px] text-white/40 font-black uppercase tracking-widest">Primary Node</span>
+                    <span className="text-[12px] font-black text-white flex items-center gap-3">
+                      <div className="w-2.5 h-2.5 rounded-full bg-teal-accent shadow-[0_0_12px_rgba(45,212,191,0.9)] animate-pulse" />
+                      CANADA CENTRAL
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 rounded-xl bg-white/[0.03] border border-white/10 group-hover/residency:bg-white/[0.05] transition-all shadow-inner">
+                    <span className="text-[11px] text-white/40 font-black uppercase tracking-widest">Failover Node</span>
+                    <span className="text-[12px] font-black text-white/80">CANADA EAST</span>
+                  </div>
+                </div>
+                <div className="mt-6 pt-5 border-t border-white/15">
+                  <div className="flex items-start gap-4 bg-teal-accent/5 p-3 rounded-lg border border-teal-accent/10">
+                    <ShieldCheck className="w-5 h-5 text-teal-accent mt-0.5" />
+                    <p className="text-[11px] text-white/60 leading-relaxed italic font-black">Zero-egress policy enforced. All data processing and storage remains within Canadian sovereign territory.</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            <div className="space-y-8 relative">
+              <div className="flex items-center justify-between px-2">
+                <div className="flex items-center gap-3">
+                  <Activity className="w-4 h-4 text-teal-accent animate-pulse" />
+                  <p className="text-[13px] text-white font-black uppercase tracking-[0.4em]">System Health</p>
+                </div>
+                <div className="h-0.5 flex-1 bg-gradient-to-r from-teal-accent/80 to-transparent ml-5" />
+              </div>
+              
+              {/* Scanning Line Effect */}
+              <div className="absolute inset-x-0 top-12 bottom-0 pointer-events-none overflow-hidden rounded-3xl opacity-40 z-20">
+                <div className="w-full h-3 bg-gradient-to-b from-transparent via-teal-accent to-transparent blur-xl animate-scanline" />
+              </div>
+
+              <div className="space-y-4 relative z-10">
+                {[
+                  { label: 'Lakera Guard', status: 'ACTIVE', color: 'teal', icon: Shield },
+                  { label: 'AML Monitor', status: 'ACTIVE', color: 'teal', icon: Activity },
+                  { label: 'Fraud Sentinel', status: 'ACTIVE', color: 'teal', icon: Cpu },
+                  { label: 'Firestore DB', status: 'STABLE', color: 'blue', icon: Database },
+                  { label: 'Agent Monitor', status: 'ONLINE', color: 'teal', icon: Server },
+                ].map((s, i) => (
+                  <div key={i} className="flex items-center justify-between px-5 py-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] hover:border-teal-accent/30 transition-all group/status cursor-default shadow-xl">
+                    <div className="flex items-center gap-5">
+                      <div className="p-2.5 rounded-xl bg-white/5 group-hover/status:bg-teal-accent/20 transition-all duration-700">
+                        <s.icon className="w-5 h-5 text-white/40 group-hover/status:text-teal-accent transition-colors" />
+                      </div>
+                      <span className="text-[13px] text-white/90 font-black group-hover/status:text-white transition-colors tracking-tight">{s.label}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className={cn(
+                        "text-[12px] font-black tracking-widest",
+                        s.color === 'teal' ? 'text-teal-accent' : 'text-blue-accent'
+                      )}>{s.status}</span>
+                      <div className={cn(
+                        "w-3 h-3 rounded-full shadow-2xl",
+                        s.color === 'teal' ? 'bg-teal-accent animate-pulse shadow-[0_0_15px_rgba(45,212,191,1)]' : 'bg-blue-accent shadow-[0_0_15px_rgba(59,130,246,1)]'
+                      )} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="px-3 pt-4">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 text-[10px] text-white/40 font-black uppercase tracking-[0.2em]">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-teal-accent animate-pulse" />
+                    <span>Last Sync</span>
+                  </div>
+                  <span className="text-teal-accent">Just Now</span>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
           <div className="pt-4 border-t border-card-border">
             <div className="flex items-center gap-3 px-1 mb-4">
