@@ -2105,7 +2105,7 @@ function App() {
             </div>
 
             <div className="space-y-6">
-              <Card className="!bg-gradient-to-br !from-slate-800/70 !to-teal-accent/5 !border-teal-accent/30 backdrop-blur-xl p-5 relative overflow-hidden group/tenant transition-all duration-500 hover:!border-amber-400/50 hover:shadow-[0_0_40px_rgba(251,191,36,0.1)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-4 border-l-teal-accent">
+              <Card className="!bg-gradient-to-br !from-slate-900/80 !via-slate-800/60 !to-teal-accent/10 !border-teal-accent/30 backdrop-blur-xl p-5 relative overflow-hidden group/tenant transition-all duration-500 hover:!border-amber-400/50 hover:shadow-[0_0_40px_rgba(251,191,36,0.1)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-4 border-l-teal-accent">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 blur-[60px] rounded-full -mr-16 -mt-16 group-hover/tenant:bg-amber-400/10 transition-colors duration-700" />
                 <div className="flex items-start gap-4 mb-5 relative z-10">
                   <div className="p-2.5 rounded-xl bg-teal-accent/20 border border-teal-accent/40 shadow-[0_0_20px_rgba(15,158,117,0.3)] shrink-0 mt-1 group-hover/tenant:shadow-[0_0_25px_rgba(251,191,36,0.2)] transition-shadow duration-500">
@@ -2129,7 +2129,7 @@ function App() {
                 </div>
               </Card>
 
-              <Card className="!bg-gradient-to-br !from-slate-800/70 !to-teal-accent/5 !border-slate-600/40 backdrop-blur-xl p-5 group/alerts transition-all duration-500 hover:!border-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.08)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-4 border-l-teal-accent/60">
+              <Card className="!bg-gradient-to-br !from-slate-900/80 !via-slate-800/60 !to-teal-accent/10 !border-slate-600/40 backdrop-blur-xl p-5 group/alerts transition-all duration-500 hover:!border-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.08)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-4 border-l-teal-accent/60">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-5">
                     <div className={cn(
@@ -2166,7 +2166,7 @@ function App() {
                 </div>
               </Card>
 
-              <Card className="!bg-gradient-to-br !from-slate-800/70 !to-blue-accent/5 !border-blue-accent/30 backdrop-blur-xl p-5 relative overflow-hidden group/residency transition-all duration-500 hover:!border-amber-400/40 hover:shadow-[0_0_40px_rgba(251,191,36,0.08)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-4 border-l-blue-accent">
+              <Card className="!bg-gradient-to-br !from-slate-900/80 !via-slate-800/60 !to-blue-accent/10 !border-blue-accent/30 backdrop-blur-xl p-5 relative overflow-hidden group/residency transition-all duration-500 hover:!border-amber-400/40 hover:shadow-[0_0_40px_rgba(251,191,36,0.08)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-4 border-l-blue-accent">
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-accent/5 blur-[50px] rounded-full -ml-12 -mb-12 group-hover/residency:bg-amber-400/5 transition-colors duration-700" />
                 <div className="flex items-start gap-4 mb-6 relative z-10">
                   <div className="p-2.5 rounded-xl bg-blue-accent/20 border border-blue-accent/40 shadow-[0_0_20px_rgba(59,130,246,0.3)] shrink-0 mt-1 group-hover/residency:shadow-[0_0_25px_rgba(251,191,36,0.15)] transition-shadow duration-500">
@@ -2222,8 +2222,8 @@ function App() {
                   <div key={i} className={cn(
                     "flex items-center justify-between px-5 py-4 rounded-2xl backdrop-blur-xl transition-all group/status cursor-default shadow-[0_8px_24px_rgba(0,0,0,0.5)] border-l-4",
                     s.color === 'teal' 
-                      ? "bg-gradient-to-r from-slate-800/70 to-teal-accent/5 border-slate-600/30 border-l-teal-accent hover:border-amber-400/50 hover:shadow-[0_0_25px_rgba(251,191,36,0.12)]" 
-                      : "bg-gradient-to-r from-slate-800/70 to-blue-accent/5 border-slate-600/30 border-l-blue-accent hover:border-amber-400/50 hover:shadow-[0_0_25px_rgba(251,191,36,0.12)]"
+                      ? "bg-gradient-to-r from-slate-900/80 via-slate-800/60 to-teal-accent/10 border-slate-600/30 border-l-teal-accent hover:border-amber-400/50 hover:shadow-[0_0_25px_rgba(251,191,36,0.12)]" 
+                      : "bg-gradient-to-r from-slate-900/80 via-slate-800/60 to-blue-accent/10 border-slate-600/30 border-l-blue-accent hover:border-amber-400/50 hover:shadow-[0_0_25px_rgba(251,191,36,0.12)]"
                   )}>
                     <div className="flex items-center gap-5">
                       <div className={cn(
