@@ -2104,50 +2104,50 @@ function App() {
               </div>
             </div>
 
-            <div className="space-y-5">
-              <Card className="!bg-card !border-card-border p-5 relative overflow-hidden group/tenant transition-all duration-700 hover:!border-teal-accent/10 shadow-none">
+            <div className="space-y-6">
+              <Card className="!bg-slate-800/40 !border-slate-600/30 backdrop-blur-md p-5 relative overflow-hidden group/tenant transition-all duration-500 hover:!border-teal-accent/50 hover:!bg-slate-800/60 shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-2 border-l-teal-accent/40">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-4">
-                    <div className="p-2 rounded-xl bg-teal-accent/[0.02] border border-teal-accent/5">
-                      <Building2 className="w-5 h-5 text-teal-accent/50" />
+                    <div className="p-2 rounded-xl bg-teal-accent/20 border border-teal-accent/30 shadow-[0_0_15px_rgba(15,158,117,0.2)]">
+                      <Building2 className="w-5 h-5 text-teal-accent" />
                     </div>
                     <div>
-                      <p className="text-[10px] text-text-muted uppercase font-black tracking-[0.2em]">Active Tenant</p>
+                      <p className="text-[10px] text-teal-accent/70 uppercase font-black tracking-[0.2em]">Active Tenant</p>
                       <p className="text-base font-black text-text-primary truncate tracking-tight">{tenant.name}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-teal-accent/[0.02] border border-teal-accent/5">
-                    <div className="w-1 h-1 rounded-full bg-teal-accent/50 animate-pulse" />
-                    <span className="text-[9px] font-black text-teal-accent/50 uppercase tracking-tighter">Verified</span>
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-teal-accent/20 border border-teal-accent/30">
+                    <div className="w-1.5 h-1.5 rounded-full bg-teal-accent animate-pulse shadow-[0_0_8px_rgba(15,158,117,0.5)]" />
+                    <span className="text-[9px] font-black text-teal-accent uppercase tracking-tighter">Verified</span>
                   </div>
                 </div>
-                <div className="text-[11px] text-text-muted font-bold leading-relaxed bg-surface p-3 rounded-xl border border-card-border">
+                <div className="text-[11px] text-slate-200 font-bold leading-relaxed bg-black/60 p-3 rounded-xl border border-slate-700/50 shadow-inner">
                   Real-time monitoring of autonomous AI agents across Fraud, AML, and Credit risk vectors.
                 </div>
               </Card>
 
-              <Card className="!bg-card !border-card-border p-5 group/alerts transition-all duration-700 hover:!border-teal-accent/10 shadow-none">
+              <Card className="!bg-slate-800/40 !border-slate-600/30 backdrop-blur-md p-5 group/alerts transition-all duration-500 hover:!border-teal-accent/50 hover:!bg-slate-800/60 shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-2 border-l-teal-accent/40">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-5">
                     <div className={cn(
-                      "p-3 rounded-2xl transition-all duration-1000",
-                      simulation.showNotifications ? "bg-teal-accent/[0.02] border border-teal-accent/5" : "bg-surface border border-card-border"
+                      "p-3 rounded-2xl transition-all duration-700 shadow-lg",
+                      simulation.showNotifications ? "bg-teal-accent/20 border border-teal-accent/30" : "bg-black/60 border border-slate-700/50"
                     )}>
-                      <Zap className={cn("w-6 h-6 transition-all duration-1000", simulation.showNotifications ? "text-teal-accent/70" : "text-text-muted/20")} />
+                      <Zap className={cn("w-6 h-6 transition-all duration-700", simulation.showNotifications ? "text-teal-accent drop-shadow-[0_0_8px_rgba(15,158,117,0.5)]" : "text-slate-500")} />
                     </div>
                     <div className="space-y-1">
                       <span className="text-[13px] font-black text-text-primary uppercase tracking-[0.2em]">Live Alerts</span>
                       <p className={cn(
-                        "text-[10px] font-black uppercase tracking-widest transition-colors duration-700",
-                        simulation.showNotifications ? "text-teal-accent/70" : "text-text-muted/40"
+                        "text-[10px] font-black uppercase tracking-widest transition-colors duration-500",
+                        simulation.showNotifications ? "text-teal-accent" : "text-slate-400"
                       )}>{simulation.showNotifications ? 'System Armed' : 'Monitoring Paused'}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => simulation.setShowNotifications(!simulation.showNotifications)}
                     className={cn(
-                      "relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border border-card-border transition-all duration-700 ease-in-out focus:outline-none",
-                      simulation.showNotifications ? "bg-teal-accent/50" : "bg-surface"
+                      "relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-slate-600 transition-all duration-500 ease-in-out focus:outline-none shadow-inner",
+                      simulation.showNotifications ? "bg-teal-accent/80" : "bg-slate-700"
                     )}
                     role="switch"
                     aria-checked={simulation.showNotifications}
@@ -2155,39 +2155,39 @@ function App() {
                     <span
                       aria-hidden="true"
                       className={cn(
-                        "pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm ring-0 transition duration-700 ease-in-out mt-0.5",
-                        simulation.showNotifications ? "translate-x-5" : "translate-x-0.5"
+                        "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xl ring-0 transition duration-500 ease-in-out mt-0.5",
+                        simulation.showNotifications ? "translate-x-6" : "translate-x-1"
                       )}
                     />
                   </button>
                 </div>
               </Card>
 
-              <Card className="!bg-card !border-card-border p-5 relative overflow-hidden group/residency transition-all duration-700 hover:!border-blue-accent/10 shadow-none">
+              <Card className="!bg-slate-800/40 !border-slate-600/30 backdrop-blur-md p-5 relative overflow-hidden group/residency transition-all duration-500 hover:!border-blue-accent/50 hover:!bg-slate-800/60 shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-2 border-l-blue-accent/40">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-xl bg-blue-accent/[0.02] border border-blue-accent/5">
-                      <MapPin className="w-5 h-5 text-blue-accent/50" />
+                    <div className="p-2 rounded-xl bg-blue-accent/20 border border-blue-accent/30 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                      <MapPin className="w-5 h-5 text-blue-accent" />
                     </div>
-                    <p className="text-[11px] text-text-muted uppercase font-black tracking-[0.3em]">Data Residency</p>
+                    <p className="text-[11px] text-blue-accent/70 uppercase font-black tracking-[0.3em]">Data Residency</p>
                   </div>
-                  <Badge variant="teal" className="text-[10px] px-3 py-1 bg-teal-accent/[0.02] border-teal-accent/5 text-teal-accent/50 font-black shadow-none">Compliant</Badge>
+                  <Badge variant="teal" className="text-[10px] px-3 py-1 bg-teal-accent/20 border-teal-accent/30 text-teal-accent font-black shadow-none">Compliant</Badge>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 rounded-xl bg-surface border border-card-border transition-all">
-                    <span className="text-[11px] text-text-muted font-black uppercase tracking-widest">Primary Node</span>
+                  <div className="flex justify-between items-center p-4 rounded-xl bg-black/60 border border-slate-700/50 transition-all shadow-inner">
+                    <span className="text-[11px] text-slate-300 font-black uppercase tracking-widest">Primary Node</span>
                     <span className="text-[12px] font-black text-text-primary flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-teal-accent/40 animate-pulse" />
+                      <div className="w-2 h-2 rounded-full bg-teal-accent animate-pulse shadow-[0_0_10px_rgba(15,158,117,0.6)]" />
                       CANADA CENTRAL
                     </span>
                   </div>
-                  <div className="flex justify-between items-center p-4 rounded-xl bg-surface border border-card-border transition-all">
-                    <span className="text-[11px] text-text-muted font-black uppercase tracking-widest">Failover Node</span>
-                    <span className="text-[12px] font-black text-text-muted/60">CANADA EAST</span>
+                  <div className="flex justify-between items-center p-4 rounded-xl bg-black/60 border border-slate-700/50 transition-all shadow-inner">
+                    <span className="text-[11px] text-slate-300 font-black uppercase tracking-widest">Failover Node</span>
+                    <span className="text-[12px] font-black text-slate-400">CANADA EAST</span>
                   </div>
                 </div>
-                <div className="mt-6 pt-5 border-t border-card-border">
-                  <p className="text-[10px] text-text-muted leading-relaxed italic font-black">Zero-egress policy enforced. All data processing and storage remains within Canadian sovereign territory.</p>
+                <div className="mt-6 pt-5 border-t border-slate-700/50">
+                  <p className="text-[10px] text-slate-300 leading-relaxed italic font-black">Zero-egress policy enforced. All data processing and storage remains within Canadian sovereign territory.</p>
                 </div>
               </Card>
             </div>
@@ -2209,21 +2209,21 @@ function App() {
                   { label: 'Firestore DB', status: 'STABLE', color: 'blue', icon: Database },
                   { label: 'Agent Monitor', status: 'ONLINE', color: 'teal', icon: Server },
                 ].map((s, i) => (
-                  <div key={i} className="flex items-center justify-between px-5 py-4 rounded-2xl bg-card border border-card-border hover:border-teal-accent/5 transition-all group/status cursor-default shadow-none">
+                  <div key={i} className="flex items-center justify-between px-5 py-4 rounded-2xl bg-slate-800/40 backdrop-blur-sm border border-slate-600/30 hover:border-teal-accent/50 hover:bg-slate-800/60 transition-all group/status cursor-default shadow-[0_8px_24px_rgba(0,0,0,0.5)] border-l-2 border-l-teal-accent/30">
                     <div className="flex items-center gap-5">
-                      <div className="p-2 rounded-xl bg-surface group-hover/status:bg-teal-accent/[0.01] transition-all duration-700">
-                        <s.icon className="w-5 h-5 text-text-muted/20 group-hover/status:text-teal-accent/30 transition-colors" />
+                      <div className="p-2 rounded-xl bg-black/60 group-hover/status:bg-teal-accent/20 transition-all duration-500 shadow-md">
+                        <s.icon className="w-5 h-5 text-slate-400 group-hover/status:text-teal-accent transition-colors" />
                       </div>
-                      <span className="text-[13px] text-text-muted group-hover/status:text-text-primary transition-colors tracking-tight">{s.label}</span>
+                      <span className="text-[13px] text-slate-200 group-hover/status:text-text-primary transition-colors tracking-tight font-bold">{s.label}</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className={cn(
                         "text-[12px] font-black tracking-widest",
-                        s.color === 'teal' ? 'text-teal-accent/50' : 'text-blue-accent/50'
+                        s.color === 'teal' ? 'text-teal-accent drop-shadow-[0_0_5px_rgba(15,158,117,0.3)]' : 'text-blue-accent drop-shadow-[0_0_5px_rgba(59,130,246,0.3)]'
                       )}>{s.status}</span>
                       <div className={cn(
-                        "w-1.5 h-1.5 rounded-full",
-                        s.color === 'teal' ? 'bg-teal-accent/30 animate-pulse' : 'bg-blue-accent/30'
+                        "w-2 h-2 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.8)]",
+                        s.color === 'teal' ? 'bg-teal-accent animate-pulse shadow-[0_0_8px_rgba(15,158,117,0.5)]' : 'bg-blue-accent shadow-[0_0_8px_rgba(59,130,246,0.5)]'
                       )} />
                     </div>
                   </div>
@@ -2231,42 +2231,42 @@ function App() {
               </div>
               
               <div className="px-3 pt-4">
-                <div className="flex items-center justify-between p-3 rounded-xl bg-surface border border-card-border text-[10px] text-text-muted font-black uppercase tracking-[0.2em]">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 backdrop-blur-sm border border-slate-600/30 text-[10px] text-slate-300 font-black uppercase tracking-[0.2em] shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
                   <div className="flex items-center gap-2">
-                    <div className="w-1 h-1 rounded-full bg-teal-accent/20 animate-pulse" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-teal-accent/60 animate-pulse shadow-[0_0_8px_rgba(15,158,117,0.4)]" />
                     <span>Last Sync</span>
                   </div>
-                  <span className="text-teal-accent/20">Just Now</span>
+                  <span className="text-teal-accent/60">Just Now</span>
                 </div>
               </div>
             </div>
           </div>
-          <div className="pt-4 border-t border-card-border">
-            <div className="flex items-center gap-3 px-1 mb-4">
+          <div className="pt-6 border-t border-slate-700/50 bg-slate-900/40 backdrop-blur-md p-4 rounded-t-3xl shadow-[0_-8px_24px_rgba(0,0,0,0.4)]">
+            <div className="flex items-center gap-4 px-1 mb-6">
               {user.photoURL ? (
-                <img src={user.photoURL} alt="" className="w-8 h-8 rounded-full border border-teal-accent/10" referrerPolicy="no-referrer" />
+                <img src={user.photoURL} alt="" className="w-10 h-10 rounded-full border-2 border-teal-accent/30 shadow-[0_0_15px_rgba(15,158,117,0.2)]" referrerPolicy="no-referrer" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-teal-accent/5 flex items-center justify-center">
-                  <UserIcon className="w-4 h-4 text-teal-accent/50" />
+                <div className="w-10 h-10 rounded-full bg-teal-accent/10 border-2 border-teal-accent/20 flex items-center justify-center shadow-inner">
+                  <UserIcon className="w-5 h-5 text-teal-accent/70" />
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-black text-text-primary truncate tracking-tight">{user.displayName || 'SOC Agent'}</p>
-                <p className="text-[10px] text-text-muted font-bold truncate">{user.email}</p>
+                <p className="text-sm font-black text-text-primary truncate tracking-tight">{user.displayName || 'SOC Agent'}</p>
+                <p className="text-[10px] text-slate-400 font-bold truncate tracking-wider">{user.email}</p>
               </div>
             </div>
             <Button 
               variant="ghost" 
               className={cn(
-                "w-full justify-start mb-1 text-[11px] font-black uppercase tracking-widest",
-                activeTab === 6 ? "bg-teal-accent/5 text-teal-accent" : "text-text-muted hover:text-text-primary"
+                "w-full justify-start mb-2 text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 rounded-xl py-5",
+                activeTab === 6 ? "bg-teal-accent/20 text-teal-accent border border-teal-accent/30 shadow-lg" : "text-slate-400 hover:text-text-primary hover:bg-slate-800/60 hover:border-slate-700/50 border border-transparent"
               )} 
               onClick={() => setActiveTab(6)}
             >
-              <Settings className="w-4 h-4" /> Platform Settings
+              <Settings className="w-4 h-4 mr-3" /> Platform Settings
             </Button>
-            <Button variant="ghost" className="w-full justify-start text-[11px] font-black uppercase tracking-widest text-red-accent/70 hover:text-red-accent hover:bg-red-accent/5" onClick={logout}>
-              <LogOut className="w-4 h-4" /> Terminate Session
+            <Button variant="ghost" className="w-full justify-start text-[11px] font-black uppercase tracking-[0.2em] text-red-accent/70 hover:text-red-accent hover:bg-red-accent/10 transition-all duration-300 rounded-xl py-5 border border-transparent hover:border-red-accent/20" onClick={logout}>
+              <LogOut className="w-4 h-4 mr-3" /> Terminate Session
             </Button>
           </div>
         </aside>
