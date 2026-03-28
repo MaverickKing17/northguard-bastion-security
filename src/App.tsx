@@ -2105,35 +2105,37 @@ function App() {
             </div>
 
             <div className="space-y-6">
-              <Card className="!bg-slate-800/40 !border-slate-600/30 backdrop-blur-md p-5 relative overflow-hidden group/tenant transition-all duration-500 hover:!border-teal-accent/50 hover:!bg-slate-800/60 shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-2 border-l-teal-accent/40">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 rounded-xl bg-teal-accent/20 border border-teal-accent/30 shadow-[0_0_15px_rgba(15,158,117,0.2)]">
-                      <Building2 className="w-5 h-5 text-teal-accent" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-teal-accent/70 uppercase font-black tracking-[0.2em]">Active Tenant</p>
-                      <p className="text-base font-black text-text-primary truncate tracking-tight">{tenant.name}</p>
-                    </div>
+              <Card className="!bg-gradient-to-br !from-slate-800/60 !to-teal-accent/10 !border-teal-accent/30 backdrop-blur-xl p-5 relative overflow-hidden group/tenant transition-all duration-500 hover:!border-teal-accent/60 hover:shadow-[0_0_30px_rgba(15,158,117,0.15)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-4 border-l-teal-accent">
+                <div className="flex items-start gap-4 mb-5">
+                  <div className="p-2.5 rounded-xl bg-teal-accent/20 border border-teal-accent/40 shadow-[0_0_20px_rgba(15,158,117,0.3)] shrink-0 mt-1">
+                    <Building2 className="w-5 h-5 text-teal-accent" />
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-teal-accent/20 border border-teal-accent/30">
-                    <div className="w-1.5 h-1.5 rounded-full bg-teal-accent animate-pulse shadow-[0_0_8px_rgba(15,158,117,0.5)]" />
-                    <span className="text-[9px] font-black text-teal-accent uppercase tracking-tighter">Verified</span>
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-[10px] text-teal-accent font-black uppercase tracking-[0.2em]">Active Tenant</p>
+                      <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-teal-accent/20 border border-teal-accent/30 shrink-0">
+                        <div className="w-1 h-1 rounded-full bg-teal-accent animate-pulse" />
+                        <span className="text-[8px] font-black text-teal-accent uppercase tracking-tighter">Verified</span>
+                      </div>
+                    </div>
+                    <p className="text-base font-black text-text-primary leading-tight drop-shadow-sm break-words">
+                      {tenant.name}
+                    </p>
                   </div>
                 </div>
-                <div className="text-[11px] text-slate-200 font-bold leading-relaxed bg-black/60 p-3 rounded-xl border border-slate-700/50 shadow-inner">
+                <div className="text-[11px] text-slate-200 font-bold leading-relaxed bg-black/50 p-3 rounded-xl border border-teal-accent/10 shadow-inner">
                   Real-time monitoring of autonomous AI agents across Fraud, AML, and Credit risk vectors.
                 </div>
               </Card>
 
-              <Card className="!bg-slate-800/40 !border-slate-600/30 backdrop-blur-md p-5 group/alerts transition-all duration-500 hover:!border-teal-accent/50 hover:!bg-slate-800/60 shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-2 border-l-teal-accent/40">
+              <Card className="!bg-gradient-to-br !from-slate-800/60 !to-teal-accent/5 !border-slate-600/40 backdrop-blur-xl p-5 group/alerts transition-all duration-500 hover:!border-teal-accent/50 hover:shadow-[0_0_30px_rgba(15,158,117,0.1)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-4 border-l-teal-accent/60">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-5">
                     <div className={cn(
                       "p-3 rounded-2xl transition-all duration-700 shadow-lg",
-                      simulation.showNotifications ? "bg-teal-accent/20 border border-teal-accent/30" : "bg-black/60 border border-slate-700/50"
+                      simulation.showNotifications ? "bg-teal-accent/20 border border-teal-accent/40 shadow-[0_0_15px_rgba(15,158,117,0.2)]" : "bg-black/60 border border-slate-700/50"
                     )}>
-                      <Zap className={cn("w-6 h-6 transition-all duration-700", simulation.showNotifications ? "text-teal-accent drop-shadow-[0_0_8px_rgba(15,158,117,0.5)]" : "text-slate-500")} />
+                      <Zap className={cn("w-6 h-6 transition-all duration-700", simulation.showNotifications ? "text-teal-accent drop-shadow-[0_0_12px_rgba(15,158,117,0.6)]" : "text-slate-500")} />
                     </div>
                     <div className="space-y-1">
                       <span className="text-[13px] font-black text-text-primary uppercase tracking-[0.2em]">Live Alerts</span>
@@ -2147,7 +2149,7 @@ function App() {
                     onClick={() => simulation.setShowNotifications(!simulation.showNotifications)}
                     className={cn(
                       "relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-slate-600 transition-all duration-500 ease-in-out focus:outline-none shadow-inner",
-                      simulation.showNotifications ? "bg-teal-accent/80" : "bg-slate-700"
+                      simulation.showNotifications ? "bg-teal-accent" : "bg-slate-700"
                     )}
                     role="switch"
                     aria-checked={simulation.showNotifications}
@@ -2163,25 +2165,25 @@ function App() {
                 </div>
               </Card>
 
-              <Card className="!bg-slate-800/40 !border-slate-600/30 backdrop-blur-md p-5 relative overflow-hidden group/residency transition-all duration-500 hover:!border-blue-accent/50 hover:!bg-slate-800/60 shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-2 border-l-blue-accent/40">
+              <Card className="!bg-gradient-to-br !from-slate-800/60 !to-blue-accent/10 !border-blue-accent/30 backdrop-blur-xl p-5 relative overflow-hidden group/residency transition-all duration-500 hover:!border-blue-accent/60 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] border-l-4 border-l-blue-accent">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-xl bg-blue-accent/20 border border-blue-accent/30 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                    <div className="p-2.5 rounded-xl bg-blue-accent/20 border border-blue-accent/40 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
                       <MapPin className="w-5 h-5 text-blue-accent" />
                     </div>
-                    <p className="text-[11px] text-blue-accent/70 uppercase font-black tracking-[0.3em]">Data Residency</p>
+                    <p className="text-[11px] text-blue-accent font-black uppercase tracking-[0.3em]">Data Residency</p>
                   </div>
-                  <Badge variant="teal" className="text-[10px] px-3 py-1 bg-teal-accent/20 border-teal-accent/30 text-teal-accent font-black shadow-none">Compliant</Badge>
+                  <Badge variant="teal" className="text-[10px] px-3 py-1 bg-teal-accent/20 border-teal-accent/40 text-teal-accent font-black shadow-none">Compliant</Badge>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 rounded-xl bg-black/60 border border-slate-700/50 transition-all shadow-inner">
+                  <div className="flex justify-between items-center p-4 rounded-xl bg-black/50 border border-blue-accent/10 transition-all shadow-inner">
                     <span className="text-[11px] text-slate-300 font-black uppercase tracking-widest">Primary Node</span>
                     <span className="text-[12px] font-black text-text-primary flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-teal-accent animate-pulse shadow-[0_0_10px_rgba(15,158,117,0.6)]" />
+                      <div className="w-2 h-2 rounded-full bg-teal-accent animate-pulse shadow-[0_0_12px_rgba(15,158,117,0.7)]" />
                       CANADA CENTRAL
                     </span>
                   </div>
-                  <div className="flex justify-between items-center p-4 rounded-xl bg-black/60 border border-slate-700/50 transition-all shadow-inner">
+                  <div className="flex justify-between items-center p-4 rounded-xl bg-black/50 border border-slate-700/50 transition-all shadow-inner">
                     <span className="text-[11px] text-slate-300 font-black uppercase tracking-widest">Failover Node</span>
                     <span className="text-[12px] font-black text-slate-400">CANADA EAST</span>
                   </div>
@@ -2209,21 +2211,32 @@ function App() {
                   { label: 'Firestore DB', status: 'STABLE', color: 'blue', icon: Database },
                   { label: 'Agent Monitor', status: 'ONLINE', color: 'teal', icon: Server },
                 ].map((s, i) => (
-                  <div key={i} className="flex items-center justify-between px-5 py-4 rounded-2xl bg-slate-800/40 backdrop-blur-sm border border-slate-600/30 hover:border-teal-accent/50 hover:bg-slate-800/60 transition-all group/status cursor-default shadow-[0_8px_24px_rgba(0,0,0,0.5)] border-l-2 border-l-teal-accent/30">
+                  <div key={i} className={cn(
+                    "flex items-center justify-between px-5 py-4 rounded-2xl backdrop-blur-xl transition-all group/status cursor-default shadow-[0_8px_24px_rgba(0,0,0,0.5)] border-l-4",
+                    s.color === 'teal' 
+                      ? "bg-gradient-to-r from-slate-800/60 to-teal-accent/5 border-slate-600/30 border-l-teal-accent hover:border-teal-accent/50 hover:shadow-[0_0_20px_rgba(15,158,117,0.1)]" 
+                      : "bg-gradient-to-r from-slate-800/60 to-blue-accent/5 border-slate-600/30 border-l-blue-accent hover:border-blue-accent/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]"
+                  )}>
                     <div className="flex items-center gap-5">
-                      <div className="p-2 rounded-xl bg-black/60 group-hover/status:bg-teal-accent/20 transition-all duration-500 shadow-md">
-                        <s.icon className="w-5 h-5 text-slate-400 group-hover/status:text-teal-accent transition-colors" />
+                      <div className={cn(
+                        "p-2 rounded-xl transition-all duration-500 shadow-md",
+                        s.color === 'teal' ? "bg-teal-accent/10 border border-teal-accent/20" : "bg-blue-accent/10 border border-blue-accent/20"
+                      )}>
+                        <s.icon className={cn(
+                          "w-5 h-5 transition-colors",
+                          s.color === 'teal' ? "text-teal-accent/70 group-hover/status:text-teal-accent" : "text-blue-accent/70 group-hover/status:text-blue-accent"
+                        )} />
                       </div>
                       <span className="text-[13px] text-slate-200 group-hover/status:text-text-primary transition-colors tracking-tight font-bold">{s.label}</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className={cn(
                         "text-[12px] font-black tracking-widest",
-                        s.color === 'teal' ? 'text-teal-accent drop-shadow-[0_0_5px_rgba(15,158,117,0.3)]' : 'text-blue-accent drop-shadow-[0_0_5px_rgba(59,130,246,0.3)]'
+                        s.color === 'teal' ? 'text-teal-accent drop-shadow-[0_0_8px_rgba(15,158,117,0.4)]' : 'text-blue-accent drop-shadow-[0_0_8px_rgba(59,130,246,0.4)]'
                       )}>{s.status}</span>
                       <div className={cn(
                         "w-2 h-2 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.8)]",
-                        s.color === 'teal' ? 'bg-teal-accent animate-pulse shadow-[0_0_8px_rgba(15,158,117,0.5)]' : 'bg-blue-accent shadow-[0_0_8px_rgba(59,130,246,0.5)]'
+                        s.color === 'teal' ? 'bg-teal-accent animate-pulse shadow-[0_0_10px_rgba(15,158,117,0.6)]' : 'bg-blue-accent shadow-[0_0_10px_rgba(59,130,246,0.6)]'
                       )} />
                     </div>
                   </div>
