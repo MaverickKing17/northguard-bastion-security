@@ -15,7 +15,9 @@ const FirebaseContext = React.createContext<{
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
-}>({ user: null, loading: true, isAdmin: false });
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
+}>({ user: null, loading: true, isAdmin: false, login: async () => {}, logout: async () => {} });
 
 const FirebaseProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -37,8 +39,24 @@ const FirebaseProvider = ({ children }: { children: React.ReactNode }) => {
     return unsubscribe;
   }, []);
 
+  const handleLogin = async () => {
+    try {
+      await loginWithGoogle();
+    } catch (error) {
+      console.error("Login failed", error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
   return (
-    <FirebaseContext.Provider value={{ user, loading, isAdmin }}>
+    <FirebaseContext.Provider value={{ user, loading, isAdmin, login: handleLogin, logout: handleLogout }}>
       {children}
     </FirebaseContext.Provider>
   );
@@ -47,6 +65,7 @@ const FirebaseProvider = ({ children }: { children: React.ReactNode }) => {
 // --- Tenant & White Labeling Context ---
 
 interface TenantConfig {
+  id: string;
   name: string;
   logo: string | null;
   primaryColor: string;
@@ -56,26 +75,57 @@ interface TenantConfig {
 const TenantContext = React.createContext<{
   tenant: TenantConfig;
   updateTenant: (updates: Partial<TenantConfig>) => void;
+  switchTenant: (tenantId: string) => void;
 }>({
   tenant: {
+    id: 'northguard',
     name: 'NorthGuard Security',
     logo: null,
     primaryColor: '#f59e0b', // amber-accent
     onboardingComplete: true,
   },
   updateTenant: () => {},
+  switchTenant: () => {},
 });
+
+const AVAILABLE_TENANTS: Record<string, Omit<TenantConfig, 'onboardingComplete'>> = {
+  northguard: {
+    id: 'northguard',
+    name: 'NorthGuard Security',
+    logo: null,
+    primaryColor: '#f59e0b',
+  },
+  vanguard: {
+    id: 'vanguard',
+    name: 'Vanguard Capital',
+    logo: null,
+    primaryColor: '#3b82f6', // blue-accent
+  },
+  ironclad: {
+    id: 'ironclad',
+    name: 'Ironclad Trust',
+    logo: null,
+    primaryColor: '#ef4444', // red-accent
+  }
+};
 
 const TenantProvider = ({ children }: { children: React.ReactNode }) => {
   const [tenant, setTenant] = useState<TenantConfig>(() => {
     const saved = localStorage.getItem('bastion_tenant_config');
-    return saved ? JSON.parse(saved) : {
-      name: 'NorthGuard Security',
-      logo: null,
-      primaryColor: '#f59e0b',
-      onboardingComplete: false, // Default to false for new users to see onboarding
+    if (saved) return JSON.parse(saved);
+    
+    return {
+      ...AVAILABLE_TENANTS.northguard,
+      onboardingComplete: false,
     };
   });
+
+  useEffect(() => {
+    if (tenant.primaryColor) {
+      document.documentElement.style.setProperty('--color-teal-accent', tenant.primaryColor);
+      // Also update related colors if needed, or just let Tailwind handle it via the variable
+    }
+  }, [tenant.primaryColor]);
 
   const updateTenant = (updates: Partial<TenantConfig>) => {
     setTenant(prev => {
@@ -85,8 +135,18 @@ const TenantProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
+  const switchTenant = (tenantId: string) => {
+    const config = AVAILABLE_TENANTS[tenantId];
+    if (config) {
+      const next = { ...config, onboardingComplete: true };
+      setTenant(next);
+      localStorage.setItem('bastion_tenant_config', JSON.stringify(next));
+      // In a real app, we might reload or clear some state here
+    }
+  };
+
   return (
-    <TenantContext.Provider value={{ tenant, updateTenant }}>
+    <TenantContext.Provider value={{ tenant, updateTenant, switchTenant }}>
       {children}
     </TenantContext.Provider>
   );
@@ -157,6 +217,161 @@ const Badge = ({ children, variant = 'teal', pulse = false, className }: { child
       {pulse && <span className={cn("w-1.5 h-1.5 rounded-full bg-current mr-1.5", variant === 'emerald' ? 'animate-pulse' : 'animate-pulse-teal')} />}
       {children}
     </span>
+  );
+};
+
+const KillSwitchModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  const [isActivating, setIsActivating] = useState(false);
+  const [isActivated, setIsActivated] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleActivate = async () => {
+    setIsActivating(true);
+    // Simulate high-stakes activation delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setIsActivating(false);
+    setIsActivated(true);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="w-full max-w-lg bg-slate-950 border-2 border-red-500/50 rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(239,68,68,0.3)]"
+      >
+        <div className="p-8 border-b border-red-500/20 bg-gradient-to-br from-red-950/20 to-slate-950">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="p-3 bg-red-500/20 rounded-2xl border border-red-500/30">
+              <AlertCircle className="w-8 h-8 text-red-500 animate-pulse" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-white tracking-tight uppercase">Critical Action</h2>
+              <p className="text-red-500/70 text-[10px] font-black tracking-[0.3em] uppercase">Emergency Protocol 0-0-0</p>
+            </div>
+          </div>
+          
+          {!isActivated ? (
+            <>
+              <p className="text-slate-300 text-sm leading-relaxed font-medium">
+                You are about to activate the <span className="text-red-500 font-bold">LIVE KILL-SWITCH</span>. This protocol will immediately terminate all active AI model sessions, egress points, and API gateways across the global network.
+              </p>
+              <div className="mt-6 p-4 bg-red-500/5 border border-red-500/10 rounded-xl">
+                <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider leading-relaxed">
+                  Warning: This action is recorded in the permanent audit trail and will require manual Level-3 clearance to restore services.
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-8 space-y-4">
+              <div className="w-20 h-20 bg-red-500 rounded-full mx-auto flex items-center justify-center shadow-[0_0_40px_rgba(239,68,68,0.5)]">
+                <Lock className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-black text-white uppercase tracking-tight">Systems Locked</h3>
+              <p className="text-slate-400 text-sm">All AI processes have been terminated. The platform is now in hard-lock mode.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="p-8 flex gap-4">
+          {!isActivated ? (
+            <>
+              <Button 
+                variant="outline" 
+                onClick={onClose} 
+                className="flex-1 justify-center border-slate-800 hover:bg-white/5 text-slate-400 font-black uppercase tracking-widest"
+                disabled={isActivating}
+              >
+                Abort
+              </Button>
+              <Button 
+                variant="danger" 
+                onClick={handleActivate} 
+                className="flex-1 justify-center bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest shadow-[0_0_30px_rgba(239,68,68,0.4)]"
+                disabled={isActivating}
+              >
+                {isActivating ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'Confirm Kill'}
+              </Button>
+            </>
+          ) : (
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsActivated(false);
+                onClose();
+              }} 
+              className="w-full justify-center border-slate-800 hover:bg-white/5 text-slate-400 font-black uppercase tracking-widest"
+            >
+              Close Console
+            </Button>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const TenantSwitcher = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  const { tenant, switchTenant } = React.useContext(TenantContext);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="w-full max-w-md bg-slate-900 border border-slate-700/50 rounded-3xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.8)]"
+      >
+        <div className="p-8 border-b border-slate-700/50 bg-gradient-to-br from-slate-800 to-slate-900">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-2xl font-black text-white tracking-tight">Switch Organization</h2>
+            <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors">
+              <X className="w-5 h-5 text-slate-400" />
+            </button>
+          </div>
+          <p className="text-slate-400 text-sm font-medium">Select the tenant environment you wish to access.</p>
+        </div>
+
+        <div className="p-6 space-y-3">
+          {Object.values(AVAILABLE_TENANTS).map((t) => (
+            <button
+              key={t.id}
+              onClick={() => {
+                switchTenant(t.id);
+                onClose();
+              }}
+              className={cn(
+                "w-full flex items-center justify-between p-5 rounded-2xl border transition-all group text-left",
+                tenant.id === t.id 
+                  ? "bg-white/5 border-white/20 shadow-lg" 
+                  : "bg-transparent border-slate-700/50 hover:bg-white/5 hover:border-slate-600"
+              )}
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-inner" style={{ backgroundColor: t.primaryColor + '20', border: `1px solid ${t.primaryColor}40` }}>
+                  <Building2 className="w-6 h-6" style={{ color: t.primaryColor }} />
+                </div>
+                <div className="text-left">
+                  <p className="text-white font-black tracking-tight">{t.name}</p>
+                  <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">{t.id}.bastion.audit</p>
+                </div>
+              </div>
+              {tenant.id === t.id && (
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div className="p-6 bg-slate-950/50 border-t border-slate-700/50 text-center">
+          <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em]">Enterprise Multi-Tenant Architecture</p>
+        </div>
+      </motion.div>
+    </div>
   );
 };
 
@@ -1116,6 +1331,7 @@ const BehavioralDrift = () => {
 const BoardReport = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportReady, setReportReady] = useState(false);
+  const { tenant } = React.useContext(TenantContext);
 
   const data = [
     { month: 'Oct', injection: 400, pii: 240, bias: 100 },
@@ -1138,8 +1354,8 @@ const BoardReport = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-text-primary">Executive Security Report — March 2026</h2>
-          <p className="text-sm text-text-muted">Global Enterprise • Canadian Banking • OSFI E-21 Compliant</p>
+          <h2 className="text-xl font-bold text-text-primary">{tenant.name} — Executive Security Report</h2>
+          <p className="text-sm text-text-muted">March 2026 • Global Enterprise • OSFI E-21 Compliant</p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" onClick={handleGenerateReport} disabled={isGenerating}>
@@ -1257,7 +1473,7 @@ const BoardReport = () => {
   );
 };
 
-const SettingsTab = ({ simulation }: { simulation: any }) => {
+const SettingsTab = ({ simulation, onSwitchTenant }: { simulation: any, onSwitchTenant: () => void }) => {
   const { showNotifications, setShowNotifications } = simulation;
   const { tenant, updateTenant } = React.useContext(TenantContext);
 
@@ -1271,10 +1487,33 @@ const SettingsTab = ({ simulation }: { simulation: any }) => {
         <Badge variant="slate">v2.4.0-STABLE</Badge>
       </div>
 
+      <div className="flex items-center justify-between p-6 bg-amber-accent/5 border border-amber-accent/20 rounded-2xl">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-amber-accent/10 rounded-xl">
+            <Building2 className="w-6 h-6 text-amber-accent" />
+          </div>
+          <div>
+            <h3 className="text-sm font-black text-white uppercase tracking-tight">Multi-Tenant Environment</h3>
+            <p className="text-xs text-text-muted font-bold">You are currently managing <span className="text-amber-accent">{tenant.name}</span>.</p>
+          </div>
+        </div>
+        <Button variant="outline" size="sm" onClick={onSwitchTenant}>
+          <RefreshCw className="w-3 h-3 mr-2" />
+          Switch Organization
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card title="Organization Branding" icon={Globe}>
           <div className="space-y-6">
             <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Tenant ID</label>
+                <div className="w-full bg-slate-950/50 border border-card-border rounded-lg px-3 py-2 text-xs font-mono text-teal-accent/70 flex items-center justify-between">
+                  <span>{tenant.id}.bastion.audit</span>
+                  <Lock className="w-3 h-3 opacity-30" />
+                </div>
+              </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Organization Name</label>
                 <input 
@@ -1406,11 +1645,11 @@ const SettingsTab = ({ simulation }: { simulation: any }) => {
 };
 
 const OnboardingExperience = () => {
-  const { updateTenant } = React.useContext(TenantContext);
+  const { tenant, updateTenant } = React.useContext(TenantContext);
   const [step, setStep] = useState(1);
   const [config, setConfig] = useState({
-    name: '',
-    logo: null as string | null,
+    name: tenant.name,
+    logo: tenant.logo,
     region: 'Canada Central',
   });
 
@@ -1427,7 +1666,7 @@ const OnboardingExperience = () => {
 
   const handleComplete = () => {
     updateTenant({
-      name: config.name || 'NorthGuard Security',
+      name: config.name,
       logo: config.logo,
       onboardingComplete: true,
     });
@@ -1436,7 +1675,7 @@ const OnboardingExperience = () => {
   return (
     <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center p-6 overflow-y-auto">
       <div className="absolute inset-0 pointer-events-none opacity-20">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(45,212,191,0.1),transparent_70%)]" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,var(--color-teal-accent),transparent_70%)]" />
       </div>
 
       <motion.div 
@@ -1448,9 +1687,12 @@ const OnboardingExperience = () => {
         
         <div className="p-12 space-y-8">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <Shield className="w-8 h-8 text-teal-accent" />
-              <span className="text-2xl font-bold tracking-tight">Bastion Audit</span>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-3">
+                <Shield className="w-8 h-8 text-teal-accent" />
+                <span className="text-2xl font-black tracking-tight text-text-primary uppercase">Bastion Audit</span>
+              </div>
+              <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.3em] mt-1 ml-11">Setup for {tenant.name}</p>
             </div>
             <div className="flex gap-2">
               {[1, 2, 3].map(s => (
@@ -1474,7 +1716,7 @@ const OnboardingExperience = () => {
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold text-text-primary">Welcome to White-Glove Security.</h1>
                   <p className="text-text-muted leading-relaxed">
-                    Bastion Audit is purpose-built for Canadian Financial Institutions. Let's begin by personalizing your enterprise environment.
+                    Bastion Audit is purpose-built for Canadian Financial Institutions. Let's begin by personalizing the <span className="text-teal-accent font-bold">{tenant.name}</span> environment.
                   </p>
                 </div>
                 <div className="space-y-4">
@@ -1982,8 +2224,10 @@ function App() {
   const [activeTab, setActiveTab] = React.useState(0);
   const [activeModalPage, setActiveModalPage] = useState<string | null>(null);
   const [showCookieBanner, setShowCookieBanner] = useState(false);
+  const [isTenantSwitcherOpen, setIsTenantSwitcherOpen] = React.useState(false);
+  const [isKillSwitchModalOpen, setIsKillSwitchModalOpen] = React.useState(false);
   const simulation = useSimulation();
-  const { user, loading } = React.useContext(FirebaseContext);
+  const { user, loading, login, logout } = React.useContext(FirebaseContext);
   const { tenant } = React.useContext(TenantContext);
 
   useEffect(() => {
@@ -2064,7 +2308,14 @@ function App() {
             <span className="text-lg font-black tracking-tight text-text-primary">Bastion Audit</span>
           </div>
           <div className="h-4 w-px bg-card-border mx-2" />
-          <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">{tenant.name}</span>
+          <div 
+            className="flex items-center gap-2 group cursor-pointer hover:bg-white/5 px-3 py-1.5 rounded-lg transition-all"
+            onClick={() => setIsTenantSwitcherOpen(true)}
+          >
+            <Building2 className="w-3.5 h-3.5 text-text-muted group-hover:text-teal-accent transition-colors" />
+            <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] group-hover:text-text-primary transition-colors">{tenant.name}</span>
+            <RefreshCw className="w-2.5 h-2.5 text-text-muted/40 group-hover:text-teal-accent transition-colors" />
+          </div>
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
@@ -2084,11 +2335,40 @@ function App() {
               <div className="h-full bg-teal-accent" style={{ width: '100%' }} />
             </div>
           </div>
-          <Button variant="danger" className="text-[10px] font-black px-3 py-1.5 h-auto shadow-none border border-red-accent/10 bg-red-accent/5 text-red-accent hover:bg-red-accent/10">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-accent animate-pulse" />
+          <Button 
+            variant="danger" 
+            className="text-[10px] font-black px-4 py-2 h-auto shadow-[0_0_20px_rgba(239,68,68,0.2)] border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all group"
+            onClick={() => setIsKillSwitchModalOpen(true)}
+          >
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse group-hover:bg-white" />
             LIVE KILL-SWITCH
           </Button>
-          <Button variant="ghost" className="text-xs text-text-muted hover:text-text-primary transition-colors font-black uppercase tracking-widest">Sign In</Button>
+          
+          {user ? (
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col items-end">
+                <p className="text-[10px] font-black text-text-primary uppercase tracking-wider">{user.displayName || 'Operator'}</p>
+                <p className="text-[8px] font-bold text-teal-accent uppercase tracking-[0.2em]">Authorized</p>
+              </div>
+              <Button 
+                variant="ghost" 
+                onClick={logout}
+                className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-full transition-all"
+                title="Sign Out"
+              >
+                <LogOut className="w-5 h-5" />
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              variant="amber" 
+              onClick={login}
+              className="text-xs px-6 py-2 shadow-[0_0_25px_rgba(251,191,36,0.3)] hover:scale-105 active:scale-95 transition-all"
+            >
+              <LogIn className="w-4 h-4" />
+              Sign In
+            </Button>
+          )}
         </div>
       </header>
 
@@ -2367,7 +2647,7 @@ function App() {
               {activeTab === 3 && <VulnerabilityAudit />}
               {activeTab === 4 && <BehavioralDrift />}
               {activeTab === 5 && <BoardReport />}
-              {activeTab === 6 && <SettingsTab simulation={simulation} />}
+              {activeTab === 6 && <SettingsTab simulation={simulation} onSwitchTenant={() => setIsTenantSwitcherOpen(true)} />}
             </motion.div>
           </AnimatePresence>
         </main>
@@ -2426,6 +2706,16 @@ function App() {
       </footer>
 
       <AIChatWidget />
+
+      <TenantSwitcher 
+        isOpen={isTenantSwitcherOpen} 
+        onClose={() => setIsTenantSwitcherOpen(false)} 
+      />
+
+      <KillSwitchModal 
+        isOpen={isKillSwitchModalOpen} 
+        onClose={() => setIsKillSwitchModalOpen(false)} 
+      />
 
       {/* Cookie Banner */}
       <AnimatePresence>
