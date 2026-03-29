@@ -3,7 +3,7 @@ import { Shield, AlertCircle, CheckCircle2, Info, Activity, Lock, Globe, Databas
 import { cn } from './lib/utils';
 import { useSimulation, LogEntry, ThreatIntel, Notification } from './hooks/useSimulation';
 import { motion, AnimatePresence } from 'motion/react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, ReferenceLine } from 'recharts';
 import { GoogleGenAI } from "@google/genai";
 import { auth, db, loginWithGoogle, logout, handleFirestoreError, OperationType } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -1157,12 +1157,50 @@ const VulnerabilityAudit = () => {
   );
 };
 
+const CustomDriftTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    const drift = ((payload[1].value - payload[0].value) / payload[0].value * 100).toFixed(1);
+    const isCritical = parseFloat(drift) > 50;
+
+    return (
+      <div className="bg-slate-900/90 border border-slate-700 p-4 rounded-2xl shadow-2xl backdrop-blur-xl min-w-[200px]">
+        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">{label}</p>
+        <div className="space-y-3">
+          {payload.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                <span className="text-[11px] font-bold text-slate-300">{entry.name}</span>
+              </div>
+              <span className="text-xs font-mono font-black text-white">{entry.value.toFixed(2)}</span>
+            </div>
+          ))}
+        </div>
+        <div className={cn(
+          "mt-4 pt-3 border-t border-slate-700/50 flex items-center justify-between",
+          isCritical ? "text-red-400" : "text-emerald-400"
+        )}>
+          <span className="text-[10px] font-black uppercase tracking-widest">Variance</span>
+          <span className="text-xs font-black">{drift}%</span>
+        </div>
+        {isCritical && (
+          <div className="mt-2 flex items-center gap-1 text-red-500 animate-pulse">
+            <AlertCircle className="w-3 h-3" />
+            <span className="text-[9px] font-black uppercase tracking-tighter">Anomaly Detected</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+  return null;
+};
+
 const BehavioralDrift = () => {
   const [sensitivity, setSensitivity] = useState(75);
   const [isQuarantined, setIsQuarantined] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  const data = [
+  const [scanPosition, setScanPosition] = useState(0);
+  const [liveData, setLiveData] = useState([
     { name: 'Day 1', baseline: 10, live: 12 },
     { name: 'Day 5', baseline: 10, live: 11 },
     { name: 'Day 10', baseline: 10, live: 15 },
@@ -1170,7 +1208,26 @@ const BehavioralDrift = () => {
     { name: 'Day 20', baseline: 10, live: 13 },
     { name: 'Day 25', baseline: 10, live: 11 },
     { name: 'Day 30', baseline: 10, live: 12 },
-  ];
+  ]);
+
+  // Simulate real-time data fluctuations
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveData(prev => prev.map((item, idx) => {
+        // Only fluctuate the last few points to simulate "live" data
+        if (idx > 4) {
+          const fluctuation = (Math.random() - 0.5) * 0.5;
+          return { ...item, live: Math.max(8, Math.min(18, item.live + fluctuation)) };
+        }
+        return item;
+      }));
+      
+      // Move scanning line
+      setScanPosition(prev => (prev + 1) % 100);
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleDeepAnalysis = () => {
     setIsAnalyzing(true);
@@ -1216,21 +1273,113 @@ const BehavioralDrift = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card title="30-Day Drift Analysis" icon={Activity} className="lg:col-span-2">
-          <div className="h-[300px] w-full">
+        <Card title="30-Day Drift Analysis" icon={Activity} className="lg:col-span-2 relative overflow-hidden group">
+          {/* Scanning Line Animation */}
+          <motion.div 
+            className="absolute top-0 bottom-0 w-[2px] bg-teal-accent/20 z-20 pointer-events-none"
+            style={{ left: `${scanPosition}%` }}
+            animate={{ opacity: [0.2, 0.5, 0.2] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+          
+          <div className="absolute top-4 right-6 flex items-center gap-6 z-10">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-accent animate-ping" />
+                <span className="text-[9px] font-black text-teal-accent uppercase tracking-tighter">Live Feed</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-blue-accent/20 border border-blue-accent/50" />
+                <span className="text-[10px] font-black text-text-muted uppercase tracking-widest">Baseline</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-amber-accent/20 border border-amber-accent/50" />
+                <span className="text-[10px] font-black text-text-muted uppercase tracking-widest">Live Drift</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="h-[350px] w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
-                <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={10} />
-                <YAxis stroke="var(--text-muted)" fontSize={10} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--card-border)', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  itemStyle={{ color: 'var(--text-primary)' }}
+              <AreaChart data={liveData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorLive" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-teal-accent)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="var(--color-teal-accent)" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorBaseline" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-blue-accent)" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="var(--color-blue-accent)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" vertical={false} opacity={0.5} />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="var(--text-muted)" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false}
+                  dy={10}
                 />
-                <Area type="monotone" dataKey="baseline" name="Baseline (Expected)" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.05} />
-                <Area type="monotone" dataKey="live" name="Live Performance" stroke="#0f9e75" fill="#0f9e75" fillOpacity={0.1} />
+                <YAxis 
+                  stroke="var(--text-muted)" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false}
+                  dx={-10}
+                />
+                <Tooltip content={<CustomDriftTooltip />} />
+                <Area 
+                  type="monotone" 
+                  dataKey="baseline" 
+                  name="Baseline (Expected)" 
+                  stroke="var(--color-blue-accent)" 
+                  strokeWidth={2}
+                  fill="url(#colorBaseline)" 
+                  strokeDasharray="5 5"
+                  isAnimationActive={false}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="live" 
+                  name="Live Performance" 
+                  stroke="var(--color-teal-accent)" 
+                  strokeWidth={3}
+                  fill="url(#colorLive)" 
+                  isAnimationActive={false}
+                />
+                <ReferenceLine x="Day 15" stroke="var(--color-red-accent)" strokeDasharray="3 3" label={{ position: 'top', value: 'Anomaly', fill: 'var(--color-red-accent)', fontSize: 10, fontWeight: 'bold' }} />
               </AreaChart>
             </ResponsiveContainer>
+          </div>
+
+          <div className="mt-6 flex flex-col md:flex-row gap-4">
+            <div className="flex-1 p-4 bg-surface/50 border border-card-border rounded-xl">
+              <div className="flex items-center gap-2 mb-2">
+                <Info className="w-3 h-3 text-blue-accent" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-text-primary">Analyst Note</span>
+              </div>
+              <p className="text-[11px] text-text-muted leading-relaxed">
+                The model is experiencing <span className="text-amber-accent font-bold">Behavioral Drift</span> starting from Day 10, peaking at Day 15. This correlates with the introduction of new mortgage products in the Ontario region. Automated mitigation is active.
+              </p>
+            </div>
+            <div className="w-full md:w-64 p-4 bg-teal-accent/5 border border-teal-accent/10 rounded-xl flex flex-col justify-center">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] font-black text-teal-accent uppercase tracking-widest">System Health</span>
+                <span className="text-[9px] font-black text-teal-accent">94.2%</span>
+              </div>
+              <div className="h-1 w-full bg-teal-accent/10 rounded-full overflow-hidden">
+                <motion.div 
+                  className="h-full bg-teal-accent"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "94.2%" }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                />
+              </div>
+              <p className="text-[8px] text-teal-accent/60 mt-2 font-bold uppercase tracking-tighter">Real-time telemetry active</p>
+            </div>
           </div>
         </Card>
 
@@ -1328,10 +1477,11 @@ const BehavioralDrift = () => {
   );
 };
 
-const BoardReport = () => {
+const BoardReport = ({ simulation }: { simulation: any }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportReady, setReportReady] = useState(false);
   const { tenant } = React.useContext(TenantContext);
+  const { stats } = simulation;
 
   const data = [
     { month: 'Oct', injection: 400, pii: 240, bias: 100 },
@@ -1381,7 +1531,7 @@ const BoardReport = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {[
-          { label: 'OSFI E-21', val: '94%', sub: 'Model Risk' },
+          { label: 'OSFI E-21', val: `${stats.compliance.toFixed(1)}%`, sub: 'Model Risk' },
           { label: 'PIPEDA', val: '98%', sub: 'Privacy' },
           { label: 'AIDA', val: '86%', sub: 'AI Ethics' },
           { label: 'FINTRAC', val: '92%', sub: 'AML/ATF' },
@@ -1396,10 +1546,14 @@ const BoardReport = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card title="AI Executive Narrative" icon={FileText} className="lg:col-span-2">
+        <Card title="AI Executive Narrative" icon={FileText} className="lg:col-span-2 relative">
+          <div className="absolute top-4 right-6 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-accent animate-ping" />
+            <span className="text-[9px] font-black text-teal-accent uppercase tracking-widest">Live Summary</span>
+          </div>
           <div className="space-y-4">
             <p className="text-sm text-text-primary leading-relaxed italic">
-              "Bastion Audit has successfully neutralized 1,847 security events this month, preventing an estimated $2.3M CAD in potential PIPEDA breach liabilities. Our OSFI E-21 compliance posture remains strong at 94.2%, with ongoing monitoring of 14 active AI agents. Behavioral drift in the Mortgage Adjudication model was detected and mitigated within 4 hours, ensuring continued fairness and regulatory alignment."
+              "Bastion Audit has successfully neutralized {stats.events.toLocaleString()} security events this month, preventing an estimated ${stats.riskAvoided}M CAD in potential PIPEDA breach liabilities. Our OSFI E-21 compliance posture remains strong at {stats.compliance.toFixed(1)}%, with ongoing monitoring of 14 active AI agents. Behavioral drift in the Mortgage Adjudication model was detected and mitigated within 4 hours, ensuring continued fairness and regulatory alignment."
             </p>
             {reportReady && (
               <motion.div 
@@ -2646,7 +2800,7 @@ function App() {
               {activeTab === 2 && <ModelInventory />}
               {activeTab === 3 && <VulnerabilityAudit />}
               {activeTab === 4 && <BehavioralDrift />}
-              {activeTab === 5 && <BoardReport />}
+              {activeTab === 5 && <BoardReport simulation={simulation} />}
               {activeTab === 6 && <SettingsTab simulation={simulation} onSwitchTenant={() => setIsTenantSwitcherOpen(true)} />}
             </motion.div>
           </AnimatePresence>
