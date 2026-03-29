@@ -12,7 +12,7 @@ service cloud.firestore {
     //   - timestamp: timestamp (required) - When the event occurred
     //   - user: string (required) - User or agent name
     //   - action: string (required) - Action taken
-    //   - status: string (required) - SUCCESS, FLAGGED, ERROR
+    //   - status: string (required) - SUCCESS, FLAGGED, ERROR, WARNING
     //   - details: string (optional) - Metadata
     //   - uid: string (required) - User UID
     //
@@ -58,7 +58,8 @@ service cloud.firestore {
       return data.timestamp is timestamp &&
              data.user is string && data.user.size() < 100 &&
              data.action is string && data.action.size() < 100 &&
-             data.status in ['SUCCESS', 'FLAGGED', 'ERROR'] &&
+             data.status in ['SUCCESS', 'FLAGGED', 'ERROR', 'WARNING'] &&
+             (!('details' in data) || (data.details is string && data.details.size() < 1000)) &&
              data.uid == request.auth.uid;
     }
 

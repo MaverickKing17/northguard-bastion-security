@@ -8,7 +8,7 @@
         "timestamp": { "type": "string", "format": "date-time", "description": "When the event occurred." },
         "user": { "type": "string", "description": "The user or system agent that performed the action." },
         "action": { "type": "string", "description": "The specific action taken (e.g., 'SECURITY_SCAN', 'AI_REQUEST')." },
-        "status": { "type": "string", "enum": ["SUCCESS", "FLAGGED", "ERROR"], "description": "The outcome of the action." },
+        "status": { "type": "string", "enum": ["SUCCESS", "FLAGGED", "ERROR", "WARNING"], "description": "The outcome of the action." },
         "details": { "type": "string", "description": "Additional context or metadata about the event." },
         "uid": { "type": "string", "description": "The Firebase Auth UID of the user." }
       },

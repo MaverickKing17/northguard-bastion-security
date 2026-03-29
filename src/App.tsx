@@ -1096,8 +1096,13 @@ const ModelInventory = () => {
 const VulnerabilityAudit = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportReady, setReportReady] = useState(false);
+  const [showFullReport, setShowFullReport] = useState(false);
 
   const handleGenerate = () => {
+    if (reportReady) {
+      setShowFullReport(!showFullReport);
+      return;
+    }
     setIsGenerating(true);
     setTimeout(() => {
       setIsGenerating(false);
@@ -1134,16 +1139,16 @@ const VulnerabilityAudit = () => {
         </div>
         
         <Button 
-          variant="primary" 
+          variant={reportReady ? 'amber' : 'primary'} 
           onClick={handleGenerate}
           disabled={isGenerating}
           className="mt-8 px-10 py-6 text-sm font-black uppercase tracking-widest shadow-sm transition-all relative z-10"
         >
-          {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : null}
-          {isGenerating ? 'Scanning Infrastructure...' : reportReady ? 'Audit Report Generated' : 'Generate Full Audit Report'}
+          {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : reportReady ? <FileText className="w-4 h-4 mr-2" /> : null}
+          {isGenerating ? 'Scanning Infrastructure...' : reportReady ? (showFullReport ? 'Hide Executive Report' : 'View Executive Report') : 'Generate Full Audit Report'}
         </Button>
 
-        {reportReady && (
+        {reportReady && !showFullReport && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1153,6 +1158,126 @@ const VulnerabilityAudit = () => {
           </motion.div>
         )}
       </div>
+
+      <AnimatePresence>
+        {showFullReport && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            className="space-y-6"
+          >
+            {/* Report Header */}
+            <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-teal-accent rounded-full animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted">Institutional Confidential // OSFI E-21 Compliant</span>
+              </div>
+              <span className="text-[10px] font-mono font-bold text-text-muted/50">REF: BASTION-AUDIT-2026-Q1</span>
+            </div>
+
+            {/* Executive Summary Header */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="bg-gradient-to-br from-teal-accent/10 to-transparent border-teal-accent/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <ShieldCheck className="w-5 h-5 text-teal-accent" />
+                  <h3 className="text-xs font-black uppercase tracking-widest text-text-primary">Security Posture</h3>
+                </div>
+                <p className="text-3xl font-black text-teal-accent">OPTIMIZED</p>
+                <p className="text-[10px] text-text-muted font-bold uppercase mt-2">Zero Critical Exploits Detected</p>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-amber-400/10 to-transparent border-amber-400/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <Activity className="w-5 h-5 text-amber-400" />
+                  <h3 className="text-xs font-black uppercase tracking-widest text-text-primary">Risk Exposure</h3>
+                </div>
+                <p className="text-3xl font-black text-amber-400">MINIMAL</p>
+                <p className="text-[10px] text-text-muted font-bold uppercase mt-2">2 Minor Regulatory Gaps</p>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-blue-400/10 to-transparent border-blue-400/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <Building2 className="w-5 h-5 text-blue-400" />
+                  <h3 className="text-xs font-black uppercase tracking-widest text-text-primary">Compliance</h3>
+                </div>
+                <p className="text-3xl font-black text-blue-400">94.2%</p>
+                <p className="text-[10px] text-text-muted font-bold uppercase mt-2">OSFI E-21 / PIPEDA Ready</p>
+              </Card>
+            </div>
+
+            {/* Detailed Findings */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card title="Vulnerability Breakdown" icon={AlertCircle}>
+                <div className="space-y-4">
+                  {[
+                    { label: 'Prompt Injection', status: 'SECURE', color: 'text-teal-accent', desc: 'Lakera Guard intercepting 100% of adversarial payloads.' },
+                    { label: 'Data Exfiltration', status: 'MONITORED', color: 'text-blue-400', desc: 'PII detection engine active. 0 SIN leaks detected.' },
+                    { label: 'Model Bias', status: 'IMPROVING', color: 'text-amber-400', desc: 'Credit decisioning drift detected in M5V region. Mitigated.' },
+                    { label: 'Jailbreak Attempts', status: 'SECURE', color: 'text-teal-accent', desc: 'System-level constraints preventing escape sequences.' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-start gap-4 p-3 rounded-xl bg-surface/50 border border-card-border/50">
+                      <div className={cn("text-[10px] font-black px-2 py-1 rounded border border-current uppercase shrink-0", item.color)}>
+                        {item.status}
+                      </div>
+                      <div>
+                        <p className="text-sm font-black text-text-primary uppercase tracking-tight">{item.label}</p>
+                        <p className="text-xs text-text-muted mt-1">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              <Card title="OSFI E-21 Gap Analysis" icon={Lock}>
+                <div className="space-y-6">
+                  <div className="p-4 rounded-xl bg-amber-400/5 border border-amber-400/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="w-4 h-4 text-amber-400" />
+                      <p className="text-xs font-black text-text-primary uppercase tracking-widest">Finding #01: Model Documentation</p>
+                    </div>
+                    <p className="text-xs text-text-muted leading-relaxed">
+                      Technical documentation for the "Mortgage Adjudicator" agent requires update to reflect recent behavioral drift mitigation strategies implemented on March 24th.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-teal-accent/5 border border-teal-accent/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle2 className="w-4 h-4 text-teal-accent" />
+                      <p className="text-xs font-black text-text-primary uppercase tracking-widest">Finding #02: Real-time Monitoring</p>
+                    </div>
+                    <p className="text-xs text-text-muted leading-relaxed">
+                      Bastion Audit successfully meets the "Continuous Monitoring" requirement of OSFI E-21 Section 4.2 through automated threat interception and logging.
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-card-border">
+                    <p className="text-[10px] font-black text-teal-accent uppercase tracking-[0.2em] mb-3">Remediation Roadmap</p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1 bg-surface rounded-full overflow-hidden">
+                        <div className="h-full bg-teal-accent w-3/4" />
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-text-muted">75% COMPLETE</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Footer Action */}
+            <div className="flex justify-center">
+              <Button 
+                variant="outline" 
+                className="group"
+                onClick={() => alert('Full Technical Audit PDF (14 pages) is being prepared for download.')}
+              >
+                <FileText className="w-4 h-4 mr-2 group-hover:text-teal-accent transition-colors" />
+                Download Full 14-Page Technical Audit
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -2765,26 +2890,37 @@ function App() {
           )}
 
           {/* Tab Nav */}
-          <nav className="flex items-center gap-1 border-b border-card-border mb-8 overflow-x-auto no-scrollbar" role="tablist" aria-label="Security Dashboard Tabs">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                role="tab"
-                aria-selected={activeTab === tab.id}
-                aria-controls={`tabpanel-${tab.id}`}
-                id={`tab-${tab.id}`}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-2 shrink-0 focus-visible:ring-2 focus-visible:ring-teal-accent outline-none",
-                  activeTab === tab.id 
-                    ? "border-teal-accent text-teal-accent bg-teal-accent/5" 
-                    : "border-transparent text-text-muted hover:text-text-primary hover:bg-surface"
+          <nav className="flex items-center border-b border-card-border mb-8 overflow-x-auto no-scrollbar" role="tablist" aria-label="Security Dashboard Tabs">
+            {tabs.map((tab, index) => (
+              <React.Fragment key={tab.id}>
+                <button
+                  role="tab"
+                  aria-selected={activeTab === tab.id}
+                  aria-controls={`tabpanel-${tab.id}`}
+                  id={`tab-${tab.id}`}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "px-6 py-4 text-[11px] font-black uppercase tracking-[0.15em] border-b-2 transition-all flex items-center gap-2.5 shrink-0 focus-visible:ring-2 focus-visible:ring-teal-accent outline-none relative group",
+                    activeTab === tab.id 
+                      ? "border-teal-accent text-teal-accent bg-teal-accent/[0.03]" 
+                      : "border-transparent text-text-muted hover:text-text-primary hover:bg-surface/50"
+                  )}
+                >
+                  <tab.icon className={cn("w-4 h-4 transition-transform group-hover:scale-110", activeTab === tab.id ? "text-teal-accent" : "text-text-muted/50")} aria-hidden="true" />
+                  <span>{tab.label}</span>
+                  {tab.badge && (
+                    <Badge 
+                      variant={tab.badge === 'SHIELD' ? 'teal' : 'blue'} 
+                      className="text-[8px] px-1.5 py-0 font-black tracking-tighter"
+                    >
+                      {tab.badge}
+                    </Badge>
+                  )}
+                </button>
+                {index < tabs.length - 1 && (
+                  <div className="h-6 w-[1px] bg-gradient-to-b from-transparent via-teal-accent/30 to-transparent shrink-0 opacity-40" />
                 )}
-              >
-                <tab.icon className="w-4 h-4" aria-hidden="true" />
-                {tab.label}
-                {tab.badge && <Badge variant={tab.badge === 'SHIELD' ? 'teal' : 'blue'} className="text-[8px] px-1.5 py-0">{tab.badge}</Badge>}
-              </button>
+              </React.Fragment>
             ))}
           </nav>
 
