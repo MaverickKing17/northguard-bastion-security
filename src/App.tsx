@@ -1546,11 +1546,17 @@ const BoardReport = ({ simulation }: { simulation: any }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card title="AI Executive Narrative" icon={FileText} className="lg:col-span-2 relative">
-          <div className="absolute top-4 right-6 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal-accent animate-ping" />
-            <span className="text-[9px] font-black text-teal-accent uppercase tracking-widest">Live Summary</span>
-          </div>
+        <Card 
+          title="AI Executive Narrative" 
+          icon={FileText} 
+          className="lg:col-span-2"
+          badge={
+            <div className="flex items-center gap-1.5 bg-teal-accent/10 px-2 py-1 rounded-full border border-teal-accent/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-accent animate-ping" />
+              <span className="text-[9px] font-black text-teal-accent uppercase tracking-widest">Live Summary</span>
+            </div>
+          }
+        >
           <div className="space-y-4">
             <p className="text-sm text-text-primary leading-relaxed italic">
               "Bastion Audit has successfully neutralized {stats.events.toLocaleString()} security events this month, preventing an estimated ${stats.riskAvoided}M CAD in potential PIPEDA breach liabilities. Our OSFI E-21 compliance posture remains strong at {stats.compliance.toFixed(1)}%, with ongoing monitoring of 14 active AI agents. Behavioral drift in the Mortgage Adjudication model was detected and mitigated within 4 hours, ensuring continued fairness and regulatory alignment."
