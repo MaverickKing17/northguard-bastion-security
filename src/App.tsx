@@ -757,9 +757,9 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
             
             <div className="space-y-4 relative z-10">
               {realTimeThreats.length > 0 ? realTimeThreats.map((threat: any) => (
-                <div key={threat.id} className="flex items-start gap-3 group/item hover:bg-white/[0.04] p-2 rounded-xl transition-all border border-transparent hover:border-card-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)] cursor-pointer">
+                <div key={threat.id} className="flex items-start gap-3 group/item hover:bg-white/[0.04] p-2 rounded-xl transition-all duration-300 border border-transparent hover:border-card-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)] cursor-pointer hover:translate-x-1">
                   <div className={cn(
-                    "mt-1.5 w-2 h-2 rounded-full shrink-0 transition-all duration-300 group-hover/item:scale-125 group-hover/item:shadow-[0_0_15px_rgba(255,255,255,0.5)]",
+                    "mt-1.5 w-2 h-2 rounded-full shrink-0 transition-all duration-500 group-hover/item:scale-150 group-hover/item:shadow-[0_0_15px_rgba(255,255,255,0.5)]",
                     threat.severity === 'CRITICAL' ? 'bg-red-accent shadow-[0_0_10px_rgba(239,68,68,0.6)]' : 'bg-amber-accent shadow-[0_0_10px_rgba(245,158,11,0.6)]'
                   )} />
                   <div className="flex-1 min-w-0">
