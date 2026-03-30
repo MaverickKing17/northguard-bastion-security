@@ -2911,33 +2911,33 @@ function App() {
         
         <div className="flex items-center gap-8 relative z-10">
           <div className="flex items-center gap-3 group cursor-pointer" onClick={() => setActiveTab(0)}>
-            <div className="p-2 bg-amber-400/10 rounded-xl border border-amber-400/20 shadow-[0_0_15px_rgba(251,191,36,0.1)] group-hover:shadow-[0_0_20px_rgba(251,191,36,0.2)] transition-all duration-500">
+            <div className="p-2 bg-amber-400/20 rounded-xl border border-amber-400/40 shadow-[0_0_20px_rgba(251,191,36,0.2)] group-hover:shadow-[0_0_30px_rgba(251,191,36,0.4)] transition-all duration-500 bg-slate-900/40 backdrop-blur-sm">
               {tenant.logo ? (
                 <img src={tenant.logo} alt="Tenant Logo" className="h-6 object-contain" />
               ) : (
-                <Shield className="w-5 h-5 text-amber-400" />
+                <Shield className="w-5 h-5 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
               )}
             </div>
             <div className="flex flex-col">
-              <span className="text-xs font-black text-amber-400 uppercase tracking-[0.3em] leading-none mb-1">Executive SOC</span>
-              <span className="text-lg font-black tracking-tighter text-white group-hover:text-amber-400 transition-colors duration-500 uppercase">Bastion Audit</span>
+              <span className="text-xs font-black text-amber-400 uppercase tracking-[0.3em] leading-none mb-1 drop-shadow-md">Executive SOC</span>
+              <span className="text-lg font-black tracking-tighter text-white group-hover:text-amber-400 transition-colors duration-500 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">Bastion Audit</span>
             </div>
           </div>
 
           <div className="h-8 w-px bg-gradient-to-b from-transparent via-card-border to-transparent mx-2" />
 
           <div 
-            className="flex items-center gap-3 group cursor-pointer hover:bg-white/5 px-4 py-2 rounded-xl transition-all duration-500 border border-amber-400/10 hover:border-amber-400/40 shadow-[0_0_15px_rgba(251,191,36,0.05)] hover:shadow-[0_0_20px_rgba(251,191,36,0.15)] bg-slate-900/20"
+            className="flex items-center gap-3 group cursor-pointer hover:bg-white/5 px-4 py-2 rounded-xl transition-all duration-500 border border-amber-400/40 hover:border-amber-400/70 shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:shadow-[0_0_35px_rgba(251,191,36,0.3)] bg-slate-900/60 backdrop-blur-md"
             onClick={() => setIsTenantSwitcherOpen(true)}
           >
-            <div className="p-1.5 bg-slate-900 rounded-lg border border-card-border group-hover:border-amber-400/30 transition-colors">
-              <Building2 className="w-4 h-4 text-amber-400/60 group-hover:text-amber-400 transition-colors" />
+            <div className="p-1.5 bg-slate-900/80 rounded-lg border border-amber-400/30 group-hover:border-amber-400/60 transition-all duration-500 shadow-inner">
+              <Building2 className="w-4 h-4 text-amber-400/80 group-hover:text-amber-400 transition-colors drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] group-hover:text-amber-400 transition-colors">{tenant.name}</span>
+              <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] group-hover:text-amber-400 transition-colors drop-shadow-md">{tenant.name}</span>
               <div className="flex items-center gap-1">
-                <span className="text-[8px] font-bold text-amber-400/60 uppercase tracking-widest">Global Instance</span>
-                <RefreshCw className="w-2 h-2 text-amber-400/40 group-hover:text-amber-400 transition-colors animate-spin-slow" />
+                <span className="text-[8px] font-bold text-amber-400/80 uppercase tracking-widest">Global Instance</span>
+                <RefreshCw className="w-2 h-2 text-amber-400/60 group-hover:text-amber-400 transition-colors animate-spin-slow" />
               </div>
             </div>
           </div>
@@ -2945,25 +2945,25 @@ function App() {
 
         <div className="hidden xl:flex items-center gap-4 relative z-10">
           {['OSFI E-21', 'PIPEDA', 'AIDA', 'SOC2'].map((cert) => (
-            <div key={cert} className="px-3 py-1.5 rounded-lg bg-slate-900/80 border border-amber-400/30 flex items-center gap-2 group/cert hover:border-amber-400/60 transition-all duration-500 cursor-help shadow-[0_0_15px_rgba(251,191,36,0.1)] hover:shadow-[0_0_25px_rgba(251,191,36,0.3)]">
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.8)] animate-pulse" />
-              <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/cert:text-amber-400 transition-colors">{cert}</span>
+            <div key={cert} className="px-3 py-1.5 rounded-lg bg-slate-900/90 border border-amber-400/50 flex items-center gap-2 group/cert hover:border-amber-400/80 transition-all duration-500 cursor-help shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:shadow-[0_0_35px_rgba(251,191,36,0.4)] backdrop-blur-xl">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,1)] animate-pulse" />
+              <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/cert:text-amber-400 transition-colors drop-shadow-md">{cert}</span>
             </div>
           ))}
         </div>
 
         <div className="flex items-center gap-8 relative z-10">
-          <div className="flex items-center gap-4 px-6 py-2 bg-slate-900/80 rounded-2xl border border-amber-400/30 hover:border-amber-400/50 transition-all duration-700 group/health shadow-[0_0_25px_rgba(251,191,36,0.12)] hover:shadow-[0_0_40px_rgba(251,191,36,0.25)]">
+          <div className="flex items-center gap-4 px-6 py-2 bg-slate-900/95 rounded-2xl border border-amber-400/60 hover:border-amber-400/90 transition-all duration-700 group/health shadow-[0_0_35px_rgba(251,191,36,0.25)] hover:shadow-[0_0_60px_rgba(251,191,36,0.45)] backdrop-blur-xl">
             <div className="text-right">
               <div className="flex items-center justify-end gap-1.5 mb-0.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                <p className="text-[9px] text-amber-400 uppercase font-black tracking-[0.2em]">Security Health</p>
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping shadow-[0_0_12px_rgba(251,191,36,1)]" />
+                <p className="text-[9px] text-amber-400 uppercase font-black tracking-[0.2em] drop-shadow-sm">Security Health</p>
               </div>
-              <p className="text-2xl font-black text-white drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">100.0%</p>
+              <p className="text-2xl font-black text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">100.0%</p>
             </div>
-            <div className="w-32 h-2.5 bg-slate-950 rounded-full overflow-hidden border border-amber-400/30 relative">
+            <div className="w-32 h-2.5 bg-slate-950 rounded-full overflow-hidden border border-amber-400/50 relative shadow-inner">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/40 to-transparent animate-scanline-horizontal" />
-              <div className="h-full bg-gradient-to-r from-amber-600 to-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.7)]" style={{ width: '100%' }} />
+              <div className="h-full bg-gradient-to-r from-amber-600 to-amber-400 shadow-[0_0_25px_rgba(251,191,36,0.8)]" style={{ width: '100%' }} />
             </div>
           </div>
 
@@ -2980,8 +2980,8 @@ function App() {
           {user ? (
             <div className="flex items-center gap-5 pl-6 border-l border-card-border/50">
               <div className="flex flex-col items-end">
-                <p className="text-[11px] font-black text-white uppercase tracking-wider">{user.displayName || 'Operator'}</p>
-                <div className="flex items-center gap-1.5">
+                <p className="text-[11px] font-black text-white uppercase tracking-wider drop-shadow-md">{user.displayName || 'Operator'}</p>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20 shadow-[0_0_10px_rgba(251,191,36,0.1)]">
                   <div className="w-1 h-1 rounded-full bg-amber-400 shadow-[0_0_5px_rgba(251,191,36,0.8)]" />
                   <p className="text-[9px] font-bold text-amber-400 uppercase tracking-[0.2em]">Authorized Access</p>
                 </div>
