@@ -24,13 +24,17 @@ export const loginWithGoogle = async () => {
         alert("The login popup was blocked by your browser. Please allow popups for this site.");
       } else if (error.message.includes('auth/unauthorized-domain') || error.message.includes('unauthorized-domain')) {
         const currentDomain = window.location.hostname;
-        alert(`SECURITY BLOCK: This domain (${currentDomain}) is not authorized in your Firebase Console. 
+        alert(`🚨 FIREBASE AUTH BLOCK 🚨
 
-To fix this:
-1. Open Firebase Console > Authentication > Settings.
-2. Add "${currentDomain}" to your Authorized Domains list.
+The domain you are currently using is NOT authorized:
+"${currentDomain}"
 
-Alternatively, use your authorized production URL: northguard-bastion-security.vercel.app`);
+Vercel creates unique URLs for every build. To fix this, you MUST add the URL above to your Firebase Console:
+1. Go to Firebase Console > Authentication > Settings.
+2. Click "Add domain" and paste: ${currentDomain}
+
+OR, simply use your main authorized URL:
+northguard-bastion-security.vercel.app`);
       } else {
         alert("Login failed: " + error.message);
       }

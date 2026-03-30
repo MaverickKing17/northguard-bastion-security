@@ -5,7 +5,7 @@ import { useSimulation, LogEntry, ThreatIntel, Notification } from './hooks/useS
 import { motion, AnimatePresence } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, ReferenceLine } from 'recharts';
 import { GoogleGenAI } from "@google/genai";
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { auth, db, loginWithGoogle, logout, handleFirestoreError, OperationType } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -1160,118 +1160,170 @@ const VulnerabilityAudit = () => {
   };
 
   const handleDownloadPDF = () => {
-    const doc = new jsPDF();
-    const primaryColor = tenant.primaryColor || '#0f9e75';
-    const date = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+    console.log("Starting McKinsey-style PDF generation...");
+    try {
+      const doc = new jsPDF();
+      const primaryColor = tenant.primaryColor || '#0f9e75';
+      const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    // --- Cover Page ---
-    // Background accent
-    doc.setFillColor(primaryColor);
-    doc.rect(0, 0, 210, 40, 'F');
+      // --- Cover Page ---
+      // Sidebar accent
+      doc.setFillColor(primaryColor);
+      doc.rect(0, 0, 15, 297, 'F');
 
-    // Title
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(24);
-    doc.text('AI VULNERABILITY AUDIT', 20, 25);
+      // Title Section
+      doc.setTextColor(40, 40, 40);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(32);
+      doc.text('AI Vulnerability', 25, 60);
+      doc.text('Audit Report', 25, 75);
 
-    doc.setTextColor(100, 100, 100);
-    doc.setFontSize(10);
-    doc.text('CONFIDENTIAL // FOR INSTITUTIONAL USE ONLY', 20, 50);
+      doc.setDrawColor(primaryColor);
+      doc.setLineWidth(2);
+      doc.line(25, 85, 80, 85);
 
-    // Organization Info
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(14);
-    doc.text(`PREPARED FOR: ${tenant.name.toUpperCase()}`, 20, 70);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Date: ${date}`, 20, 78);
-    doc.text(`Reference: BASTION-AUDIT-2026-Q1`, 20, 84);
+      // Subtitle
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100, 100, 100);
+      doc.text('Comprehensive Security & Compliance Analysis', 25, 100);
+      doc.text('OSFI E-21 / PIPEDA Framework Alignment', 25, 108);
 
-    // Executive Summary Section
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.text('1. EXECUTIVE SUMMARY', 20, 105);
-    doc.setDrawColor(primaryColor);
-    doc.setLineWidth(0.5);
-    doc.line(20, 108, 60, 108);
+      // Prepared for
+      doc.setFontSize(12);
+      doc.setTextColor(40, 40, 40);
+      doc.setFont('helvetica', 'bold');
+      doc.text('PREPARED FOR:', 25, 220);
+      doc.setFont('helvetica', 'normal');
+      doc.text(tenant.name.toUpperCase(), 25, 228);
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(11);
-    const summaryText = `This report provides a comprehensive analysis of the AI security posture for ${tenant.name}. Over the past 30 days, Bastion Audit has continuously monitored all AI model interactions, egress points, and API gateways. Our findings indicate an OPTIMIZED security posture with zero critical vulnerabilities detected. However, minor gaps in OSFI E-21 compliance documentation have been identified and require remediation.`;
-    const splitSummary = doc.splitTextToSize(summaryText, 170);
-    doc.text(splitSummary, 20, 118);
+      // Date & Reference
+      doc.setFontSize(10);
+      doc.setTextColor(120, 120, 120);
+      doc.text(`DATE: ${date.toUpperCase()}`, 25, 245);
+      doc.text('REFERENCE: BASTION-AUDIT-2026-Q1', 25, 252);
 
-    // Key Metrics Table
-    autoTable(doc, {
-      startY: 145,
-      head: [['Metric', 'Status', 'Score']],
-      body: [
-        ['Security Posture', 'OPTIMIZED', '100%'],
-        ['Risk Exposure', 'MINIMAL', '2%'],
-        ['Compliance Rating', 'OSFI E-21 / PIPEDA Ready', '94.2%'],
-        ['Threat Interception', 'ACTIVE', '100%'],
-      ],
-      headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold' },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
-      margin: { left: 20, right: 20 },
-    });
-
-    // --- Page 2: Detailed Findings ---
-    doc.addPage();
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.text('2. DETAILED VULNERABILITY BREAKDOWN', 20, 25);
-    doc.line(20, 28, 100, 28);
-
-    autoTable(doc, {
-      startY: 35,
-      head: [['Vulnerability Category', 'Status', 'Observation']],
-      body: [
-        ['Prompt Injection', 'SECURE', 'Lakera Guard intercepting 100% of adversarial payloads.'],
-        ['Data Exfiltration', 'MONITORED', 'PII detection engine active. 0 SIN leaks detected.'],
-        ['Model Bias', 'IMPROVING', 'Credit decisioning drift detected in M5V region. Mitigated.'],
-        ['Jailbreak Attempts', 'SECURE', 'System-level constraints preventing escape sequences.'],
-        ['Adversarial Evasion', 'SECURE', 'Robustness testing confirmed high resistance to evasion.'],
-      ],
-      headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold' },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
-      margin: { left: 20, right: 20 },
-    });
-
-    // --- Page 3: Regulatory Gap Analysis ---
-    doc.addPage();
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.text('3. OSFI E-21 REGULATORY GAP ANALYSIS', 20, 25);
-    doc.line(20, 28, 100, 28);
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(11);
-    doc.text('Finding #01: Model Documentation (Section 4.1)', 20, 40);
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    const finding1 = 'Technical documentation for the "Mortgage Adjudicator" agent requires update to reflect recent behavioral drift mitigation strategies implemented on March 24th. Failure to update documentation may lead to audit non-compliance during OSFI examination.';
-    doc.text(doc.splitTextToSize(finding1, 170), 20, 46);
-
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
-    doc.text('Finding #02: Real-time Monitoring (Section 4.2)', 20, 65);
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    const finding2 = 'Bastion Audit successfully meets the "Continuous Monitoring" requirement of OSFI E-21 Section 4.2 through automated threat interception and logging. No gaps identified in real-time surveillance protocols.';
-    doc.text(doc.splitTextToSize(finding2, 170), 20, 71);
-
-    // Footer on all pages
-    const pageCount = (doc as any).internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
+      // Footer branding
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(primaryColor);
+      doc.text('BASTION AUDIT', 25, 275);
+      doc.setFont('helvetica', 'normal');
       doc.setTextColor(150, 150, 150);
-      doc.text(`Page ${i} of ${pageCount} | Bastion Audit Sovereign Security Report`, 105, 285, { align: 'center' });
-    }
+      doc.text('SOVEREIGN AI SECURITY PROTOCOL', 60, 275);
 
-    doc.save(`${tenant.id}-vulnerability-audit-report.pdf`);
+      // --- Page 2: Executive Summary ---
+      doc.addPage();
+      // Sidebar accent
+      doc.setFillColor(primaryColor);
+      doc.rect(0, 0, 15, 297, 'F');
+
+      doc.setTextColor(40, 40, 40);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.text('1. Executive Summary', 25, 30);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.setTextColor(60, 60, 60);
+      const summaryText = `This McKinsey-style technical audit provides a high-fidelity analysis of the AI security posture for ${tenant.name}. Our proprietary "Shield Protocol" has conducted a 30-day deep-packet inspection of all AI model interactions, egress points, and API gateways. 
+
+The audit confirms that ${tenant.name} maintains an OPTIMIZED security posture, effectively mitigating 100% of detected adversarial payloads. While the core infrastructure is robust, we have identified two minor documentation gaps relative to the OSFI E-21 Guideline on Operational Risk Management.`;
+      
+      const splitSummary = doc.splitTextToSize(summaryText, 165);
+      doc.text(splitSummary, 25, 45);
+
+      // Key Metrics Table
+      autoTable(doc, {
+        startY: 85,
+        head: [['Strategic Metric', 'Current Status', 'Confidence Score']],
+        body: [
+          ['AI Security Posture', 'OPTIMIZED', '100%'],
+          ['Adversarial Risk Exposure', 'MINIMAL', '2%'],
+          ['Regulatory Compliance', 'OSFI E-21 / PIPEDA Ready', '94.2%'],
+          ['Threat Interception Rate', 'ACTIVE', '100%'],
+        ],
+        headStyles: { fillColor: [40, 40, 40], textColor: 255, fontStyle: 'bold', halign: 'left' },
+        bodyStyles: { textColor: 60 },
+        alternateRowStyles: { fillColor: [250, 250, 250] },
+        margin: { left: 25, right: 20 },
+      });
+
+      // --- Page 3: Detailed Findings ---
+      doc.addPage();
+      doc.setFillColor(primaryColor);
+      doc.rect(0, 0, 15, 297, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.text('2. Detailed Vulnerability Breakdown', 25, 30);
+
+      autoTable(doc, {
+        startY: 40,
+        head: [['Vulnerability Category', 'Risk Level', 'Mitigation Strategy']],
+        body: [
+          ['Prompt Injection', 'SECURE', 'Lakera Guard intercepting 100% of adversarial payloads.'],
+          ['Data Exfiltration', 'MONITORED', 'PII detection engine active. 0 SIN leaks detected.'],
+          ['Model Bias', 'IMPROVING', 'Credit decisioning drift detected in M5V region. Mitigated.'],
+          ['Jailbreak Attempts', 'SECURE', 'System-level constraints preventing escape sequences.'],
+          ['Adversarial Evasion', 'SECURE', 'Robustness testing confirmed high resistance to evasion.'],
+        ],
+        headStyles: { fillColor: [40, 40, 40], textColor: 255, fontStyle: 'bold' },
+        bodyStyles: { textColor: 60 },
+        alternateRowStyles: { fillColor: [250, 250, 250] },
+        margin: { left: 25, right: 20 },
+      });
+
+      // --- Page 4: Regulatory Alignment ---
+      doc.addPage();
+      doc.setFillColor(primaryColor);
+      doc.rect(0, 0, 15, 297, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.text('3. OSFI E-21 Alignment Analysis', 25, 30);
+
+      doc.setFontSize(12);
+      doc.text('Finding #01: Model Documentation (Section 4.1)', 25, 45);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      const finding1 = 'Technical documentation for the "Mortgage Adjudicator" agent requires update to reflect recent behavioral drift mitigation strategies implemented on March 24th. Failure to update documentation may lead to audit non-compliance during OSFI examination.';
+      doc.text(doc.splitTextToSize(finding1, 165), 25, 52);
+
+      doc.setTextColor(40, 40, 40);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Finding #02: Real-time Monitoring (Section 4.2)', 25, 75);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      const finding2 = 'Bastion Audit successfully meets the "Continuous Monitoring" requirement of OSFI E-21 Section 4.2 through automated threat interception and logging. No gaps identified in real-time surveillance protocols.';
+      doc.text(doc.splitTextToSize(finding2, 165), 25, 82);
+
+      // Disclaimer Section
+      doc.setFillColor(245, 245, 245);
+      doc.rect(25, 240, 165, 30, 'F');
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      const disclaimer = 'DISCLAIMER: This report is for informational purposes only and does not constitute legal or regulatory advice. Bastion Audit provides security monitoring based on available data and model behavior at the time of audit.';
+      doc.text(doc.splitTextToSize(disclaimer, 155), 30, 250);
+
+      // Footer on all pages
+      const pageCount = (doc as any).internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Page ${i} of ${pageCount} | ${tenant.name.toUpperCase()} CONFIDENTIAL`, 105, 285, { align: 'center' });
+      }
+
+      console.log("Saving McKinsey-style PDF...");
+      doc.save(`${tenant.id}-mckinsey-audit-report.pdf`);
+      console.log("PDF saved successfully.");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF report. Please check console for details.");
+    }
   };
 
   return (
@@ -1302,15 +1354,28 @@ const VulnerabilityAudit = () => {
           <span>SIEM + OSFI REPORTING</span>
         </div>
         
-        <Button 
-          variant={reportReady ? 'amber' : 'primary'} 
-          onClick={handleGenerate}
-          disabled={isGenerating}
-          className="mt-8 px-10 py-6 text-sm font-black uppercase tracking-widest shadow-sm transition-all relative z-10"
-        >
-          {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : reportReady ? <FileText className="w-4 h-4 mr-2" /> : null}
-          {isGenerating ? 'Scanning Infrastructure...' : reportReady ? (showFullReport ? 'Hide Executive Report' : 'View Executive Report') : 'Generate Full Audit Report'}
-        </Button>
+        <div className="flex flex-col sm:flex-row items-center gap-4 mt-8 relative z-10">
+          <Button 
+            variant={reportReady ? 'amber' : 'primary'} 
+            onClick={handleGenerate}
+            disabled={isGenerating}
+            className="px-10 py-6 text-sm font-black uppercase tracking-widest shadow-sm transition-all"
+          >
+            {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : reportReady ? <FileText className="w-4 h-4 mr-2" /> : null}
+            {isGenerating ? 'Scanning Infrastructure...' : reportReady ? (showFullReport ? 'Hide Executive Report' : 'View Executive Report') : 'Generate Full Audit Report'}
+          </Button>
+
+          {reportReady && (
+            <Button 
+              variant="outline" 
+              onClick={handleDownloadPDF}
+              className="px-10 py-6 text-sm font-black uppercase tracking-widest shadow-sm transition-all border-teal-accent/30 text-teal-accent hover:bg-teal-accent/5"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Download McKinsey PDF
+            </Button>
+          )}
+        </div>
 
         {reportReady && !showFullReport && (
           <motion.div 
