@@ -73,8 +73,11 @@ export interface FirestoreErrorInfo {
 }
 
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  const isQuotaError = errorMessage.includes('Quota limit exceeded') || errorMessage.includes('Quota exceeded');
+
   const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
+    error: errorMessage,
     authInfo: {
       userId: auth.currentUser?.uid,
       email: auth.currentUser?.email,
@@ -91,6 +94,17 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     operationType,
     path
   }
+
+  if (isQuotaError) {
+    console.error('🔥 FIRESTORE QUOTA EXCEEDED 🔥');
+    console.error('The free tier daily read limit has been reached for this project.');
+    console.error('Quota will reset in 24 hours. Details:', JSON.stringify(errInfo));
+    
+    // We still throw but maybe with a clearer message or we can choose to just log
+    // For now, let's throw so the UI can catch it, but we'll make sure the UI catches it.
+    throw new Error(JSON.stringify(errInfo));
+  }
+
   console.error('Firestore Error: ', JSON.stringify(errInfo));
   throw new Error(JSON.stringify(errInfo));
 }

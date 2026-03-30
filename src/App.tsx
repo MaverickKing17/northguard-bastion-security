@@ -444,6 +444,36 @@ const Button = ({ children, variant = 'primary', className, ...props }: React.Bu
 
 // --- Tabs ---
 
+// --- Mock Data for Resilience Mode ---
+
+const MOCK_THREATS = [
+  { id: 'm1', type: 'OSFI E-21 Model Extraction', severity: 'CRITICAL', timestamp: new Date(), source: 'Toronto Node' },
+  { id: 'm2', type: 'Prompt Injection (Jailbreak)', severity: 'HIGH', timestamp: new Date(Date.now() - 1000 * 60 * 5), source: 'Montreal Node' },
+  { id: 'm3', type: 'PII Exfiltration Attempt', severity: 'CRITICAL', timestamp: new Date(Date.now() - 1000 * 60 * 12), source: 'Vancouver Node' },
+  { id: 'm4', type: 'Unusual API Traffic Pattern', severity: 'MEDIUM', timestamp: new Date(Date.now() - 1000 * 60 * 25), source: 'Calgary Node' },
+  { id: 'm5', type: 'Credential Stuffing Probe', severity: 'HIGH', timestamp: new Date(Date.now() - 1000 * 60 * 45), source: 'Ottawa Node' },
+];
+
+const MOCK_LOGS = [
+  { id: 'l1', timestamp: new Date(), user: 'SYSTEM', status: 'SUCCESS', action: 'GUARDRAIL_SYNC', details: 'Lakera Guard updated to v4.2.1' },
+  { id: 'l2', timestamp: new Date(Date.now() - 1000 * 60 * 2), user: 'ADMIN_DW', status: 'WARNING', action: 'POLICY_OVERRIDE', details: 'Manual bypass for OSFI-E21-7' },
+  { id: 'l3', timestamp: new Date(Date.now() - 1000 * 60 * 8), user: 'AGENT_09', status: 'SUCCESS', action: 'THREAT_MITIGATED', details: 'Blocked extraction attempt from 192.168.1.45' },
+  { id: 'l4', timestamp: new Date(Date.now() - 1000 * 60 * 15), user: 'SYSTEM', status: 'INFO', action: 'AUDIT_SNAPSHOT', details: 'Daily compliance report generated' },
+  { id: 'l5', timestamp: new Date(Date.now() - 1000 * 60 * 22), user: 'ADMIN_DW', status: 'SUCCESS', action: 'USER_PROVISION', details: 'New auditor role assigned to user_88' },
+];
+
+const QuotaExceededMessage = ({ path }: { path: string }) => (
+  <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-accent/10 border border-amber-accent/20 rounded-lg animate-in fade-in duration-500 mb-4">
+    <AlertCircle className="w-3 h-3 text-amber-accent" />
+    <div className="flex flex-col">
+      <span className="text-[9px] font-black text-white uppercase tracking-wider">Resilience Mode Active</span>
+      <span className="text-[8px] text-text-muted/80 font-medium">
+        Live feed paused (Quota reached). Displaying simulated intelligence.
+      </span>
+    </div>
+  </div>
+);
+
 const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
   const { stats } = simulation;
   const { user, isAdmin } = React.useContext(FirebaseContext);
@@ -452,7 +482,9 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
     { id: '2', type: 'Prompt Injection (Jailbreak)', severity: 'HIGH', timestamp: new Date(Date.now() - 1000 * 60 * 5), source: 'Montreal Node' },
     { id: '3', type: 'PII Exfiltration Attempt', severity: 'CRITICAL', timestamp: new Date(Date.now() - 1000 * 60 * 12), source: 'Vancouver Node' },
   ]);
+  const [threatsError, setThreatsError] = useState<string | null>(null);
   const [realTimeLogs, setRealTimeLogs] = useState<any[]>([]);
+  const [logsError, setLogsError] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isRefreshingThreats, setIsRefreshingThreats] = useState(false);
@@ -580,12 +612,28 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
     const unsubThreats = onSnapshot(threatsQuery, (snapshot) => {
       const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setRealTimeThreats(items);
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'threat_feed'));
+      setThreatsError(null);
+    }, (err) => {
+      setThreatsError(err.message);
+      try {
+        handleFirestoreError(err, OperationType.LIST, 'threat_feed');
+      } catch (e) {
+        // Silently catch to avoid crashing the app
+      }
+    });
 
     const unsubLogs = onSnapshot(logsQuery, (snapshot) => {
       const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setRealTimeLogs(items);
-    }, (err) => handleFirestoreError(err, OperationType.LIST, 'audit_logs'));
+      setLogsError(null);
+    }, (err) => {
+      setLogsError(err.message);
+      try {
+        handleFirestoreError(err, OperationType.LIST, 'audit_logs');
+      } catch (e) {
+        // Silently catch to avoid crashing the app
+      }
+    });
 
     return () => {
       unsubThreats();
@@ -757,9 +805,14 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
               aria-live="polite"
               aria-label="Real-time agent behavior log stream"
             >
-              {realTimeLogs.length > 0 ? realTimeLogs.map((log: any) => (
+              {logsError && logsError.includes('Quota') && (
+                <QuotaExceededMessage path="audit_logs" />
+              )}
+              
+              {(logsError && logsError.includes('Quota') ? MOCK_LOGS : realTimeLogs).length > 0 ? 
+                (logsError && logsError.includes('Quota') ? MOCK_LOGS : realTimeLogs).map((log: any) => (
                 <div key={log.id} className="flex gap-3 animate-in fade-in slide-in-from-left-2 duration-300">
-                  <span className="text-text-muted/60">[{log.timestamp instanceof Timestamp ? log.timestamp.toDate().toLocaleTimeString() : '...'}]</span>
+                  <span className="text-text-muted/60">[{log.timestamp instanceof Timestamp ? log.timestamp.toDate().toLocaleTimeString() : log.timestamp instanceof Date ? log.timestamp.toLocaleTimeString() : '...'}]</span>
                   <span className="text-blue-accent/50 font-black">[{log.user}]</span>
                   <span className={cn(
                     "font-black",
@@ -835,14 +888,24 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
             </div>
             
             <div className="space-y-4 relative z-10">
-              {realTimeThreats.length > 0 ? realTimeThreats.map((threat: any) => (
+              {threatsError && threatsError.includes('Quota') && (
+                <QuotaExceededMessage path="threat_feed" />
+              )}
+              
+              {(threatsError && threatsError.includes('Quota') ? MOCK_THREATS : realTimeThreats).length > 0 ? 
+                (threatsError && threatsError.includes('Quota') ? MOCK_THREATS : realTimeThreats).map((threat: any) => (
                 <div key={threat.id} className="flex items-start gap-3 group/item hover:bg-white/[0.04] p-2 rounded-xl transition-all duration-300 border border-transparent hover:border-card-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)] cursor-pointer hover:translate-x-1">
                   <div className={cn(
                     "mt-1.5 w-2 h-2 rounded-full shrink-0 transition-all duration-500 group-hover/item:scale-150 group-hover/item:shadow-[0_0_15px_rgba(255,255,255,0.5)]",
                     threat.severity === 'CRITICAL' ? 'bg-red-accent shadow-[0_0_10px_rgba(239,68,68,0.6)]' : 'bg-amber-accent shadow-[0_0_10px_rgba(245,158,11,0.6)]'
                   )} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-text-primary group-hover/item:text-teal-accent transition-colors truncate tracking-tight">{threat.type}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs font-bold text-text-primary group-hover/item:text-teal-accent transition-colors truncate tracking-tight">{threat.type}</p>
+                      {threatsError && threatsError.includes('Quota') && (
+                        <span className="text-[7px] font-black bg-amber-accent/20 text-amber-accent px-1 rounded border border-amber-accent/30">SIMULATED</span>
+                      )}
+                    </div>
                     <div className="flex items-center justify-between gap-2 mt-1">
                       <p className="text-[10px] text-text-muted/70 font-semibold">
                         {threat.timestamp instanceof Date ? threat.timestamp.toLocaleTimeString() : threat.timestamp instanceof Timestamp ? threat.timestamp.toDate().toLocaleTimeString() : '...'} • <span className={cn(
