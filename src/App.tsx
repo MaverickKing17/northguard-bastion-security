@@ -408,8 +408,8 @@ const TenantSwitcher = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => v
   );
 };
 
-const Card = ({ children, className, title, subtitle, icon: Icon, badge, titleClassName, iconClassName }: { children: React.ReactNode, className?: string, title?: string, subtitle?: string, icon?: any, badge?: React.ReactNode, key?: any, titleClassName?: string, iconClassName?: string }) => (
-  <div className={cn('bg-card border border-card-border rounded-2xl overflow-hidden shadow-sm hover-glow-amber transition-all duration-300', className)}>
+const Card = ({ children, className, title, subtitle, icon: Icon, badge, titleClassName, iconClassName, ...props }: { children: React.ReactNode, className?: string, title?: string, subtitle?: string, icon?: any, badge?: React.ReactNode, key?: any, titleClassName?: string, iconClassName?: string } & React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('bg-card border border-card-border rounded-2xl overflow-hidden shadow-sm hover-glow-amber transition-all duration-300', className)} {...props}>
     {(title || Icon) && (
       <div className="px-5 py-4 border-b border-card-border/50 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -461,6 +461,112 @@ const MOCK_LOGS = [
   { id: 'l4', timestamp: new Date(Date.now() - 1000 * 60 * 15), user: 'SYSTEM', status: 'INFO', action: 'AUDIT_SNAPSHOT', details: 'Daily compliance report generated' },
   { id: 'l5', timestamp: new Date(Date.now() - 1000 * 60 * 22), user: 'ADMIN_DW', status: 'SUCCESS', action: 'USER_PROVISION', details: 'New auditor role assigned to user_88' },
 ];
+
+const COMPLIANCE_DATA = [
+  { 
+    cert: 'OSFI E-21', 
+    description: 'OSFI Guideline E-21: Operational Risk Management. Sets expectations for managing operational risks in financial institutions.' 
+  },
+  { 
+    cert: 'PIPEDA', 
+    description: "Personal Information Protection and Electronic Documents Act. Canada's federal private-sector privacy law." 
+  },
+  { 
+    cert: 'AIDA', 
+    description: 'Artificial Intelligence and Data Act. Proposed Canadian framework for the responsible development and deployment of AI.' 
+  },
+  { 
+    cert: 'FINTRAC', 
+    description: "Financial Transactions and Reports Analysis Centre of Canada. Canada's financial intelligence unit, focused on anti-money laundering (AML) and anti-terrorist financing (ATF)." 
+  },
+  { 
+    cert: 'SOC2', 
+    description: 'System and Organization Controls 2. A security framework that specifies how organizations should manage customer data.' 
+  },
+];
+
+const ComplianceCard: React.FC<{ label: string; val: string; sub: string }> = ({ label, val, sub }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const data = COMPLIANCE_DATA.find(d => d.cert === label || (label === 'SOC 2' && d.cert === 'SOC2'));
+  const description = data?.description || "";
+
+  return (
+    <Card 
+      className="text-center relative overflow-visible"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="cursor-help">
+        <p className="text-[10px] text-text-muted uppercase font-bold mb-1">{label}</p>
+        <p className="text-xl font-bold text-teal-accent">{val}</p>
+        <p className="text-[8px] text-text-muted uppercase tracking-widest mt-1">{sub}</p>
+      </div>
+      
+      <AnimatePresence>
+        {isHovered && description && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-4 bg-slate-950/95 border border-amber-400/40 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(251,191,36,0.1)] backdrop-blur-2xl z-50 pointer-events-none"
+          >
+            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-r border-amber-400/40 rotate-45" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-1 h-3 bg-amber-400 rounded-full" />
+                <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">{label}</span>
+              </div>
+              <p className="text-[11px] text-white/90 font-medium leading-relaxed text-left">
+                {description}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Card>
+  );
+};
+
+const ComplianceBadge: React.FC<{ cert: string; description: string }> = ({ cert, description }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div 
+      className="relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="px-3 py-1.5 rounded-lg bg-slate-900/90 border border-amber-400/50 flex items-center gap-2 group/cert hover:border-amber-400/80 transition-all duration-500 cursor-help shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:shadow-[0_0_35px_rgba(251,191,36,0.4)] backdrop-blur-xl">
+        <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,1)] animate-pulse" />
+        <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/cert:text-amber-400 transition-colors drop-shadow-md">{cert}</span>
+      </div>
+      
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 p-4 bg-slate-950/95 border border-amber-400/40 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(251,191,36,0.1)] backdrop-blur-2xl z-50 pointer-events-none"
+          >
+            <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-t border-l border-amber-400/40 rotate-45" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-1 h-3 bg-amber-400 rounded-full" />
+                <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">{cert}</span>
+              </div>
+              <p className="text-[11px] text-white/90 font-medium leading-relaxed">
+                {description}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const QuotaExceededMessage = ({ path }: { path: string }) => (
   <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-accent/10 border border-amber-accent/20 rounded-lg animate-in fade-in duration-500 mb-4">
@@ -1985,11 +2091,7 @@ const BoardReport = ({ simulation }: { simulation: any }) => {
           { label: 'FINTRAC', val: '92%', sub: 'AML/ATF' },
           { label: 'SOC 2', val: '100%', sub: 'Security' },
         ].map((comp, i) => (
-          <Card key={i} className="text-center">
-            <p className="text-[10px] text-text-muted uppercase font-bold mb-1">{comp.label}</p>
-            <p className="text-xl font-bold text-teal-accent">{comp.val}</p>
-            <p className="text-[8px] text-text-muted uppercase tracking-widest mt-1">{comp.sub}</p>
-          </Card>
+          <ComplianceCard key={i} label={comp.label} val={comp.val} sub={comp.sub} />
         ))}
       </div>
 
@@ -2944,11 +3046,8 @@ function App() {
         </div>
 
         <div className="hidden xl:flex items-center gap-4 relative z-10">
-          {['OSFI E-21', 'PIPEDA', 'AIDA', 'SOC2'].map((cert) => (
-            <div key={cert} className="px-3 py-1.5 rounded-lg bg-slate-900/90 border border-amber-400/50 flex items-center gap-2 group/cert hover:border-amber-400/80 transition-all duration-500 cursor-help shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:shadow-[0_0_35px_rgba(251,191,36,0.4)] backdrop-blur-xl">
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,1)] animate-pulse" />
-              <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/cert:text-amber-400 transition-colors drop-shadow-md">{cert}</span>
-            </div>
+          {COMPLIANCE_DATA.map((item) => (
+            <ComplianceBadge key={item.cert} cert={item.cert} description={item.description} />
           ))}
         </div>
 
