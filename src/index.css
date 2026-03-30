@@ -19,6 +19,16 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+@layer utilities {
+  .hover-glow-amber {
+    @apply transition-all duration-300;
+  }
+  .hover-glow-amber:hover {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+    border-color: rgba(245, 158, 11, 0.5);
+  }
+}
+
 @layer base {
   body {
     @apply bg-background text-text-primary font-sans antialiased;
