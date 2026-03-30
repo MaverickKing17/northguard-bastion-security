@@ -409,20 +409,24 @@ const TenantSwitcher = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => v
 };
 
 const Card = ({ children, className, title, subtitle, icon: Icon, badge, titleClassName, iconClassName, ...props }: { children: React.ReactNode, className?: string, title?: string, subtitle?: string, icon?: any, badge?: React.ReactNode, key?: any, titleClassName?: string, iconClassName?: string } & React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('bg-card border border-card-border rounded-2xl overflow-hidden shadow-sm hover-glow-amber transition-all duration-300', className)} {...props}>
+  <div className={cn('bg-card border border-card-border/80 rounded-2xl overflow-hidden shadow-lg hover-glow-amber transition-all duration-500 group/card', className)} {...props}>
     {(title || Icon) && (
-      <div className="px-5 py-4 border-b border-card-border/50 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {Icon && <Icon className={cn("w-4 h-4 text-teal-accent/50", iconClassName)} />}
+      <div className="px-6 py-5 border-b border-card-border/60 flex items-center justify-between bg-gradient-to-r from-white/[0.02] to-transparent">
+        <div className="flex items-center gap-4">
+          {Icon && (
+            <div className={cn("p-2 rounded-xl bg-amber-400/5 border border-amber-400/10 group-hover/card:border-amber-400/30 transition-colors duration-500", iconClassName)}>
+              <Icon className="w-4 h-4 text-amber-400" />
+            </div>
+          )}
           <div>
-            <h3 className={cn("text-[13px] font-black text-text-primary uppercase tracking-[0.2em]", titleClassName)}>{title}</h3>
-            {subtitle && <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">{subtitle}</p>}
+            <h3 className={cn("text-[13px] font-black text-white uppercase tracking-[0.25em] drop-shadow-sm", titleClassName)}>{title}</h3>
+            {subtitle && <p className="text-[10px] text-text-muted font-bold uppercase tracking-[0.15em] mt-1 opacity-70">{subtitle}</p>}
           </div>
         </div>
         {badge}
       </div>
     )}
-    <div className="p-5 relative z-10">{children}</div>
+    <div className="p-6 relative z-10">{children}</div>
   </div>
 );
 
@@ -480,27 +484,38 @@ const COMPLIANCE_DATA = [
     description: "Financial Transactions and Reports Analysis Centre of Canada. Canada's financial intelligence unit, focused on anti-money laundering (AML) and anti-terrorist financing (ATF)." 
   },
   { 
-    cert: 'SOC2', 
+    cert: 'SOC 2', 
     description: 'System and Organization Controls 2. A security framework that specifies how organizations should manage customer data.' 
   },
+  {
+    cert: 'SOC',
+    description: 'System and Organization Controls. A suite of reports produced during an audit which is used to verify that a service provider is following certain security practices.'
+  }
 ];
 
 const ComplianceCard: React.FC<{ label: string; val: string; sub: string }> = ({ label, val, sub }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const data = COMPLIANCE_DATA.find(d => d.cert === label || (label === 'SOC 2' && d.cert === 'SOC2'));
+  const data = COMPLIANCE_DATA.find(d => d.cert === label || (label === 'SOC 2' && d.cert === 'SOC2') || (label === 'SOC 2' && d.cert === 'SOC'));
   const description = data?.description || "";
 
   return (
-    <Card 
-      className="text-center relative overflow-visible"
+    <div 
+      className="relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="cursor-help">
-        <p className="text-[10px] text-text-muted uppercase font-bold mb-1">{label}</p>
-        <p className="text-xl font-bold text-teal-accent">{val}</p>
-        <p className="text-[8px] text-text-muted uppercase tracking-widest mt-1">{sub}</p>
-      </div>
+      <Card 
+        className={cn(
+          "text-center relative transition-all duration-500",
+          isHovered ? "border-amber-400/60 shadow-[0_0_30px_rgba(245,158,11,0.2)] bg-slate-900/80" : "border-card-border bg-card"
+        )}
+      >
+        <div className="cursor-help py-2">
+          <p className="text-[10px] text-text-muted uppercase font-black tracking-widest mb-1">{label}</p>
+          <p className="text-2xl font-black text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.3)]">{val}</p>
+          <p className="text-[9px] text-text-muted uppercase font-bold tracking-[0.2em] mt-1.5">{sub}</p>
+        </div>
+      </Card>
       
       <AnimatePresence>
         {isHovered && description && (
@@ -508,23 +523,27 @@ const ComplianceCard: React.FC<{ label: string; val: string; sub: string }> = ({
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-4 bg-slate-950/95 border border-amber-400/40 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(251,191,36,0.1)] backdrop-blur-2xl z-50 pointer-events-none"
+            transition={{ duration: 0.2, ease: "circOut" }}
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 w-72 p-5 bg-slate-950/98 border border-amber-400/50 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9),0_0_30px_rgba(245,158,11,0.15)] backdrop-blur-3xl z-[100] pointer-events-none"
           >
-            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-r border-amber-400/40 rotate-45" />
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-slate-950 border-b border-r border-amber-400/50 rotate-45" />
             <div className="relative">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-1 h-3 bg-amber-400 rounded-full" />
-                <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">{label}</span>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-1.5 h-4 bg-amber-400 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
+                <span className="text-[11px] font-black text-amber-400 uppercase tracking-[0.2em]">{label}</span>
               </div>
-              <p className="text-[11px] text-white/90 font-medium leading-relaxed text-left">
+              <p className="text-[12px] text-white/95 font-medium leading-relaxed text-left">
                 {description}
               </p>
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+                <span className="text-[9px] text-text-muted font-black uppercase tracking-widest">Regulatory Context</span>
+                <ShieldCheck className="w-3 h-3 text-amber-400/50" />
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </Card>
+    </div>
   );
 };
 
@@ -548,13 +567,13 @@ const ComplianceBadge: React.FC<{ cert: string; description: string }> = ({ cert
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 p-4 bg-slate-950/95 border border-amber-400/40 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(251,191,36,0.1)] backdrop-blur-2xl z-50 pointer-events-none"
+            transition={{ duration: 0.2, ease: "circOut" }}
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 p-4 bg-slate-950/98 border border-amber-400/50 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.9),0_0_30px_rgba(245,158,11,0.15)] backdrop-blur-3xl z-[100] pointer-events-none"
           >
-            <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-t border-l border-amber-400/40 rotate-45" />
+            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-slate-950 border-t border-l border-amber-400/50 rotate-45" />
             <div className="relative">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-1 h-3 bg-amber-400 rounded-full" />
+                <div className="w-1 h-3 bg-amber-400 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
                 <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">{cert}</span>
               </div>
               <p className="text-[11px] text-white/90 font-medium leading-relaxed">
@@ -569,12 +588,17 @@ const ComplianceBadge: React.FC<{ cert: string; description: string }> = ({ cert
 };
 
 const QuotaExceededMessage = ({ path }: { path: string }) => (
-  <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-accent/10 border border-amber-accent/20 rounded-lg animate-in fade-in duration-500 mb-4">
-    <AlertCircle className="w-3 h-3 text-amber-accent" />
+  <div className="flex items-center gap-4 px-5 py-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl animate-in fade-in zoom-in duration-700 mb-6 shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+    <div className="p-2 bg-amber-500/20 rounded-xl">
+      <AlertCircle className="w-5 h-5 text-amber-500 animate-pulse" />
+    </div>
     <div className="flex flex-col">
-      <span className="text-[9px] font-black text-white uppercase tracking-wider">Resilience Mode Active</span>
-      <span className="text-[8px] text-text-muted/80 font-medium">
-        Live feed paused (Quota reached). Displaying simulated intelligence.
+      <div className="flex items-center gap-2">
+        <span className="text-[11px] font-black text-white uppercase tracking-widest">Resilience Mode Active</span>
+        <Badge variant="amber" className="text-[8px] py-0 px-1.5">Quota Reached</Badge>
+      </div>
+      <span className="text-[10px] text-text-muted font-medium mt-1 leading-relaxed">
+        Live Firestore feed for <span className="text-amber-400 font-bold">{path}</span> paused. Displaying local intelligence simulation to ensure continuity.
       </span>
     </div>
   </div>

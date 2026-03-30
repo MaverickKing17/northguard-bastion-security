@@ -93,22 +93,6 @@ export function useSimulation() {
         details,
       });
 
-      // Write to Firestore if user is authenticated to populate the live feed
-      if (auth.currentUser) {
-        try {
-          await addDoc(collection(db, 'audit_logs'), {
-            timestamp: serverTimestamp(),
-            user: agent,
-            action: action,
-            status: status === 'PASSED' || status === 'INFO' ? 'SUCCESS' : 'ERROR', // Map simulation status to Firestore allowed status
-            details: details,
-            uid: auth.currentUser.uid
-          });
-        } catch (error) {
-          console.error("Simulation failed to write to Firestore:", error);
-        }
-      }
-
       // Occasionally increment stats
       if (Math.random() > 0.7) {
         setStats(prev => ({
@@ -117,7 +101,7 @@ export function useSimulation() {
           riskAvoided: +(prev.riskAvoided + 0.01).toFixed(2)
         }));
       }
-    }, 1200);
+    }, 30000); // Increased from 1200ms to 30000ms (30 seconds) to save Firestore quota
 
     const threatInterval = setInterval(() => {
       const isCritical = Math.random() > 0.7;
