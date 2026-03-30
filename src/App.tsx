@@ -5,6 +5,8 @@ import { useSimulation, LogEntry, ThreatIntel, Notification } from './hooks/useS
 import { motion, AnimatePresence } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, ReferenceLine } from 'recharts';
 import { GoogleGenAI } from "@google/genai";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { auth, db, loginWithGoogle, logout, handleFirestoreError, OperationType } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp, Timestamp } from 'firebase/firestore';
@@ -1140,6 +1142,7 @@ const ModelInventory = () => {
 };
 
 const VulnerabilityAudit = () => {
+  const { tenant } = React.useContext(TenantContext);
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportReady, setReportReady] = useState(false);
   const [showFullReport, setShowFullReport] = useState(false);
@@ -1154,6 +1157,121 @@ const VulnerabilityAudit = () => {
       setIsGenerating(false);
       setReportReady(true);
     }, 2500);
+  };
+
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    const primaryColor = tenant.primaryColor || '#0f9e75';
+    const date = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // --- Cover Page ---
+    // Background accent
+    doc.setFillColor(primaryColor);
+    doc.rect(0, 0, 210, 40, 'F');
+
+    // Title
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.text('AI VULNERABILITY AUDIT', 20, 25);
+
+    doc.setTextColor(100, 100, 100);
+    doc.setFontSize(10);
+    doc.text('CONFIDENTIAL // FOR INSTITUTIONAL USE ONLY', 20, 50);
+
+    // Organization Info
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(14);
+    doc.text(`PREPARED FOR: ${tenant.name.toUpperCase()}`, 20, 70);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Date: ${date}`, 20, 78);
+    doc.text(`Reference: BASTION-AUDIT-2026-Q1`, 20, 84);
+
+    // Executive Summary Section
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('1. EXECUTIVE SUMMARY', 20, 105);
+    doc.setDrawColor(primaryColor);
+    doc.setLineWidth(0.5);
+    doc.line(20, 108, 60, 108);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    const summaryText = `This report provides a comprehensive analysis of the AI security posture for ${tenant.name}. Over the past 30 days, Bastion Audit has continuously monitored all AI model interactions, egress points, and API gateways. Our findings indicate an OPTIMIZED security posture with zero critical vulnerabilities detected. However, minor gaps in OSFI E-21 compliance documentation have been identified and require remediation.`;
+    const splitSummary = doc.splitTextToSize(summaryText, 170);
+    doc.text(splitSummary, 20, 118);
+
+    // Key Metrics Table
+    autoTable(doc, {
+      startY: 145,
+      head: [['Metric', 'Status', 'Score']],
+      body: [
+        ['Security Posture', 'OPTIMIZED', '100%'],
+        ['Risk Exposure', 'MINIMAL', '2%'],
+        ['Compliance Rating', 'OSFI E-21 / PIPEDA Ready', '94.2%'],
+        ['Threat Interception', 'ACTIVE', '100%'],
+      ],
+      headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      margin: { left: 20, right: 20 },
+    });
+
+    // --- Page 2: Detailed Findings ---
+    doc.addPage();
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('2. DETAILED VULNERABILITY BREAKDOWN', 20, 25);
+    doc.line(20, 28, 100, 28);
+
+    autoTable(doc, {
+      startY: 35,
+      head: [['Vulnerability Category', 'Status', 'Observation']],
+      body: [
+        ['Prompt Injection', 'SECURE', 'Lakera Guard intercepting 100% of adversarial payloads.'],
+        ['Data Exfiltration', 'MONITORED', 'PII detection engine active. 0 SIN leaks detected.'],
+        ['Model Bias', 'IMPROVING', 'Credit decisioning drift detected in M5V region. Mitigated.'],
+        ['Jailbreak Attempts', 'SECURE', 'System-level constraints preventing escape sequences.'],
+        ['Adversarial Evasion', 'SECURE', 'Robustness testing confirmed high resistance to evasion.'],
+      ],
+      headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      margin: { left: 20, right: 20 },
+    });
+
+    // --- Page 3: Regulatory Gap Analysis ---
+    doc.addPage();
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('3. OSFI E-21 REGULATORY GAP ANALYSIS', 20, 25);
+    doc.line(20, 28, 100, 28);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.text('Finding #01: Model Documentation (Section 4.1)', 20, 40);
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    const finding1 = 'Technical documentation for the "Mortgage Adjudicator" agent requires update to reflect recent behavioral drift mitigation strategies implemented on March 24th. Failure to update documentation may lead to audit non-compliance during OSFI examination.';
+    doc.text(doc.splitTextToSize(finding1, 170), 20, 46);
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    doc.text('Finding #02: Real-time Monitoring (Section 4.2)', 20, 65);
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    const finding2 = 'Bastion Audit successfully meets the "Continuous Monitoring" requirement of OSFI E-21 Section 4.2 through automated threat interception and logging. No gaps identified in real-time surveillance protocols.';
+    doc.text(doc.splitTextToSize(finding2, 170), 20, 71);
+
+    // Footer on all pages
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Page ${i} of ${pageCount} | Bastion Audit Sovereign Security Report`, 105, 285, { align: 'center' });
+    }
+
+    doc.save(`${tenant.id}-vulnerability-audit-report.pdf`);
   };
 
   return (
@@ -1315,7 +1433,7 @@ const VulnerabilityAudit = () => {
               <Button 
                 variant="outline" 
                 className="group"
-                onClick={() => alert('Full Technical Audit PDF (14 pages) is being prepared for download.')}
+                onClick={handleDownloadPDF}
               >
                 <FileText className="w-4 h-4 mr-2 group-hover:text-teal-accent transition-colors" />
                 Download Full 14-Page Technical Audit
