@@ -80,10 +80,10 @@ const TenantContext = React.createContext<{
   switchTenant: (tenantId: string) => void;
 }>({
   tenant: {
-    id: 'northguard',
-    name: 'NorthGuard Security',
+    id: 'meridian',
+    name: 'Meridian Global Bank',
     logo: null,
-    primaryColor: '#f59e0b', // amber-accent
+    primaryColor: '#3b82f6', // blue-600
     onboardingComplete: true,
   },
   updateTenant: () => {},
@@ -95,37 +95,37 @@ const AVAILABLE_TENANTS: Record<string, Omit<TenantConfig, 'onboardingComplete'>
     id: 'meridian',
     name: 'Meridian Global Bank',
     logo: null,
-    primaryColor: '#0f172a', // slate-900
+    primaryColor: '#3b82f6', // blue-600
   },
   vanguard: {
     id: 'vanguard',
     name: 'Vanguard Capital',
     logo: null,
-    primaryColor: '#3b82f6', // blue-accent
+    primaryColor: '#0ea5e9', // sky-500
   },
   ironclad: {
     id: 'ironclad',
     name: 'Ironclad Trust',
     logo: null,
-    primaryColor: '#ef4444', // red-accent
+    primaryColor: '#ef4444', // red-500
   },
   apex: {
     id: 'apex',
     name: 'Apex Asset Management',
     logo: null,
-    primaryColor: '#059669', // emerald-600
+    primaryColor: '#10b981', // emerald-500
   },
   summit: {
     id: 'summit',
     name: 'Summit Wealth Partners',
     logo: null,
-    primaryColor: '#7c3aed', // violet-600
+    primaryColor: '#8b5cf6', // violet-500
   },
   sterling: {
     id: 'sterling',
     name: 'Sterling Financial Group',
     logo: null,
-    primaryColor: '#4b5563', // gray-600
+    primaryColor: '#f59e0b', // amber-500
   }
 };
 
@@ -140,6 +140,11 @@ const TenantProvider = ({ children }: { children: React.ReactNode }) => {
           ...AVAILABLE_TENANTS.meridian,
           onboardingComplete: false,
         };
+      }
+      // Ensure we use the latest colors from AVAILABLE_TENANTS if it's a known tenant
+      const known = AVAILABLE_TENANTS[parsed.id];
+      if (known) {
+        return { ...parsed, primaryColor: known.primaryColor };
       }
       return parsed;
     }
@@ -3159,7 +3164,7 @@ function App() {
                   className={cn(
                     "px-6 py-4 text-[11px] font-black uppercase tracking-[0.15em] border-b-2 transition-all flex items-center gap-2.5 shrink-0 focus-visible:ring-2 focus-visible:ring-teal-accent outline-none relative group",
                     activeTab === tab.id 
-                      ? "border-teal-accent text-teal-accent bg-teal-accent/[0.03]" 
+                      ? "border-teal-accent text-text-primary bg-teal-accent/[0.05]" 
                       : "border-transparent text-text-muted hover:text-text-primary hover:bg-surface/50"
                   )}
                 >
