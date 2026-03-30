@@ -27,6 +27,37 @@
     box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
     border-color: rgba(245, 158, 11, 0.5);
   }
+
+  @keyframes scanline-horizontal {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes header-pulse {
+    0%, 100% { border-bottom-color: rgba(245, 158, 11, 0.1); }
+    50% { border-bottom-color: rgba(245, 158, 11, 0.4); }
+  }
+
+  .animate-scanline-horizontal {
+    animation: scanline-horizontal 3s linear infinite;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+
+  .animate-header-pulse {
+    animation: header-pulse 4s ease-in-out infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin 8s linear infinite;
+  }
 }
 
 @layer base {

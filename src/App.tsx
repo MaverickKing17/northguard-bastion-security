@@ -2842,63 +2842,100 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Nav */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-card/80 backdrop-blur-xl border-b border-card-border z-40 px-6 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            {tenant.logo ? (
-              <img src={tenant.logo} alt="Tenant Logo" className="h-8 object-contain" />
-            ) : (
-              <Shield className="w-6 h-6 text-teal-accent" />
-            )}
-            <span className="text-lg font-black tracking-tight text-text-primary">Bastion Audit</span>
+      <header className="fixed top-0 left-0 right-0 h-20 bg-slate-950/60 backdrop-blur-2xl border-b border-amber-400/10 z-40 px-8 flex items-center justify-between shadow-[0_4px_40px_rgba(0,0,0,0.6)] overflow-hidden animate-header-pulse">
+        {/* Atmospheric Scanline */}
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent animate-scanline-horizontal" />
+        
+        <div className="flex items-center gap-8 relative z-10">
+          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => setActiveTab(0)}>
+            <div className="p-2 bg-amber-400/10 rounded-xl border border-amber-400/20 shadow-[0_0_15px_rgba(251,191,36,0.1)] group-hover:shadow-[0_0_20px_rgba(251,191,36,0.2)] transition-all duration-500">
+              {tenant.logo ? (
+                <img src={tenant.logo} alt="Tenant Logo" className="h-6 object-contain" />
+              ) : (
+                <Shield className="w-5 h-5 text-amber-400" />
+              )}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-black text-amber-400 uppercase tracking-[0.3em] leading-none mb-1">Executive SOC</span>
+              <span className="text-lg font-black tracking-tighter text-white group-hover:text-amber-400 transition-colors duration-500 uppercase">Bastion Audit</span>
+            </div>
           </div>
-          <div className="h-4 w-px bg-card-border mx-2" />
+
+          <div className="h-8 w-px bg-gradient-to-b from-transparent via-card-border to-transparent mx-2" />
+
           <div 
-            className="flex items-center gap-2 group cursor-pointer hover:bg-white/5 px-3 py-1.5 rounded-lg transition-all"
+            className="flex items-center gap-3 group cursor-pointer hover:bg-white/5 px-4 py-2 rounded-xl transition-all duration-500 border border-amber-400/10 hover:border-amber-400/40 shadow-[0_0_15px_rgba(251,191,36,0.05)] hover:shadow-[0_0_20px_rgba(251,191,36,0.15)] bg-slate-900/20"
             onClick={() => setIsTenantSwitcherOpen(true)}
           >
-            <Building2 className="w-3.5 h-3.5 text-text-muted group-hover:text-teal-accent transition-colors" />
-            <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] group-hover:text-text-primary transition-colors">{tenant.name}</span>
-            <RefreshCw className="w-2.5 h-2.5 text-text-muted/40 group-hover:text-teal-accent transition-colors" />
+            <div className="p-1.5 bg-slate-900 rounded-lg border border-card-border group-hover:border-amber-400/30 transition-colors">
+              <Building2 className="w-4 h-4 text-amber-400/60 group-hover:text-amber-400 transition-colors" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] group-hover:text-amber-400 transition-colors">{tenant.name}</span>
+              <div className="flex items-center gap-1">
+                <span className="text-[8px] font-bold text-amber-400/60 uppercase tracking-widest">Global Instance</span>
+                <RefreshCw className="w-2 h-2 text-amber-400/40 group-hover:text-amber-400 transition-colors animate-spin-slow" />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-3">
-          <Badge variant="amber" className="bg-amber-accent/5 border-amber-accent/10 text-amber-accent/70 font-black">OSFI E-21</Badge>
-          <Badge variant="amber" className="bg-amber-accent/5 border-amber-accent/10 text-amber-accent/70 font-black">PIPEDA</Badge>
-          <Badge variant="amber" className="bg-amber-accent/5 border-amber-accent/10 text-amber-accent/70 font-black">AIDA</Badge>
-          <Badge variant="amber" className="bg-amber-accent/5 border-amber-accent/10 text-amber-accent/70 font-black">SOC2</Badge>
+        <div className="hidden xl:flex items-center gap-4 relative z-10">
+          {['OSFI E-21', 'PIPEDA', 'AIDA', 'SOC2'].map((cert) => (
+            <div key={cert} className="px-3 py-1.5 rounded-lg bg-slate-900/80 border border-amber-400/30 flex items-center gap-2 group/cert hover:border-amber-400/60 transition-all duration-500 cursor-help shadow-[0_0_15px_rgba(251,191,36,0.1)] hover:shadow-[0_0_25px_rgba(251,191,36,0.3)]">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.8)] animate-pulse" />
+              <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/cert:text-amber-400 transition-colors">{cert}</span>
+            </div>
+          ))}
         </div>
 
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center gap-8 relative z-10">
+          <div className="flex items-center gap-4 px-6 py-2 bg-slate-900/80 rounded-2xl border border-amber-400/30 hover:border-amber-400/50 transition-all duration-700 group/health shadow-[0_0_25px_rgba(251,191,36,0.12)] hover:shadow-[0_0_40px_rgba(251,191,36,0.25)]">
             <div className="text-right">
-              <p className="text-[10px] text-text-muted uppercase font-black tracking-wider">Security Health</p>
-              <p className="text-sm font-black text-teal-accent">100.0%</p>
+              <div className="flex items-center justify-end gap-1.5 mb-0.5">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                <p className="text-[9px] text-amber-400 uppercase font-black tracking-[0.2em]">Security Health</p>
+              </div>
+              <p className="text-2xl font-black text-white drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">100.0%</p>
             </div>
-            <div className="w-24 h-1.5 bg-surface rounded-full overflow-hidden border border-card-border">
-              <div className="h-full bg-teal-accent" style={{ width: '100%' }} />
+            <div className="w-32 h-2.5 bg-slate-950 rounded-full overflow-hidden border border-amber-400/30 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/40 to-transparent animate-scanline-horizontal" />
+              <div className="h-full bg-gradient-to-r from-amber-600 to-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.7)]" style={{ width: '100%' }} />
             </div>
           </div>
+
           <Button 
             variant="danger" 
-            className="text-[10px] font-black px-4 py-2 h-auto shadow-[0_0_20px_rgba(239,68,68,0.2)] border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all group"
+            className="text-[10px] font-black px-6 py-2.5 h-auto shadow-[0_0_30px_rgba(239,68,68,0.15)] border border-red-500/40 bg-red-500/5 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-500 group relative overflow-hidden"
             onClick={() => setIsKillSwitchModalOpen(true)}
           >
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse group-hover:bg-white" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse group-hover:bg-white shadow-[0_0_10px_rgba(239,68,68,0.8)] mr-2" />
             LIVE KILL-SWITCH
           </Button>
           
           {user ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-5 pl-6 border-l border-card-border/50">
               <div className="flex flex-col items-end">
-                <p className="text-[10px] font-black text-text-primary uppercase tracking-wider">{user.displayName || 'Operator'}</p>
-                <p className="text-[8px] font-bold text-teal-accent uppercase tracking-[0.2em]">Authorized</p>
+                <p className="text-[11px] font-black text-white uppercase tracking-wider">{user.displayName || 'Operator'}</p>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1 h-1 rounded-full bg-amber-400 shadow-[0_0_5px_rgba(251,191,36,0.8)]" />
+                  <p className="text-[9px] font-bold text-amber-400 uppercase tracking-[0.2em]">Authorized Access</p>
+                </div>
+              </div>
+              <div className="relative group/avatar">
+                <div className="absolute -inset-1 bg-gradient-to-tr from-amber-400/20 to-transparent rounded-full blur-sm opacity-0 group-hover/avatar:opacity-100 transition-opacity" />
+                <img 
+                  src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=f59e0b&color=fff`} 
+                  alt="" 
+                  className="w-10 h-10 rounded-full border-2 border-amber-400/30 shadow-[0_0_15px_rgba(251,191,36,0.1)] relative z-10" 
+                  referrerPolicy="no-referrer" 
+                />
               </div>
               <Button 
                 variant="ghost" 
                 onClick={logout}
-                className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-full transition-all"
+                className="p-2.5 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all border border-transparent hover:border-red-500/20"
                 title="Sign Out"
               >
                 <LogOut className="w-5 h-5" />
@@ -2917,9 +2954,9 @@ function App() {
         </div>
       </header>
 
-      <div className="flex flex-1 pt-16">
+      <div className="flex flex-1 pt-20">
         {/* Sidebar */}
-        <aside className="w-[300px] fixed left-0 bottom-0 top-16 bg-card border-r border-card-border p-6 space-y-8 overflow-y-auto z-30 shadow-none no-scrollbar transition-all duration-700">
+        <aside className="w-[300px] fixed left-0 bottom-0 top-20 bg-card border-r border-card-border p-6 space-y-8 overflow-y-auto z-30 shadow-none no-scrollbar transition-all duration-700">
           <div className="relative z-10 space-y-10">
             <div className="px-2 flex items-center justify-between">
               <div>
