@@ -422,6 +422,7 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
   const [realTimeLogs, setRealTimeLogs] = useState<any[]>([]);
   const [prompt, setPrompt] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isRefreshingThreats, setIsRefreshingThreats] = useState(false);
   const [guardrails, setGuardrails] = useState([
     { name: 'Lakera Guard', time: '12ms', status: 'PASSED' },
     { name: 'PII/SIN Detection', time: '45ms', status: 'PASSED' },
@@ -496,6 +497,35 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
         status: 'WARNING',
         details: `Adversarial pattern detected in user prompt: ${prompt.substring(0, 30)}...`
       });
+    }
+  };
+
+  const handleRefreshThreats = async () => {
+    setIsRefreshingThreats(true);
+    try {
+      const response = await fetch('/api/threats/refresh');
+      if (!response.ok) throw new Error('Failed to refresh threats');
+      const newThreat = await response.json();
+      
+      // If user is logged in, write to Firestore
+      if (user) {
+        await addDoc(collection(db, 'threat_feed'), {
+          ...newThreat,
+          timestamp: serverTimestamp(),
+          uid: user.uid
+        });
+      } else {
+        // Fallback for local state if not logged in
+        setRealTimeThreats(prev => [{
+          id: Math.random().toString(36).substr(2, 9),
+          ...newThreat,
+          timestamp: new Date(newThreat.timestamp)
+        }, ...prev].slice(0, 10));
+      }
+    } catch (error) {
+      console.error("Error refreshing threats:", error);
+    } finally {
+      setIsRefreshingThreats(false);
     }
   };
 
@@ -732,7 +762,23 @@ const LiveThreatFeed = ({ simulation }: { simulation: any }) => {
             </div>
           </Card>
 
-          <Card title="Global Threat Intel" icon={Globe} className="border-teal-accent/20 bg-card/80 backdrop-blur-xl shadow-2xl relative overflow-hidden group/intel transition-all duration-500 hover:border-teal-accent/40" iconClassName="animate-spin-slow">
+          <Card 
+            title="Global Threat Intel" 
+            icon={Globe} 
+            className="border-teal-accent/20 bg-card/80 backdrop-blur-xl shadow-2xl relative overflow-hidden group/intel transition-all duration-500 hover:border-teal-accent/40" 
+            iconClassName="animate-spin-slow"
+            badge={
+              <Button 
+                variant="ghost" 
+                className="p-1.5 h-auto hover:bg-teal-accent/10 text-teal-accent/60 hover:text-teal-accent transition-colors"
+                onClick={handleRefreshThreats}
+                disabled={isRefreshingThreats}
+                title="Refresh Threat Intelligence"
+              >
+                <RefreshCw className={cn("w-3.5 h-3.5", isRefreshingThreats && "animate-spin")} />
+              </Button>
+            }
+          >
             {/* Grid Overlay */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
                  style={{ backgroundImage: 'linear-gradient(to right, #2dd4bf 1px, transparent 1px), linear-gradient(to bottom, #2dd4bf 1px, transparent 1px)', backgroundSize: '24px 24px' }} />

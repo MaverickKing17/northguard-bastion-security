@@ -90,6 +90,44 @@ app.post("/api/security/scan", async (req, res) => {
 });
 
 /**
+ * Threat Intelligence Refresh Endpoint
+ * Simulates fetching the latest threat data from global networks.
+ */
+app.get("/api/threats/refresh", (req, res) => {
+  const threatTypes = [
+    "OSFI E-21 Model Extraction",
+    "Prompt Injection (Jailbreak)",
+    "PII Exfiltration Attempt",
+    "FINTRAC AML Bypass",
+    "Adversarial Bias Injection",
+    "Swift Gateway Probe",
+    "Core Banking API Fuzzing",
+    "Identity Metadata Spoofing"
+  ];
+
+  const sources = [
+    "Toronto Node",
+    "Montreal Node",
+    "Vancouver Node",
+    "Calgary Node",
+    "Ottawa Node",
+    "Global Network",
+    "Lakera Guard Network"
+  ];
+
+  const severities = ["CRITICAL", "HIGH", "MEDIUM"];
+
+  const newThreat = {
+    type: threatTypes[Math.floor(Math.random() * threatTypes.length)],
+    severity: severities[Math.floor(Math.random() * severities.length)],
+    source: sources[Math.floor(Math.random() * sources.length)],
+    timestamp: new Date().toISOString()
+  };
+
+  res.json(newThreat);
+});
+
+/**
  * AI Chat Proxy Endpoint
  * This handles requests to Gemini or OpenRouter securely.
  */
