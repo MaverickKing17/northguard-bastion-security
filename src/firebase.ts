@@ -33,8 +33,7 @@ Vercel creates unique URLs for every build. To fix this, you MUST add the URL ab
 1. Go to Firebase Console > Authentication > Settings.
 2. Click "Add domain" and paste: ${currentDomain}
 
-OR, simply use your main authorized URL:
-northguard-bastion-security.vercel.app`);
+OR, simply use your main authorized production URL.`);
       } else {
         alert("Login failed: " + error.message);
       }

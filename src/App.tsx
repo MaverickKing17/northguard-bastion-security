@@ -91,11 +91,11 @@ const TenantContext = React.createContext<{
 });
 
 const AVAILABLE_TENANTS: Record<string, Omit<TenantConfig, 'onboardingComplete'>> = {
-  northguard: {
-    id: 'northguard',
-    name: 'NorthGuard Security',
+  meridian: {
+    id: 'meridian',
+    name: 'Meridian Global Bank',
     logo: null,
-    primaryColor: '#f59e0b',
+    primaryColor: '#0f172a', // slate-900
   },
   vanguard: {
     id: 'vanguard',
@@ -108,16 +108,44 @@ const AVAILABLE_TENANTS: Record<string, Omit<TenantConfig, 'onboardingComplete'>
     name: 'Ironclad Trust',
     logo: null,
     primaryColor: '#ef4444', // red-accent
+  },
+  apex: {
+    id: 'apex',
+    name: 'Apex Asset Management',
+    logo: null,
+    primaryColor: '#059669', // emerald-600
+  },
+  summit: {
+    id: 'summit',
+    name: 'Summit Wealth Partners',
+    logo: null,
+    primaryColor: '#7c3aed', // violet-600
+  },
+  sterling: {
+    id: 'sterling',
+    name: 'Sterling Financial Group',
+    logo: null,
+    primaryColor: '#4b5563', // gray-600
   }
 };
 
 const TenantProvider = ({ children }: { children: React.ReactNode }) => {
   const [tenant, setTenant] = useState<TenantConfig>(() => {
     const saved = localStorage.getItem('bastion_tenant_config');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // If the saved tenant is northguard (which we are deleting), reset to meridian
+      if (parsed.id === 'northguard') {
+        return {
+          ...AVAILABLE_TENANTS.meridian,
+          onboardingComplete: false,
+        };
+      }
+      return parsed;
+    }
     
     return {
-      ...AVAILABLE_TENANTS.northguard,
+      ...AVAILABLE_TENANTS.meridian,
       onboardingComplete: false,
     };
   });
@@ -2549,7 +2577,7 @@ const ContentModal = ({ title, content, onClose }: { title: string, content: Rea
   </div>
 );
 
-const LEGAL_CONTENT = {
+const getLegalContent = (tenantName: string) => ({
   'OSFI Guideline E-21': (
     <>
       <p className="font-bold text-teal-accent">Operational Risk Management for AI Models</p>
@@ -2648,7 +2676,7 @@ const LEGAL_CONTENT = {
   ),
   'Privacy Policy': (
     <>
-      <p className="font-bold text-teal-accent">Data Privacy at NorthGuard Security</p>
+      <p className="font-bold text-teal-accent">Data Privacy at {tenantName}</p>
       <p>Our privacy policy is built on the foundation of Canadian data sovereignty:</p>
       <ul className="list-disc pl-5 space-y-2">
         <li><strong>Zero Data Export:</strong> No customer data or AI metadata ever leaves the Canada Central or Canada East regions.</li>
@@ -2660,8 +2688,8 @@ const LEGAL_CONTENT = {
   ),
   'Terms of Service': (
     <>
-      <p className="font-bold text-teal-accent">Enterprise Service Agreement</p>
-      <p>Governing the use of Bastion Audit within FRFI environments:</p>
+      <p className="font-bold text-teal-accent">Enterprise Service Agreement for {tenantName}</p>
+      <p>Governing the use of Bastion Audit within {tenantName} environments:</p>
       <ul className="list-disc pl-5 space-y-2">
         <li><strong>Service Level Agreements:</strong> 99.99% availability for critical threat interception layers.</li>
         <li><strong>Liability:</strong> Clear definition of responsibilities in the shared security model for AI.</li>
@@ -2682,7 +2710,7 @@ const LEGAL_CONTENT = {
       </ul>
     </>
   ),
-};
+});
 
 // --- Cookie Banner ---
 
@@ -3095,7 +3123,7 @@ function App() {
             {activeModalPage && (
               <ContentModal 
                 title={activeModalPage} 
-                content={LEGAL_CONTENT[activeModalPage as keyof typeof LEGAL_CONTENT]} 
+                content={getLegalContent(tenant.name)[activeModalPage as keyof ReturnType<typeof getLegalContent>]} 
                 onClose={() => setActiveModalPage(null)} 
               />
             )}
@@ -3220,7 +3248,7 @@ function App() {
         </div>
         <div className="mt-12 pt-8 border-t border-card-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[10px] text-text-primary font-bold">
-            © 2026 NorthGuard Security. All rights reserved. Headquartered in Toronto, Ontario. Canadian sovereign infrastructure.
+            © 2026 {tenant.name}. All rights reserved. Headquartered in Toronto, Ontario. Canadian sovereign infrastructure.
           </p>
           <div className="flex gap-6 text-[10px] text-text-primary uppercase font-bold tracking-widest">
             <button onClick={() => setActiveModalPage('Privacy Policy')} className="hover:text-teal-accent transition-colors focus-visible:ring-2 focus-visible:ring-teal-accent rounded px-1 outline-none" aria-label="View Privacy Policy">Privacy Policy</button>

@@ -1,4 +1,4 @@
-# Bastion Audit — NorthGuard Security
+# Bastion Audit — AI Security Posture Management
 
 ### AI Security Posture Management (AI-SPM) Dashboard
 **Mission-critical tool for Canadian Federally Regulated Financial Institutions (FRFIs)**
@@ -95,5 +95,5 @@ Bastion Audit is designed with strict adherence to Canadian sovereign infrastruc
 
 ## 📄 License
 
-© 2026 NorthGuard Security. All rights reserved. Headquartered in Toronto, Ontario.
+© 2026 Bastion Audit. All rights reserved. Headquartered in Toronto, Ontario.
 This project is licensed under the Apache-2.0 License.

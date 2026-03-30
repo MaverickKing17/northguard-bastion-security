@@ -49,7 +49,7 @@ export function useSimulation() {
     setNotifications(prev => [newNotif, ...prev].slice(0, 10));
     
     // Placeholder for email alert
-    console.log(`[EMAIL ALERT SIMULATION] To: security-ops@northguard.ca | Subject: ${notif.severity} ALERT: ${notif.message}`);
+    console.log(`[EMAIL ALERT SIMULATION] To: security-ops@bastion-audit.ca | Subject: ${notif.severity} ALERT: ${notif.message}`);
   }, [showNotifications]);
 
   const addLog = useCallback(async (entry: Omit<LogEntry, 'id' | 'timestamp'>) => {
